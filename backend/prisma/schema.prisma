@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserType {
+  Customer
+  Admin
+}
+
+enum OrderStatus {
+  Pending
+  Paid
+  Shipped
+  Delivered
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+}
+
+enum ProductStatus {
+  Available
+  Sold
+  Hidden
+}
+
+// Models
+model User {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  type     UserType @default(Customer)
+  name     String
+  email    String   @unique
+  password String
+  phone    String?
+
+  // Endereço embarcado
+  address Address?
+
+  // Relacionamentos
+  products Product[]       @relation("ProductSeller")
+  orders   Order[]         @relation("CustomerOrders")
+  reviews  ProductReview[]
+  cart     Cart?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  sellerId    String        @db.ObjectId
+  name        String
+  description String
+  price       Float
+  images      String[]
+  status      ProductStatus @default(Available)
+
+  // Relacionamentos
+  seller      User            @relation("ProductSeller", fields: [sellerId], references: [id])
+  categories  Category[]      @relation(fields: [categoryIds], references: [id])
+  categoryIds String[]        @db.ObjectId
+  reviews     ProductReview[]
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String      @db.ObjectId
+  totalPrice Float
+  status     OrderStatus @default(Pending)
+
+  // Endereço de entrega embarcado
+  deliveryAddress Address
+
+  // Relacionamentos
+  customer User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  items    OrderItem[]
+  payment  Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String @db.ObjectId
+  productId       String @db.ObjectId
+  quantity        Int
+  priceAtPurchase Float
+
+  // Relacionamentos
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  orderId        String        @unique @db.ObjectId
+  status         PaymentStatus @default(Pending)
+  paymentMethod  String
+  paymentDate    DateTime?
+  paymentDetails String?
+
+  // Relacionamentos
+  order Order @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String @unique
+  description String
+
+  // Relacionamentos
+  products   Product[] @relation(fields: [productIds], references: [id])
+  productIds String[]  @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductReview {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  productId String @db.ObjectId
+  userId    String @db.ObjectId
+  rating    Int // 1-5
+  comment   String
+
+  // Relacionamentos
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId]) // Um usuário pode avaliar um produto apenas uma vez
+}
+
+model Cart {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String  @unique @db.ObjectId
+  sessionId String?
+
+  // Relacionamentos
+  user  User       @relation(fields: [userId], references: [id])
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String @db.ObjectId
+  productId String @db.ObjectId
+  quantity  Int
+
+  // Relacionamentos
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId]) // Um produto pode aparecer apenas uma vez no carrinho
+}
+
+// Tipos embarcados
+type Address {
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+}

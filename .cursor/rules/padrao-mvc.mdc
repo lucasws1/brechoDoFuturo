@@ -1,0 +1,150 @@
+# Padrão MVC (Model-View-Controller)
+
+## Estrutura de Diretórios
+
+Siga esta estrutura para organizar o código seguindo o padrão MVC:
+
+```
+src/
+├── models/          # Camada de dados e lógica de negócio
+├── views/           # Camada de apresentação (templates, componentes)
+├── controllers/     # Camada de controle (rotas, handlers)
+├── routes/          # Definição de rotas
+├── middleware/      # Middlewares de autenticação, validação, etc.
+├── utils/           # Utilitários e helpers
+├── config/          # Configurações
+└── types/           # Definições de tipos TypeScript
+```
+
+## Responsabilidades de Cada Camada
+
+### Models (Modelos)
+
+- Representam entidades do banco de dados
+- Contêm lógica de negócio
+- Definem validações e relacionamentos
+- Exemplo: `User`, `Product`, `Order`
+
+### Views (Visões)
+
+- Responsáveis pela apresentação dos dados
+- No backend: templates, respostas JSON estruturadas
+- No frontend: componentes React/Vue, páginas
+- Não devem conter lógica de negócio
+
+### Controllers (Controladores)
+
+- Recebem requisições HTTP
+- Orquestram a comunicação entre Models e Views
+- Validam dados de entrada
+- Retornam respostas apropriadas
+- Exemplo: `authController`, `productController`
+
+## Boas Práticas
+
+### Controllers
+
+```typescript
+// ✅ Bom exemplo
+export class ProductController {
+  async create(req: Request, res: Response) {
+    try {
+      const productData = req.body;
+      const product = await Product.create(productData);
+      return res.status(201).json(product);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+}
+```
+
+### Models
+
+```typescript
+// ✅ Bom exemplo
+export class Product {
+  static async create(data: ProductData) {
+    // Validação
+    if (!data.name || !data.price) {
+      throw new Error("Nome e preço são obrigatórios");
+    }
+
+    // Lógica de negócio
+    const product = await prisma.product.create({
+      data: {
+        ...data,
+        status: "Available",
+      },
+    });
+
+    return product;
+  }
+}
+```
+
+### Routes
+
+```typescript
+// ✅ Bom exemplo
+router.post("/products", productController.create);
+router.get("/products", productController.list);
+router.get("/products/:id", productController.show);
+```
+
+## Regras Importantes
+
+1. **Separação de Responsabilidades**: Cada camada tem uma responsabilidade específica
+2. **Baixo Acoplamento**: Models não devem conhecer Controllers, Controllers não devem conhecer Views
+3. **Alta Coesão**: Cada classe/módulo deve ter uma responsabilidade bem definida
+4. **Injeção de Dependência**: Use interfaces e injeção de dependência quando apropriado
+5. **Tratamento de Erros**: Implemente tratamento de erros consistente em todas as camadas
+
+## Estrutura de Arquivos Recomendada
+
+### Backend (Node.js/Express)
+
+```
+src/
+├── controllers/
+│   ├── authController.ts
+│   ├── productController.ts
+│   └── orderController.ts
+├── models/
+│   ├── User.ts
+│   ├── Product.ts
+│   └── Order.ts
+├── routes/
+│   ├── authRoutes.ts
+│   ├── productRoutes.ts
+│   └── orderRoutes.ts
+├── middleware/
+│   ├── auth.ts
+│   └── validation.ts
+└── types/
+    └── index.ts
+```
+
+### Frontend (React)
+
+```
+src/
+├── components/      # Views reutilizáveis
+├── pages/          # Views de páginas
+├── hooks/          # Lógica de estado (Controllers)
+├── services/       # Comunicação com API (Models)
+├── utils/          # Utilitários
+└── types/          # Definições TypeScript
+```
+
+## Convenções de Nomenclatura
+
+- **Controllers**: `NomeController` (ex: `ProductController`)
+- **Models**: Nome da entidade (ex: `Product`, `User`)
+- **Routes**: `nomeRoutes` (ex: `productRoutes`)
+- **Views/Components**: `NomeComponent` (ex: `ProductList`)
+
+Sempre mantenha esta estrutura e separação de responsabilidades ao desenvolver novas funcionalidades.
+alwaysApply: true
+
+---
