@@ -1,93 +1,51 @@
 # Brechó do Futuro - AI Coding Agent Instructions
 
-## Project Overview
+## Visão Geral
 
-This is a MERN stack e-commerce platform for a second-hand clothing store ("Brechó do Futuro"). The backend uses TypeScript + Express + Prisma + MongoDB, while the frontend is planned with React.
+Este projeto é um e-commerce de brechó (roupas usadas) com backend em TypeScript, Express, Prisma e MongoDB. O frontend ainda não está implementado.
 
-## Critical Context for Immediate Productivity
+## Estrutura e Convenções (Backend)
 
-### Database & Prisma Setup
+- **Padrão MVC**: Siga rigorosamente o padrão descrito em `.cursor/rules/padrao-mvc.mdc`.
 
-- **Schema location**: `backend/prisma/schema.prisma` - defines MongoDB models with enums (UserType, OrderStatus, PaymentStatus, ProductStatus)
-- **Generated client**: Custom output path `../generated/prisma` (not default location)
-- **Connection status**: Database integration is **temporarily disabled** - Prisma imports are commented out in controllers
-- **Key commands**: `pnpm prisma:generate`, `pnpm prisma:push`, `pnpm prisma:studio`
+  - `src/models/`: entidades e lógica de negócio
+  - `src/controllers/`: orquestração, validação, resposta
+  - `src/routes/`: definição de rotas RESTful, sempre com JSDoc
+  - `src/middleware/`: autenticação, upload, validação
+  - `src/types/`: tipos TypeScript (User, Product, Order, etc.)
+  - `src/utils/`: helpers (ex: JWT)
+  - `src/config/`: configurações (ex: database)
 
-### Monorepo Structure & Package Management
+- **Controllers**: Use sempre named exports. Nomeie como `[entidade]Controller.ts`.
+- **Models**: Nomeie como a entidade (`User`, `Product`, ...). Lógica de negócio e validação ficam aqui.
+- **Rotas**: Separe por entidade, use middlewares e documente com JSDoc.
+- **Respostas**: Use sempre o tipo `ApiResponse` (success, data, error).
+- **Enums**: Defina e sincronize com o schema Prisma (`backend/prisma/schema.prisma`).
+- **IDs**: Use `@db.ObjectId` e `@default(auto())` no Prisma.
 
-- **Package manager**: PNPM with workspace config (`pnpm-workspace.yaml`)
-- **Workspace pattern**: Backend/frontend separation with shared dependencies
-- **Development**: Use `pnpm dev` (not npm/yarn) - runs nodemon with ts-node
+## Fluxo de Desenvolvimento
 
-### Authentication Architecture (Currently Scaffolded)
+- **Banco de dados**: Integração Prisma/MongoDB está temporariamente desabilitada (imports comentados). Reative após configurar o `.env`.
+- **JWT**: Utilitário em `src/utils/jwt.ts` (atualmente placeholder). Implemente geração/validação real.
+- **Uploads**: Use Multer (`src/middleware/upload.ts`). Arquivos vão para `/uploads` (servido como estático).
+- **Limites**: JSON e uploads limitados a 10MB.
+- **CORS**: Permitido apenas para `localhost:3000`.
+- **Senhas**: Use `bcryptjs` para hash (ainda não implementado).
+- **Variáveis de ambiente**: `.env` com `DATABASE_URL`, `JWT_SECRET`, `PORT`.
+- **Comandos principais**:
+  - `pnpm dev` (hot reload, nodemon + ts-node)
+  - `pnpm prisma:generate`, `pnpm prisma:push`, `pnpm prisma:studio`
+  - `pnpm build && pnpm start` (produção)
 
-- **JWT implementation**: Located in `src/utils/jwt.ts` but disabled (returns "temp-token")
-- **Middleware pattern**: `src/middleware/auth.ts` with TODO comments for Prisma integration
-- **Controller pattern**: `src/controllers/authController.ts` - placeholder responses, no actual DB operations
-- **Routes structure**: RESTful design in `src/routes/authRoutes.ts` with proper JSDoc
+## Padrões de API
 
-### MVC Pattern Implementation
+- Prefixo `/api/` em todas as rotas
+- Rotas principais: `/api/auth`, `/api/products`, `/api/orders`, `/api/categories`
+- Endpoint `/health` para monitoramento
+- Status HTTP RESTful (201 criação, 401 auth, etc.)
 
-- **Strict MVC adherence**: Follow existing `.cursor/rules/padrao-mvc.mdc` conventions
-- **Controller naming**: Use `[entity]Controller.ts` pattern (e.g., `authController.ts`, `productController.ts`)
-- **Response format**: Standardized `ApiResponse` type with success/error structure
-- **Route organization**: Separate route files with middleware composition
+## Outras Observações
 
-### TypeScript & Type Safety
-
-- **Custom types**: Defined in `src/types/index.ts` - includes User, Product, Order interfaces
-- **Request extensions**: `AuthenticatedRequest` interface for middleware
-- **Enum synchronization**: TypeScript types must match Prisma schema enums exactly
-
-### File Upload & Static Assets
-
-- **Upload directory**: `/uploads` served as static files via Express
-- **Middleware**: Multer configuration in `src/middleware/upload.ts`
-- **Image limits**: 10MB JSON/URL encoding limits set in app.ts
-
-### Development Workflow Patterns
-
-- **Error handling**: Consistent try/catch with standardized error responses
-- **Environment**: `.env` file required with DATABASE_URL, JWT_SECRET, PORT variables
-- **Hot reload**: nodemon + ts-node for development, TypeScript compilation for production
-
-### Integration Points & Dependencies
-
-- **CORS**: Configured for localhost:3000 (frontend) with credentials
-- **bcryptjs**: Password hashing (imported but not yet implemented)
-- **Express static**: Serves uploaded files from `/uploads` endpoint
-
-### Immediate Development Priorities
-
-1. **Database connection**: Uncomment Prisma imports once DATABASE_URL is configured
-2. **JWT utilities**: Complete token generation/verification functions
-3. **Controller implementations**: Remove TODO comments and add actual CRUD operations
-4. **Frontend integration**: Build React components matching the wireframe in `projeto.md`
-
-### API Design Patterns
-
-- **Base routes**: `/api/auth`, `/api/products`, `/api/orders`, `/api/categories`
-- **Health check**: `/health` endpoint for monitoring
-- **Versioning**: API routes prefixed with `/api/`
-- **Status codes**: Follow REST conventions (201 for creation, 401 for auth failures)
-
-## Commands That Aren't Obvious
-
-```bash
-# Database operations (backend directory)
-pnpm prisma:generate    # Regenerate client after schema changes
-pnpm prisma:push       # Push schema to MongoDB without migrations
-pnpm prisma:studio     # Visual database browser
-
-# Development (backend directory)
-pnpm dev              # Start with nodemon + ts-node
-pnpm build && pnpm start  # Production build + start
-```
-
-## Project-Specific Conventions
-
-- **Import paths**: Use relative imports, not absolute paths (no path mapping configured)
-- **Error responses**: Always use `ApiResponse` type with success boolean
-- **MongoDB IDs**: Use `@db.ObjectId` with `@default(auto())` pattern
-- **Controller exports**: Named exports, not default exports
-- **Route documentation**: Include JSDoc comments with @route, @desc, @access
+- **Importe sempre por caminhos relativos** (sem path mapping)
+- **Frontend**: ainda não implementado, mas siga o padrão sugerido em `.cursor/rules/padrao-mvc.mdc` quando iniciar
+- **Sempre consulte `.cursor/rules/padrao-mvc.mdc` para exemplos e regras detalhadas**

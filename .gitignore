@@ -1,0 +1,27 @@
+# Node
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Build
+dist/
+build/
+backend/dist/
+frontend/dist/
+
+# Prisma
+prisma/dev.db
+prisma/.env
+/generated/prisma
+backend/generated/prisma
+
+# Uploads de arquivos
+uploads/
+
+# Outros
+.DS_Store
