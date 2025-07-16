@@ -4,6 +4,7 @@ import {
   login,
   getProfile,
   logout,
+  refreshToken,
 } from "../controllers/authController";
 import { authenticate } from "../middleware/auth";
 
@@ -22,6 +23,8 @@ router.post("/register", register);
  * @access Public
  */
 router.post("/login", login);
+
+router.post("/refresh", authenticate, refreshToken);
 
 /**
  * @route GET /api/auth/profile

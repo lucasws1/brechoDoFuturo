@@ -42,12 +42,13 @@ enum ProductStatus {
 
 // Models
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  type     UserType @default(Customer)
-  name     String
-  email    String   @unique
-  password String
-  phone    String?
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  type         UserType @default(Customer)
+  name         String
+  email        String   @unique
+  password     String
+  phone        String?
+  refreshToken String?
 
   // Endereço embarcado
   address Address?

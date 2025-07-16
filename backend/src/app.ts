@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 // Carregar variáveis de ambiente
 dotenv.config();
-console.log("JWT_SECRET - APP", process.env.JWT_SECRET);
 
 const app: Express = express();
 

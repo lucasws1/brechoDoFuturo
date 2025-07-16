@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt";
+import { verifyAccessToken } from "../utils/jwt";
 import { UserType } from "../../generated/prisma";
 
 export interface AuthenticatedRequest extends Request {
@@ -23,7 +23,7 @@ export const authenticate = async (
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
 
     req.user = {
       id: decoded.id,

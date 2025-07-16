@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
 import { createUser, authenticateUser } from "../services/user.service";
 import { UserType } from "../../generated/prisma";
-import { generateAuthToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt";
 import { AuthenticatedRequest } from "../middleware/auth";
+import prisma from "../config/prisma";
 
 // Tipos para responses
 interface ApiResponse {
@@ -47,7 +52,7 @@ export const register = async (
     });
 
     // Gera o token JWT
-    const token = generateAuthToken({
+    const token = generateAccessToken({
       id: user.id,
       email: user.email,
       type: user.type,
@@ -98,21 +103,43 @@ export const login = async (
     // Autentica o usuário
     const user = await authenticateUser(email, password);
 
-    // Gera o token JWT
-    const token = generateAuthToken({
-      id: user.id,
-      email: user.email,
-      type: user.type,
+    // Gera o token JWT - Versao antiga
+    // const token = generateAccessToken({
+    //   id: user.id,
+    //   email: user.email,
+    //   type: user.type,
+    // });
+
+    // Versao nova - ChatGPT
+    const payload = { id: user.id, email: user.email, type: user.type };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken },
     });
 
-    res.status(200).json({
-      success: true,
+    res.json({
       data: {
-        message: "Login realizado com sucesso",
-        user,
-        token,
+        accessToken,
+        refreshToken,
+        user: { id: user.id, email: user.email, type: user.type },
       },
+      error: null,
+      message: "Login realizado com sucesso",
+      success: true,
     });
+
+    // Versao antiga
+    // res.status(200).json({
+    //   success: true,
+    //   data: {
+    //     message: "Login realizado com sucesso",
+    //     user,
+    //     token,
+    //   },
+    // });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
     const status = (error as Error).message.includes("Credenciais") ? 401 : 400;
@@ -174,6 +201,69 @@ export const logout = async (
     res.status(500).json({
       success: false,
       error: { message: "Erro ao processar logout" },
+    });
+  }
+};
+
+/**
+ * Refreshes the access token using the refresh token
+ */
+export const refreshToken = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    res.status(401).json({
+      data: null,
+      error: { message: "Refresh token não fornecido" },
+      message: "",
+    });
+  }
+
+  // Opcional: busca user pelo refreshToken para garantir que está no banco
+  const user = await prisma.user.findFirst({ where: { refreshToken } });
+  if (!user) {
+    res.status(401).json({
+      data: null,
+      error: { message: "Refresh token inválido" },
+      message: "",
+    });
+  }
+
+  try {
+    const payload = verifyRefreshToken(refreshToken) as {
+      id: string;
+      email: string;
+    };
+    const newAccessToken = generateAccessToken({
+      id: payload.id,
+      email: payload.email,
+      type: user?.type as UserType,
+    });
+    // Opcional: gerar novo refresh token ("rotation")
+    const newRefreshToken = generateRefreshToken({
+      id: payload.id,
+      email: payload.email,
+      type: user?.type as UserType,
+    });
+
+    // Atualiza refresh token no banco
+    await prisma.user.update({
+      where: { id: user?.id },
+      data: { refreshToken: newRefreshToken },
+    });
+
+    res.json({
+      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+      error: null,
+      message: "Token renovado",
+    });
+  } catch (e) {
+    res.status(401).json({
+      data: null,
+      error: { message: "Refresh token inválido ou expirado" },
+      message: "",
     });
   }
 };
