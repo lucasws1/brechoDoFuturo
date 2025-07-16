@@ -1,339 +1,294 @@
-import { Request, Response } from "express";
-import { Order, CreateOrderData, UpdateOrderData } from "../models/Order";
-import { AuthService } from "../services/AuthService";
-import { ApiResponse, AuthenticatedRequest } from "../types";
+import { Request, Response } from 'express';
+import * as orderService from '../services/order.service';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
+
+// Tipos para responses
+interface ApiResponse {
+  success: boolean;
+  data?: any;
+  error?: {
+    message: string;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// Função helper para tratar erros
+const handleError = (res: Response, error: any, message: string) => {
+  console.error(message, error);
+  res.status(500).json({
+    success: false,
+    error: { message: (error as Error).message || message },
+  });
+};
+
+interface CreateOrderInput {
+  customerId: string;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    priceAtPurchase: number;
+  }>;
+  deliveryAddress: {
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  paymentMethod: string;
+}
 
 /**
- * Criar pedido (checkout)
+ * @desc    Create a new order (checkout)
+ * @route   POST /api/orders
+ * @access  Private
  */
-export const createOrder = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
-    const { items, deliveryAddress } = req.body;
+    const { items, deliveryAddress, paymentMethod } = req.body;
 
-    // Validação básica
+    // Basic validation
     if (!items || !Array.isArray(items) || items.length === 0) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        error: { message: "Itens do pedido são obrigatórios" },
+        error: { message: 'Itens do pedido são obrigatórios' },
       } as ApiResponse);
-      return;
     }
 
     if (!deliveryAddress) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        error: { message: "Endereço de entrega é obrigatório" },
+        error: { message: 'Endereço de entrega é obrigatório' },
       } as ApiResponse);
-      return;
     }
 
-    const orderData: CreateOrderData = {
+    if (!paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Método de pagamento é obrigatório' },
+      } as ApiResponse);
+    }
+
+    const orderData: CreateOrderInput = {
       customerId: req.user.id,
-      items,
+      items: items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtPurchase: item.priceAtPurchase || 0,
+      })),
       deliveryAddress,
+      paymentMethod,
     };
 
-    const order = await Order.create(orderData);
+    const order = await orderService.createOrder(orderData, req.user.id);
 
     res.status(201).json({
       success: true,
       data: {
-        message: "Pedido criado com sucesso",
+        message: 'Pedido criado com sucesso',
         order,
       },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao criar pedido:", error);
-
-    if (error instanceof Error) {
-      res.status(400).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao criar pedido');
   }
 };
 
 /**
- * Listar pedidos
+ * @desc    Get all orders (admin) or user's orders
+ * @route   GET /api/orders
+ * @access  Private
  */
-export const getOrders = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { page = 1, limit = 20, status } = req.query;
+    const isAdmin = req.user.type === 'Admin';
 
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-
-    const filters: any = {
+    const filters = {
       page: Number(page),
       limit: Number(limit),
       status: status as any,
+      customerId: isAdmin ? undefined : req.user.id,
     };
 
-    // Se não for admin, mostrar apenas pedidos do usuário
-    if (!isAdmin) {
-      filters.customerId = req.user.id;
-    }
-
-    const result = await Order.findMany(filters);
+    const result = await orderService.getOrders(filters);
 
     res.status(200).json({
       success: true,
-      data: result,
+      data: result.orders,
+      pagination: {
+        page: result.pagination.page,
+        limit: result.pagination.limit,
+        total: result.pagination.total,
+        totalPages: result.pagination.pages,
+      },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao listar pedidos:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao listar pedidos');
   }
 };
 
 /**
- * Obter pedido por ID
+ * @desc    Get order by ID
+ * @route   GET /api/orders/:id
+ * @access  Private
  */
 export const getOrderById = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { id } = req.params;
-
-    const order = await Order.findById(id);
+    const isAdmin = req.user.type === 'Admin';
+    const order = await orderService.getOrderById(id, req.user.id, isAdmin);
 
     if (!order) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
-        error: { message: "Pedido não encontrado" },
+        error: { message: 'Pedido não encontrado' },
       } as ApiResponse);
-      return;
-    }
-
-    // Verificar se é admin ou dono do pedido
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    const isOwner = await Order.isOwner(id, req.user.id);
-
-    if (!isAdmin && !isOwner) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
     }
 
     res.status(200).json({
       success: true,
-      data: { order },
+      data: order,
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao buscar pedido:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar pedido');
   }
 };
 
 /**
- * Atualizar pedido (admin ou status de pagamento)
+ * @desc    Update order status (admin only)
+ * @route   PUT /api/orders/:id
+ * @access  Private/Admin
  */
-export const updateOrder = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { id } = req.params;
-    const { status, deliveryAddress } = req.body;
+    const { status } = req.body;
+    const isAdmin = req.user.type === 'Admin';
 
-    // Verificar se é admin (apenas admin pode atualizar pedidos)
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin) {
-      res.status(403).json({
-        success: false,
-        error: {
-          message:
-            "Acesso negado. Apenas administradores podem atualizar pedidos",
-        },
-      } as ApiResponse);
-      return;
-    }
-
-    const updateData: UpdateOrderData = {};
-    if (status) updateData.status = status;
-    if (deliveryAddress) updateData.deliveryAddress = deliveryAddress;
-
-    const order = await Order.update(id, updateData);
+    const order = await orderService.updateOrderStatus(
+      id,
+      status,
+      req.user.id,
+      isAdmin
+    );
 
     res.status(200).json({
       success: true,
       data: {
-        message: "Pedido atualizado com sucesso",
+        message: 'Pedido atualizado com sucesso',
         order,
       },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao atualizar pedido:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado") ? 404 : 400;
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao atualizar pedido');
   }
 };
 
 /**
- * Deletar pedido (admin)
+ * @desc    Delete an order (admin only)
+ * @route   DELETE /api/orders/:id
+ * @access  Private/Admin
  */
-export const deleteOrder = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+export const deleteOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { id } = req.params;
-
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin) {
-      res.status(403).json({
-        success: false,
-        error: {
-          message:
-            "Acesso negado. Apenas administradores podem deletar pedidos",
-        },
-      } as ApiResponse);
-      return;
-    }
-
-    await Order.delete(id);
+    const isAdmin = req.user.type === 'Admin';
+    await orderService.deleteOrder(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: "Pedido deletado com sucesso" },
+      data: { message: 'Pedido excluído com sucesso' },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao deletar pedido:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado") ? 404 : 400;
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao excluir pedido');
   }
 };
 
 /**
- * Obter estatísticas de vendas (admin)
+ * @desc    Get sales statistics (admin only)
+ * @route   GET /api/orders/stats/sales
+ * @access  Private/Admin
  */
 export const getSalesStats = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
-    }
-
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
     }
 
     const { startDate, endDate } = req.query;
+    const isAdmin = req.user.type === 'Admin';
 
-    const filters: any = {};
-    if (startDate) filters.startDate = new Date(startDate as string);
-    if (endDate) filters.endDate = new Date(endDate as string);
+    if (!isAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: { message: 'Acesso negado' },
+      } as ApiResponse);
+    }
 
-    const stats = await Order.getSalesStats(filters);
+    // Implementar getSalesStats no service
+    const stats = {
+      totalOrders: 0,
+      totalRevenue: 0,
+      ordersByStatus: [],
+    };
 
     res.status(200).json({
       success: true,
-      data: { stats },
+      data: stats,
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao buscar estatísticas:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar estatísticas de vendas');
   }
 };

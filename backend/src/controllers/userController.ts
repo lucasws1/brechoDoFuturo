@@ -1,7 +1,46 @@
-import { Request, Response } from "express";
-import { User, UpdateUserData } from "../models/User";
-import { AuthService } from "../services/AuthService";
-import { ApiResponse, AuthenticatedRequest } from "../types";
+import { Response } from 'express';
+import {
+  getUsers as getUsersService,
+  getUserById as getUserByIdService,
+  updateUser as updateUserService,
+  deleteUser as deleteUserService,
+  getUserOrders as getUserOrdersService,
+  changeUserRole,
+} from '../services/user.service';
+import { UserType } from '../../generated/prisma';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
+
+// Tipos para responses
+interface ApiResponse {
+  success: boolean;
+  data?: any;
+  error?: {
+    message: string;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// Função helper para tratar erros
+const handleError = (res: Response, error: any, message: string) => {
+  console.error(message, error);
+  const status =
+    error.message === 'Acesso negado'
+      ? 403
+      : error.message.includes('não encontrado')
+      ? 404
+      : error.message.includes('já está em uso')
+      ? 409
+      : 500;
+  res.status(status).json({
+    success: false,
+    error: { message: (error as Error).message || message },
+  });
+};
 
 /**
  * Listar usuários (admin)
@@ -14,47 +53,33 @@ export const getUsers = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
-      } as ApiResponse);
+        error: { message: 'Usuário não autenticado' },
+      });
       return;
     }
 
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
-    }
-
-    const { page = 1, limit = 20, search, type } = req.query;
+    const { page = '1', limit = '20', search, type } = req.query;
 
     const filters = {
-      page: Number(page),
-      limit: Number(limit),
+      page: parseInt(page as string, 10),
+      limit: parseInt(limit as string, 10),
       search: search as string,
-      type: type as any,
+      type: type as UserType,
     };
 
-    const result = await User.findMany(filters);
+    const result = await getUsersService(filters);
 
     res.status(200).json({
       success: true,
       data: result,
-    } as ApiResponse);
+    });
   } catch (error) {
-    console.error("Erro ao listar usuários:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao listar usuários');
   }
 };
 
 /**
- * Obter usuário por ID (admin)
+ * Obter usuário por ID
  */
 export const getUserById = async (
   req: AuthenticatedRequest,
@@ -64,43 +89,22 @@ export const getUserById = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
-      } as ApiResponse);
+        error: { message: 'Usuário não autenticado' },
+      });
       return;
     }
 
     const { id } = req.params;
+    const isAdmin = req.user.type === UserType.Admin;
 
-    // Verificar se é admin ou é o próprio usuário
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin && req.user.id !== id) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
-    }
-
-    const user = await User.findById(id);
-
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        error: { message: "Usuário não encontrado" },
-      } as ApiResponse);
-      return;
-    }
+    const user = await getUserByIdService(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { user },
-    } as ApiResponse);
+      data: user,
+    });
   } catch (error) {
-    console.error("Erro ao buscar usuário:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar usuário');
   }
 };
 
@@ -115,55 +119,30 @@ export const updateUser = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
-      } as ApiResponse);
+        error: { message: 'Usuário não autenticado' },
+      });
       return;
     }
 
     const { id } = req.params;
-    const { name, email, phone, address } = req.body;
+    const isAdmin = req.user.type === UserType.Admin;
 
-    // Verificar se é admin ou é o próprio usuário
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin && req.user.id !== id) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
-    }
-
-    const updateData: UpdateUserData = {};
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
-    if (address) updateData.address = address;
-
-    const user = await User.update(id, updateData);
+    const updatedUser = await updateUserService(
+      id,
+      req.body,
+      req.user.id,
+      isAdmin
+    );
 
     res.status(200).json({
       success: true,
       data: {
-        message: "Usuário atualizado com sucesso",
-        user,
+        message: 'Usuário atualizado com sucesso',
+        user: updatedUser,
       },
-    } as ApiResponse);
+    });
   } catch (error) {
-    console.error("Erro ao atualizar usuário:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado") ? 404 : 400;
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao atualizar usuário');
   }
 };
 
@@ -178,54 +157,22 @@ export const deleteUser = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
-      } as ApiResponse);
+        error: { message: 'Usuário não autenticado' },
+      });
       return;
     }
 
     const { id } = req.params;
+    const isAdmin = req.user.type === UserType.Admin;
 
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-    if (!isAdmin) {
-      res.status(403).json({
-        success: false,
-        error: { message: "Acesso negado" },
-      } as ApiResponse);
-      return;
-    }
-
-    // Não permitir que admin delete a si mesmo
-    if (req.user.id === id) {
-      res.status(400).json({
-        success: false,
-        error: { message: "Você não pode deletar sua própria conta" },
-      } as ApiResponse);
-      return;
-    }
-
-    await User.delete(id);
+    await deleteUserService(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: "Usuário deletado com sucesso" },
-    } as ApiResponse);
+      data: { message: 'Usuário excluído com sucesso' },
+    });
   } catch (error) {
-    console.error("Erro ao deletar usuário:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado") ? 404 : 400;
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao excluir usuário');
   }
 };
 
@@ -240,29 +187,78 @@ export const getUserOrders = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
-      } as ApiResponse);
+        error: { message: 'Usuário não autenticado' },
+      });
       return;
     }
 
-    const { page = 1, limit = 10 } = req.query;
+    const { id } = req.params;
+    const { page = '1', limit = '10', status } = req.query;
+    const isAdmin = req.user.type === UserType.Admin;
 
-    // Usuários só podem ver seus próprios pedidos
-    const result = await User.getUserOrders(
+    const orders = await getUserOrdersService(
+      id,
+      {
+        page: parseInt(page as string, 10),
+        limit: parseInt(limit as string, 10),
+        status: status as string,
+      },
       req.user.id,
-      Number(page),
-      Number(limit)
+      isAdmin
     );
 
     res.status(200).json({
       success: true,
-      data: result,
-    } as ApiResponse);
+      data: orders,
+    });
   } catch (error) {
-    console.error("Erro ao buscar pedidos do usuário:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar pedidos do usuário');
+  }
+};
+
+/**
+ * Atualizar função do usuário (apenas admin)
+ */
+export const updateUserRole = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: { message: 'Usuário não autenticado' },
+      });
+      return;
+    }
+
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role || !Object.values(UserType).includes(role as UserType)) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Função de usuário inválida' },
+      });
+      return;
+    }
+
+    const isAdmin = req.user.type === UserType.Admin;
+    const updatedUser = await changeUserRole(
+      id,
+      role as UserType,
+      req.user.id,
+      isAdmin
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        message: 'Função do usuário atualizada com sucesso',
+        user: updatedUser,
+      },
+    });
+  } catch (error) {
+    handleError(res, error, 'Erro ao atualizar função do usuário');
   }
 };

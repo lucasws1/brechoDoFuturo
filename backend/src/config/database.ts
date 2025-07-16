@@ -1,18 +1,14 @@
-// TODO: Corrigir import do Prisma
-// const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from "../../generated/prisma";
 
-// declare global {
-//   var prisma: PrismaClient | undefined;
-// }
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
 
-// // Evita múltiplas instâncias do PrismaClient em desenvolvimento
-// const prisma = globalThis.prisma || new PrismaClient();
+const prisma = global.prisma || new PrismaClient();
 
-// if (process.env.NODE_ENV === 'development') {
-//   globalThis.prisma = prisma;
-// }
+if (process.env.NODE_ENV === "development") {
+  global.prisma = prisma;
+}
 
-// export default prisma;
-
-// Placeholder temporário
-export default null;
+export default prisma;

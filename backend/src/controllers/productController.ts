@@ -1,125 +1,151 @@
-import { Request, Response } from "express";
-import { ApiResponse, ProductFilters, AuthenticatedRequest } from "../types";
-import { ProductService } from "../services/ProductService";
-import { AuthService } from "../services/AuthService";
+import { Request, Response } from 'express';
+import * as productService from '../services/product.service';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
+
+// Tipos para responses
+interface ApiResponse {
+  success: boolean;
+  data?: any;
+  error?: {
+    message: string;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+// Função helper para tratar erros
+const handleError = (res: Response, error: any, message: string) => {
+  console.error(message, error);
+  res.status(500).json({
+    success: false,
+    error: { message: (error as Error).message || message },
+  });
+};
+
+interface CreateProductInput {
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+  sellerId: string;
+  categoryIds: string[];
+}
+
+interface UpdateProductInput {
+  name?: string;
+  description?: string;
+  price?: number;
+  images?: string[];
+  status?: any;
+  categoryIds?: string[];
+}
 
 /**
- * Listar produtos com filtros e paginação
+ * @desc    Get all products with filters and pagination
+ * @route   GET /api/products
+ * @access  Public
  */
-export const getProducts = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getProducts = async (req: Request, res: Response) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      search,
-      categoryIds,
-    }: ProductFilters = req.query;
+    const { page = 1, limit = 20, search, category } = req.query;
 
     const filters = {
       page: Number(page),
       limit: Number(limit),
-      search: search as string,
-      categoryIds: categoryIds
-        ? Array.isArray(categoryIds)
-          ? (categoryIds as string[])
-          : [categoryIds as string]
-        : undefined,
+      search: search as string | undefined,
+      category: category as string | undefined,
     };
 
-    const result = await ProductService.getProducts(filters);
+    const result = await productService.getProducts(filters);
 
     res.status(200).json({
       success: true,
-      data: result,
+      data: result.products,
+      pagination: {
+        page: result.pagination.page,
+        limit: result.pagination.limit,
+        total: result.pagination.total,
+        totalPages: result.pagination.pages,
+      },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao buscar produtos:", error);
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar produtos');
   }
 };
 
 /**
- * Obter produto por ID
+ * @desc    Get single product by ID
+ * @route   GET /api/products/:id
+ * @access  Public
  */
-export const getProductById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const product = await productService.getProductById(id);
 
-    const product = await ProductService.getProductById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Produto não encontrado' },
+      } as ApiResponse);
+    }
 
     res.status(200).json({
       success: true,
-      data: { product },
+      data: product,
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao buscar produto:", error);
-
-    if (error instanceof Error && error.message === "Produto não encontrado") {
-      res.status(404).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao buscar produto');
   }
 };
 
 /**
- * Criar novo produto
+ * @desc    Create a new product
+ * @route   POST /api/products
+ * @access  Private/Seller
  */
 export const createProduct = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { name, description, price, categoryIds } = req.body;
 
-    // Validação básica
+    // Basic validation
     if (!name || !description || !price) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        error: { message: "Nome, descrição e preço são obrigatórios" },
+        error: { message: 'Nome, descrição e preço são obrigatórios' },
       } as ApiResponse);
-      return;
     }
 
-    // Processar imagens do upload
+    // Process uploaded images
     const images = req.files
       ? (req.files as Express.Multer.File[]).map((file) => file.filename)
       : [];
 
-    const productData = {
+    const productData: CreateProductInput = {
       name,
       description,
       price: Number(price),
       images,
       sellerId: req.user.id,
-      categoryIds: categoryIds || [],
+      categoryIds: Array.isArray(categoryIds)
+        ? categoryIds
+        : [categoryIds].filter(Boolean),
     };
 
-    const product = await ProductService.createProduct(
+    const product = await productService.createProduct(
       productData,
       req.user.id
     );
@@ -127,65 +153,55 @@ export const createProduct = async (
     res.status(201).json({
       success: true,
       data: {
-        message: "Produto criado com sucesso",
+        message: 'Produto criado com sucesso',
         product,
       },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao criar produto:", error);
-
-    if (error instanceof Error) {
-      res.status(400).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao criar produto');
   }
 };
 
 /**
- * Atualizar produto
+ * @desc    Update a product
+ * @route   PUT /api/products/:id
+ * @access  Private/Seller,Admin
  */
 export const updateProduct = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { id } = req.params;
     const { name, description, price, categoryIds, status } = req.body;
 
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-
-    const updateData: any = {};
+    const updateData: UpdateProductInput = {};
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (price) updateData.price = Number(price);
-    if (categoryIds) updateData.categoryIds = categoryIds;
+    if (categoryIds) {
+      updateData.categoryIds = Array.isArray(categoryIds)
+        ? categoryIds
+        : [categoryIds].filter(Boolean);
+    }
     if (status) updateData.status = status;
 
-    // Processar novas imagens se enviadas
+    // Process new images if uploaded
     if (req.files && (req.files as Express.Multer.File[]).length > 0) {
       updateData.images = (req.files as Express.Multer.File[]).map(
         (file) => file.filename
       );
     }
 
-    const product = await ProductService.updateProduct(
+    const isAdmin = req.user.type === 'Admin';
+    const product = await productService.updateProduct(
       id,
       updateData,
       req.user.id,
@@ -195,81 +211,43 @@ export const updateProduct = async (
     res.status(200).json({
       success: true,
       data: {
-        message: "Produto atualizado com sucesso",
+        message: 'Produto atualizado com sucesso',
         product,
       },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao atualizar produto:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado")
-        ? 404
-        : error.message.includes("permissão")
-        ? 403
-        : 400;
-
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao atualizar produto');
   }
 };
 
 /**
- * Deletar produto
+ * @desc    Delete a product
+ * @route   DELETE /api/products/:id
+ * @access  Private/Seller,Admin
  */
 export const deleteProduct = async (
   req: AuthenticatedRequest,
   res: Response
-): Promise<void> => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
-        error: { message: "Usuário não autenticado" },
+        error: { message: 'Não autorizado' },
       } as ApiResponse);
-      return;
     }
 
     const { id } = req.params;
-
-    // Verificar se é admin
-    const isAdmin = await AuthService.isAdmin(req.user.id);
-
-    await ProductService.deleteProduct(id, req.user.id, isAdmin);
+    const isAdmin = req.user.type === 'Admin';
+    await productService.deleteProduct(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: "Produto deletado com sucesso" },
+      data: {
+        message: 'Produto excluído com sucesso',
+      },
     } as ApiResponse);
   } catch (error) {
-    console.error("Erro ao deletar produto:", error);
-
-    if (error instanceof Error) {
-      const statusCode = error.message.includes("não encontrado")
-        ? 404
-        : error.message.includes("permissão")
-        ? 403
-        : 400;
-
-      res.status(statusCode).json({
-        success: false,
-        error: { message: error.message },
-      } as ApiResponse);
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      error: { message: "Erro interno do servidor" },
-    } as ApiResponse);
+    handleError(res, error, 'Erro ao excluir produto');
   }
 };

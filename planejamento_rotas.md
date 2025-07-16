@@ -13,9 +13,8 @@ Páginas do app:
 
 - Principais entidades:
   Produtos -> listar, criar, editar, deletar, visualizar
-  Usuários -> listar, criar, editar, deletar, visualizar
-  Pedidos -> listar, criar, editar, deletar, visualizar
   Usuários -> cadastro, login, mostrar dados (profile), listar pedidos
+  Pedidos -> listar, criar, editar, deletar, visualizar
 
 -> Produtos
 
