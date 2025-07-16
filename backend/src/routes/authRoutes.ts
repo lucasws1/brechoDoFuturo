@@ -31,10 +31,10 @@ router.post("/login", login);
 router.get("/profile", authenticate, getProfile);
 
 /**
- * @route POST /api/auth/logout
+ * @route GET /api/auth/logout
  * @desc Logout do usuário
  * @access Private
  */
-router.post("/logout", authenticate, logout);
+router.get("/logout", authenticate, logout);
 
 export default router;

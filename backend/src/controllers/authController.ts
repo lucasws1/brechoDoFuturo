@@ -157,7 +157,7 @@ export const getProfile = async (
 };
 
 /**
- * Faz logout do usuário
+ * Faz logout do usuário - Inútil, implementar no frontend
  */
 export const logout = async (
   req: AuthenticatedRequest,

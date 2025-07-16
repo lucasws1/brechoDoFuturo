@@ -1,0 +1,34 @@
+### Cadastro de usuário
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Lucas W. Schuch",
+    "email": "lucaswschuch@gmail.com",
+    "password": "password123",
+    "type": "Admin"
+}
+
+### Login de usuário
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "lucaswschuch@gmail.com",
+    "password": "password123"
+}
+
+### Logout de usuário
+GET http://localhost:3001/api/auth/logout 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzgwOWFkYTBkNjg5MDZlNTg1MGU3MSIsImVtYWlsIjoibHVjYXN3c2NodWNoQGdtYWlsLmNvbSIsInR5cGUiOiJBZG1pbiIsImlhdCI6MTc1MjY5NzgwNCwiZXhwIjoxNzUzMzAyNjA0fQ.0XmNwHBd1qEsPFZZsDVNqnOvNCRKtDUKt3mUFDjQexI
+
+### Carrinho de compras
+GET http://localhost:3001/api/cart
+# Content-Type: application/json
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzgwOWFkYTBkNjg5MDZlNTg1MGU3MSIsImVtYWlsIjoibHVjYXN3c2NodWNoQGdtYWlsLmNvbSIsInR5cGUiOiJBZG1pbiIsImlhdCI6MTc1MjY5NzgwNCwiZXhwIjoxNzUzMzAyNjA0fQ.0XmNwHBd1qEsPFZZsDVNqnOvNCRKtDUKt3mUFDjQexI
+
+### Obter perfil de usuário
+GET http://localhost:3001/api/auth/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzgwOWFkYTBkNjg5MDZlNTg1MGU3MSIsImVtYWlsIjoibHVjYXN3c2NodWNoQGdtYWlsLmNvbSIsInR5cGUiOiJBZG1pbiIsImlhdCI6MTc1MjY5NzgwNCwiZXhwIjoxNzUzMzAyNjA0fQ.0XmNwHBd1qEsPFZZsDVNqnOvNCRKtDUKt3mUFDjQexI
