@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import * as productReviewService from '../services/productReview.service';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import * as productReviewService from "../services/productReview.service";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -48,9 +48,9 @@ export const createProductReview = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -58,16 +58,16 @@ export const createProductReview = async (
     const { rating, comment } = req.body;
 
     if (!rating || !comment) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        error: { message: 'Avaliação e comentário são obrigatórios' },
+        error: { message: "Avaliação e comentário são obrigatórios" },
       } as ApiResponse);
     }
 
     if (rating < 1 || rating > 5) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        error: { message: 'Avaliação deve ser entre 1 e 5' },
+        error: { message: "Avaliação deve ser entre 1 e 5" },
       } as ApiResponse);
     }
 
@@ -85,12 +85,12 @@ export const createProductReview = async (
     res.status(201).json({
       success: true,
       data: {
-        message: 'Avaliação criada com sucesso',
+        message: "Avaliação criada com sucesso",
         review,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao criar avaliação');
+    handleError(res, error, "Erro ao criar avaliação");
   }
 };
 
@@ -126,7 +126,7 @@ export const getProductReviews = async (req: Request, res: Response) => {
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar avaliações do produto');
+    handleError(res, error, "Erro ao buscar avaliações do produto");
   }
 };
 
@@ -145,7 +145,7 @@ export const getReviewById = async (req: Request, res: Response) => {
       data: review,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar avaliação');
+    handleError(res, error, "Erro ao buscar avaliação");
   }
 };
 
@@ -160,9 +160,9 @@ export const updateProductReview = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -170,9 +170,9 @@ export const updateProductReview = async (
     const { rating, comment } = req.body;
 
     if (rating && (rating < 1 || rating > 5)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        error: { message: 'Avaliação deve ser entre 1 e 5' },
+        error: { message: "Avaliação deve ser entre 1 e 5" },
       } as ApiResponse);
     }
 
@@ -189,12 +189,12 @@ export const updateProductReview = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Avaliação atualizada com sucesso',
+        message: "Avaliação atualizada com sucesso",
         review,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar avaliação');
+    handleError(res, error, "Erro ao atualizar avaliação");
   }
 };
 
@@ -209,23 +209,23 @@ export const deleteProductReview = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
 
     await productReviewService.deleteProductReview(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: 'Avaliação excluída com sucesso' },
+      data: { message: "Avaliação excluída com sucesso" },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao excluir avaliação');
+    handleError(res, error, "Erro ao excluir avaliação");
   }
 };
 
@@ -240,9 +240,9 @@ export const getUserReviews = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -250,11 +250,11 @@ export const getUserReviews = async (
     const { page = 1, limit = 20 } = req.query;
 
     // Usuários só podem ver suas próprias avaliações, exceto admins
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     if (!isAdmin && userId !== req.user.id) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
-        error: { message: 'Você só pode ver suas próprias avaliações' },
+        error: { message: "Você só pode ver suas próprias avaliações" },
       } as ApiResponse);
     }
 
@@ -276,7 +276,7 @@ export const getUserReviews = async (
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar avaliações do usuário');
+    handleError(res, error, "Erro ao buscar avaliações do usuário");
   }
 };
 
@@ -295,7 +295,7 @@ export const getProductReviewStats = async (req: Request, res: Response) => {
       data: stats,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar estatísticas de avaliações');
+    handleError(res, error, "Erro ao buscar estatísticas de avaliações");
   }
 };
 
@@ -310,9 +310,9 @@ export const getAllReviews = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -326,7 +326,7 @@ export const getAllReviews = async (
       rating: rating ? Number(rating) : undefined,
     };
 
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     const result = await productReviewService.getAllReviews(filters, isAdmin);
 
     res.status(200).json({
@@ -340,6 +340,6 @@ export const getAllReviews = async (
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar todas as avaliações');
+    handleError(res, error, "Erro ao buscar todas as avaliações");
   }
 };

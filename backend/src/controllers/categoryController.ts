@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import * as categoryService from '../services/category.service';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import * as categoryService from "../services/category.service";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -64,7 +64,7 @@ export const getCategories = async (req: Request, res: Response) => {
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar categorias');
+    handleError(res, error, "Erro ao buscar categorias");
   }
 };
 
@@ -83,7 +83,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
       data: category,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar categoria');
+    handleError(res, error, "Erro ao buscar categoria");
   }
 };
 
@@ -98,26 +98,26 @@ export const createCategory = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     if (!isAdmin) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
-        error: { message: 'Apenas administradores podem criar categorias' },
+        error: { message: "Apenas administradores podem criar categorias" },
       } as ApiResponse);
     }
 
     const { name, description } = req.body;
 
     if (!name || !description) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        error: { message: 'Nome e descrição são obrigatórios' },
+        error: { message: "Nome e descrição são obrigatórios" },
       } as ApiResponse);
     }
 
@@ -131,12 +131,12 @@ export const createCategory = async (
     res.status(201).json({
       success: true,
       data: {
-        message: 'Categoria criada com sucesso',
+        message: "Categoria criada com sucesso",
         category,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao criar categoria');
+    handleError(res, error, "Erro ao criar categoria");
   }
 };
 
@@ -151,9 +151,9 @@ export const updateCategory = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -164,7 +164,7 @@ export const updateCategory = async (
     if (name) updateData.name = name;
     if (description) updateData.description = description;
 
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     const category = await categoryService.updateCategory(
       id,
       updateData,
@@ -174,12 +174,12 @@ export const updateCategory = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Categoria atualizada com sucesso',
+        message: "Categoria atualizada com sucesso",
         category,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar categoria');
+    handleError(res, error, "Erro ao atualizar categoria");
   }
 };
 
@@ -194,22 +194,22 @@ export const deleteCategory = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     await categoryService.deleteCategory(id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: 'Categoria excluída com sucesso' },
+      data: { message: "Categoria excluída com sucesso" },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao excluir categoria');
+    handleError(res, error, "Erro ao excluir categoria");
   }
 };
 
@@ -224,17 +224,17 @@ export const getCategoryStats = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     if (!isAdmin) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
-        error: { message: 'Apenas administradores podem ver estatísticas' },
+        error: { message: "Apenas administradores podem ver estatísticas" },
       } as ApiResponse);
     }
 
@@ -246,6 +246,6 @@ export const getCategoryStats = async (
       data: stats,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar estatísticas da categoria');
+    handleError(res, error, "Erro ao buscar estatísticas da categoria");
   }
 };

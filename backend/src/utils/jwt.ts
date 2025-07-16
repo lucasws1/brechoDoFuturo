@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { UserType } from '../../generated/prisma';
+import jwt from "jsonwebtoken";
+import { UserType } from "../../generated/prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 export interface TokenPayload {
   id: string;
@@ -13,7 +13,7 @@ export interface TokenPayload {
 export const generateAuthToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
-    algorithm: 'HS256'
+    algorithm: "HS256",
   } as jwt.SignOptions);
 };
 

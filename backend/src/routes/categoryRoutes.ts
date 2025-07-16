@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getCategories,
   getCategoryById,
@@ -6,19 +6,19 @@ import {
   updateCategory,
   deleteCategory,
   getCategoryStats,
-} from '../controllers/categoryController';
-import { authenticate } from '../middleware/auth.middleware';
+} from "../controllers/categoryController";
+import { authenticate } from "../middleware/auth";
 
 const router: Router = Router();
 
 // Rotas públicas
-router.get('/', getCategories);
-router.get('/:id', getCategoryById);
+router.get("/", getCategories);
+router.get("/:id", getCategoryById);
 
 // Rotas privadas (requerem autenticação)
-router.post('/', authenticate, createCategory);
-router.put('/:id', authenticate, updateCategory);
-router.delete('/:id', authenticate, deleteCategory);
-router.get('/:id/stats', authenticate, getCategoryStats);
+router.post("/", authenticate, createCategory);
+router.put("/:id", authenticate, updateCategory);
+router.delete("/:id", authenticate, deleteCategory);
+router.get("/:id/stats", authenticate, getCategoryStats);
 
 export default router;

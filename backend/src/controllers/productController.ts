@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import * as productService from '../services/product.service';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import * as productService from "../services/product.service";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -72,7 +72,7 @@ export const getProducts = async (req: Request, res: Response) => {
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar produtos');
+    handleError(res, error, "Erro ao buscar produtos");
   }
 };
 
@@ -89,7 +89,7 @@ export const getProductById = async (req: Request, res: Response) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Produto não encontrado' },
+        error: { message: "Produto não encontrado" },
       } as ApiResponse);
     }
 
@@ -98,7 +98,7 @@ export const getProductById = async (req: Request, res: Response) => {
       data: product,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar produto');
+    handleError(res, error, "Erro ao buscar produto");
   }
 };
 
@@ -113,9 +113,9 @@ export const createProduct = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -123,9 +123,9 @@ export const createProduct = async (
 
     // Basic validation
     if (!name || !description || !price) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
-        error: { message: 'Nome, descrição e preço são obrigatórios' },
+        error: { message: "Nome, descrição e preço são obrigatórios" },
       } as ApiResponse);
     }
 
@@ -153,12 +153,12 @@ export const createProduct = async (
     res.status(201).json({
       success: true,
       data: {
-        message: 'Produto criado com sucesso',
+        message: "Produto criado com sucesso",
         product,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao criar produto');
+    handleError(res, error, "Erro ao criar produto");
   }
 };
 
@@ -173,9 +173,9 @@ export const updateProduct = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -200,7 +200,7 @@ export const updateProduct = async (
       );
     }
 
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     const product = await productService.updateProduct(
       id,
       updateData,
@@ -211,12 +211,12 @@ export const updateProduct = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Produto atualizado com sucesso',
+        message: "Produto atualizado com sucesso",
         product,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar produto');
+    handleError(res, error, "Erro ao atualizar produto");
   }
 };
 
@@ -231,23 +231,23 @@ export const deleteProduct = async (
 ) => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     await productService.deleteProduct(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
       data: {
-        message: 'Produto excluído com sucesso',
+        message: "Produto excluído com sucesso",
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao excluir produto');
+    handleError(res, error, "Erro ao excluir produto");
   }
 };

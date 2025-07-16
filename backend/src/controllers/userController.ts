@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response } from "express";
 import {
   getUsers as getUsersService,
   getUserById as getUserByIdService,
@@ -6,9 +6,9 @@ import {
   deleteUser as deleteUserService,
   getUserOrders as getUserOrdersService,
   changeUserRole,
-} from '../services/user.service';
-import { UserType } from '../../generated/prisma';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+} from "../services/user.service";
+import { UserType } from "../../generated/prisma";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 // Tipos para responses
 interface ApiResponse {
@@ -29,11 +29,11 @@ interface ApiResponse {
 const handleError = (res: Response, error: any, message: string) => {
   console.error(message, error);
   const status =
-    error.message === 'Acesso negado'
+    error.message === "Acesso negado"
       ? 403
-      : error.message.includes('não encontrado')
+      : error.message.includes("não encontrado")
       ? 404
-      : error.message.includes('já está em uso')
+      : error.message.includes("já está em uso")
       ? 409
       : 500;
   res.status(status).json({
@@ -53,12 +53,12 @@ export const getUsers = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
 
-    const { page = '1', limit = '20', search, type } = req.query;
+    const { page = "1", limit = "20", search, type } = req.query;
 
     const filters = {
       page: parseInt(page as string, 10),
@@ -74,7 +74,7 @@ export const getUsers = async (
       data: result,
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao listar usuários');
+    handleError(res, error, "Erro ao listar usuários");
   }
 };
 
@@ -89,7 +89,7 @@ export const getUserById = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
@@ -104,7 +104,7 @@ export const getUserById = async (
       data: user,
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar usuário');
+    handleError(res, error, "Erro ao buscar usuário");
   }
 };
 
@@ -119,7 +119,7 @@ export const updateUser = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
@@ -137,12 +137,12 @@ export const updateUser = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Usuário atualizado com sucesso',
+        message: "Usuário atualizado com sucesso",
         user: updatedUser,
       },
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar usuário');
+    handleError(res, error, "Erro ao atualizar usuário");
   }
 };
 
@@ -157,7 +157,7 @@ export const deleteUser = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
@@ -169,10 +169,10 @@ export const deleteUser = async (
 
     res.status(200).json({
       success: true,
-      data: { message: 'Usuário excluído com sucesso' },
+      data: { message: "Usuário excluído com sucesso" },
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao excluir usuário');
+    handleError(res, error, "Erro ao excluir usuário");
   }
 };
 
@@ -187,13 +187,13 @@ export const getUserOrders = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
 
     const { id } = req.params;
-    const { page = '1', limit = '10', status } = req.query;
+    const { page = "1", limit = "10", status } = req.query;
     const isAdmin = req.user.type === UserType.Admin;
 
     const orders = await getUserOrdersService(
@@ -212,7 +212,7 @@ export const getUserOrders = async (
       data: orders,
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar pedidos do usuário');
+    handleError(res, error, "Erro ao buscar pedidos do usuário");
   }
 };
 
@@ -227,7 +227,7 @@ export const updateUserRole = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
@@ -238,7 +238,7 @@ export const updateUserRole = async (
     if (!role || !Object.values(UserType).includes(role as UserType)) {
       res.status(400).json({
         success: false,
-        error: { message: 'Função de usuário inválida' },
+        error: { message: "Função de usuário inválida" },
       });
       return;
     }
@@ -254,11 +254,11 @@ export const updateUserRole = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Função do usuário atualizada com sucesso',
+        message: "Função do usuário atualizada com sucesso",
         user: updatedUser,
       },
     });
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar função do usuário');
+    handleError(res, error, "Erro ao atualizar função do usuário");
   }
 };

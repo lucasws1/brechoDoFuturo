@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
-import { UserType } from "../../generated/prisma"; // Assuming this is where
+import { UserType } from "../../generated/prisma";
 
 export interface AuthenticatedRequest extends Request {
   user?: {

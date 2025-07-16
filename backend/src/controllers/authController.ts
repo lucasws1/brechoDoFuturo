@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import { createUser, authenticateUser } from '../services/user.service';
-import { UserType } from '../../generated/prisma';
-import { generateAuthToken } from '../utils/auth';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import { createUser, authenticateUser } from "../services/user.service";
+import { UserType } from "../../generated/prisma";
+import { generateAuthToken } from "../utils/jwt";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -33,7 +33,7 @@ export const register = async (
     if (!name || !email || !password) {
       res.status(400).json({
         success: false,
-        error: { message: 'Nome, email e senha são obrigatórios' },
+        error: { message: "Nome, email e senha são obrigatórios" },
       });
       return;
     }
@@ -56,21 +56,21 @@ export const register = async (
     res.status(201).json({
       success: true,
       data: {
-        message: 'Usuário registrado com sucesso',
+        message: "Usuário registrado com sucesso",
         user,
         token,
       },
     });
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
-    const status = (error as Error).message.includes('já está em uso')
+    console.error("Erro ao registrar usuário:", error);
+    const status = (error as Error).message.includes("já está em uso")
       ? 409
       : 400;
 
     res.status(status).json({
       success: false,
       error: {
-        message: (error as Error).message || 'Erro ao registrar usuário',
+        message: (error as Error).message || "Erro ao registrar usuário",
       },
     });
   }
@@ -90,7 +90,7 @@ export const login = async (
     if (!email || !password) {
       res.status(400).json({
         success: false,
-        error: { message: 'Email e senha são obrigatórios' },
+        error: { message: "Email e senha são obrigatórios" },
       });
       return;
     }
@@ -108,19 +108,19 @@ export const login = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Login realizado com sucesso',
+        message: "Login realizado com sucesso",
         user,
         token,
       },
     });
   } catch (error) {
-    console.error('Erro ao fazer login:', error);
-    const status = (error as Error).message.includes('Credenciais') ? 401 : 400;
+    console.error("Erro ao fazer login:", error);
+    const status = (error as Error).message.includes("Credenciais") ? 401 : 400;
 
     res.status(status).json({
       success: false,
       error: {
-        message: (error as Error).message || 'Erro ao fazer login',
+        message: (error as Error).message || "Erro ao fazer login",
       },
     });
   }
@@ -137,7 +137,7 @@ export const getProfile = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: { message: 'Usuário não autenticado' },
+        error: { message: "Usuário não autenticado" },
       });
       return;
     }
@@ -148,10 +148,10 @@ export const getProfile = async (
       data: { user: req.user },
     });
   } catch (error) {
-    console.error('Erro ao obter perfil:', error);
+    console.error("Erro ao obter perfil:", error);
     res.status(500).json({
       success: false,
-      error: { message: 'Erro ao obter perfil do usuário' },
+      error: { message: "Erro ao obter perfil do usuário" },
     });
   }
 };
@@ -167,13 +167,13 @@ export const logout = async (
     // Em um sistema JWT stateless, o logout é feito pelo cliente removendo o token
     res.status(200).json({
       success: true,
-      data: { message: 'Logout realizado com sucesso' },
+      data: { message: "Logout realizado com sucesso" },
     });
   } catch (error) {
-    console.error('Erro ao fazer logout:', error);
+    console.error("Erro ao fazer logout:", error);
     res.status(500).json({
       success: false,
-      error: { message: 'Erro ao processar logout' },
+      error: { message: "Erro ao processar logout" },
     });
   }
 };

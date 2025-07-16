@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import * as orderService from '../services/order.service';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import * as orderService from "../services/order.service";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -55,7 +55,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -65,21 +65,21 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Itens do pedido são obrigatórios' },
+        error: { message: "Itens do pedido são obrigatórios" },
       } as ApiResponse);
     }
 
     if (!deliveryAddress) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Endereço de entrega é obrigatório' },
+        error: { message: "Endereço de entrega é obrigatório" },
       } as ApiResponse);
     }
 
     if (!paymentMethod) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Método de pagamento é obrigatório' },
+        error: { message: "Método de pagamento é obrigatório" },
       } as ApiResponse);
     }
 
@@ -99,12 +99,12 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     res.status(201).json({
       success: true,
       data: {
-        message: 'Pedido criado com sucesso',
+        message: "Pedido criado com sucesso",
         order,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao criar pedido');
+    handleError(res, error, "Erro ao criar pedido");
   }
 };
 
@@ -118,12 +118,12 @@ export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { page = 1, limit = 20, status } = req.query;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
 
     const filters = {
       page: Number(page),
@@ -145,7 +145,7 @@ export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao listar pedidos');
+    handleError(res, error, "Erro ao listar pedidos");
   }
 };
 
@@ -162,18 +162,18 @@ export const getOrderById = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     const order = await orderService.getOrderById(id, req.user.id, isAdmin);
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Pedido não encontrado' },
+        error: { message: "Pedido não encontrado" },
       } as ApiResponse);
     }
 
@@ -182,7 +182,7 @@ export const getOrderById = async (
       data: order,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar pedido');
+    handleError(res, error, "Erro ao buscar pedido");
   }
 };
 
@@ -196,13 +196,13 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
     const { status } = req.body;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
 
     const order = await orderService.updateOrderStatus(
       id,
@@ -214,12 +214,12 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     res.status(200).json({
       success: true,
       data: {
-        message: 'Pedido atualizado com sucesso',
+        message: "Pedido atualizado com sucesso",
         order,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar pedido');
+    handleError(res, error, "Erro ao atualizar pedido");
   }
 };
 
@@ -233,20 +233,20 @@ export const deleteOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { id } = req.params;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
     await orderService.deleteOrder(id, req.user.id, isAdmin);
 
     res.status(200).json({
       success: true,
-      data: { message: 'Pedido excluído com sucesso' },
+      data: { message: "Pedido excluído com sucesso" },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao excluir pedido');
+    handleError(res, error, "Erro ao excluir pedido");
   }
 };
 
@@ -263,17 +263,17 @@ export const getSalesStats = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
     const { startDate, endDate } = req.query;
-    const isAdmin = req.user.type === 'Admin';
+    const isAdmin = req.user.type === "Admin";
 
     if (!isAdmin) {
       return res.status(403).json({
         success: false,
-        error: { message: 'Acesso negado' },
+        error: { message: "Acesso negado" },
       } as ApiResponse);
     }
 
@@ -289,6 +289,6 @@ export const getSalesStats = async (
       data: stats,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar estatísticas de vendas');
+    handleError(res, error, "Erro ao buscar estatísticas de vendas");
   }
 };

@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import * as cartService from '../services/cart.service';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { Request, Response } from "express";
+import * as cartService from "../services/cart.service";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {
@@ -45,7 +45,7 @@ export const getCart = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -56,7 +56,7 @@ export const getCart = async (req: AuthenticatedRequest, res: Response) => {
       data: cart,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao buscar carrinho');
+    handleError(res, error, "Erro ao buscar carrinho");
   }
 };
 
@@ -73,7 +73,7 @@ export const addItemToCart = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -82,14 +82,14 @@ export const addItemToCart = async (
     if (!productId || !quantity) {
       return res.status(400).json({
         success: false,
-        error: { message: 'ID do produto e quantidade são obrigatórios' },
+        error: { message: "ID do produto e quantidade são obrigatórios" },
       } as ApiResponse);
     }
 
     if (quantity <= 0) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Quantidade deve ser maior que zero' },
+        error: { message: "Quantidade deve ser maior que zero" },
       } as ApiResponse);
     }
 
@@ -103,12 +103,12 @@ export const addItemToCart = async (
     res.status(201).json({
       success: true,
       data: {
-        message: 'Item adicionado ao carrinho com sucesso',
+        message: "Item adicionado ao carrinho com sucesso",
         item,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao adicionar item ao carrinho');
+    handleError(res, error, "Erro ao adicionar item ao carrinho");
   }
 };
 
@@ -125,7 +125,7 @@ export const updateCartItem = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -135,7 +135,7 @@ export const updateCartItem = async (
     if (!quantity || quantity <= 0) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Quantidade deve ser maior que zero' },
+        error: { message: "Quantidade deve ser maior que zero" },
       } as ApiResponse);
     }
 
@@ -152,12 +152,12 @@ export const updateCartItem = async (
     res.status(200).json({
       success: true,
       data: {
-        message: 'Item atualizado com sucesso',
+        message: "Item atualizado com sucesso",
         item,
       },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao atualizar item do carrinho');
+    handleError(res, error, "Erro ao atualizar item do carrinho");
   }
 };
 
@@ -174,7 +174,7 @@ export const removeCartItem = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -183,10 +183,10 @@ export const removeCartItem = async (
 
     res.status(200).json({
       success: true,
-      data: { message: 'Item removido do carrinho com sucesso' },
+      data: { message: "Item removido do carrinho com sucesso" },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao remover item do carrinho');
+    handleError(res, error, "Erro ao remover item do carrinho");
   }
 };
 
@@ -200,7 +200,7 @@ export const clearCart = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -208,10 +208,10 @@ export const clearCart = async (req: AuthenticatedRequest, res: Response) => {
 
     res.status(200).json({
       success: true,
-      data: { message: 'Carrinho limpo com sucesso' },
+      data: { message: "Carrinho limpo com sucesso" },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao limpar carrinho');
+    handleError(res, error, "Erro ao limpar carrinho");
   }
 };
 
@@ -228,7 +228,7 @@ export const getCartTotal = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -239,7 +239,7 @@ export const getCartTotal = async (
       data: { total },
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao calcular total do carrinho');
+    handleError(res, error, "Erro ao calcular total do carrinho");
   }
 };
 
@@ -256,7 +256,7 @@ export const getCartCheckout = async (
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: { message: 'Não autorizado' },
+        error: { message: "Não autorizado" },
       } as ApiResponse);
     }
 
@@ -270,6 +270,6 @@ export const getCartCheckout = async (
       data: orderData,
     } as ApiResponse);
   } catch (error) {
-    handleError(res, error, 'Erro ao preparar checkout');
+    handleError(res, error, "Erro ao preparar checkout");
   }
 };
