@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -22,11 +22,11 @@ interface CategoryFilters {
 export const createCategory = async (data: CreateCategoryData) => {
   // Validações básicas
   if (!data.name || data.name.trim().length === 0) {
-    throw new Error('Nome da categoria é obrigatório');
+    throw new Error("Nome da categoria é obrigatório");
   }
 
   if (!data.description || data.description.trim().length === 0) {
-    throw new Error('Descrição da categoria é obrigatória');
+    throw new Error("Descrição da categoria é obrigatória");
   }
 
   // Verificar se categoria já existe
@@ -35,7 +35,7 @@ export const createCategory = async (data: CreateCategoryData) => {
   });
 
   if (existingCategory) {
-    throw new Error('Categoria já existe');
+    throw new Error("Categoria já existe");
   }
 
   return await prisma.category.create({
@@ -53,8 +53,8 @@ export const getCategories = async (filters: CategoryFilters = {}) => {
 
   if (filters?.search) {
     where.OR = [
-      { name: { contains: filters.search, mode: 'insensitive' } },
-      { description: { contains: filters.search, mode: 'insensitive' } },
+      { name: { contains: filters.search, mode: "insensitive" } },
+      { description: { contains: filters.search, mode: "insensitive" } },
     ];
   }
 
@@ -72,7 +72,7 @@ export const getCategories = async (filters: CategoryFilters = {}) => {
       },
       skip,
       take: limit,
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     }),
     prisma.category.count({ where }),
   ]);
@@ -106,7 +106,7 @@ export const getCategoryById = async (id: string) => {
   });
 
   if (!category) {
-    throw new Error('Categoria não encontrada');
+    throw new Error("Categoria não encontrada");
   }
 
   return category;
@@ -120,7 +120,7 @@ export const updateCategory = async (
 ) => {
   // Apenas admins podem atualizar categorias
   if (!isAdmin) {
-    throw new Error('Apenas administradores podem atualizar categorias');
+    throw new Error("Apenas administradores podem atualizar categorias");
   }
 
   // Verificar se categoria existe
@@ -130,7 +130,7 @@ export const updateCategory = async (
   });
 
   if (!category) {
-    throw new Error('Categoria não encontrada');
+    throw new Error("Categoria não encontrada");
   }
 
   // Verificar se o novo nome já está em uso por outra categoria
@@ -140,7 +140,7 @@ export const updateCategory = async (
     });
 
     if (existingCategory) {
-      throw new Error('Nome da categoria já está em uso');
+      throw new Error("Nome da categoria já está em uso");
     }
   }
 
@@ -154,7 +154,7 @@ export const updateCategory = async (
 export const deleteCategory = async (id: string, isAdmin: boolean = false) => {
   // Apenas admins podem deletar categorias
   if (!isAdmin) {
-    throw new Error('Apenas administradores podem deletar categorias');
+    throw new Error("Apenas administradores podem deletar categorias");
   }
 
   // Verificar se categoria existe
@@ -164,7 +164,7 @@ export const deleteCategory = async (id: string, isAdmin: boolean = false) => {
   });
 
   if (!category) {
-    throw new Error('Categoria não encontrada');
+    throw new Error("Categoria não encontrada");
   }
 
   // Verificar se há produtos associados
@@ -177,7 +177,7 @@ export const deleteCategory = async (id: string, isAdmin: boolean = false) => {
   });
 
   if (productsCount > 0) {
-    throw new Error('Não é possível deletar categoria com produtos associados');
+    throw new Error("Não é possível deletar categoria com produtos associados");
   }
 
   await prisma.category.delete({
@@ -190,7 +190,7 @@ export const getCategoryStats = async (id: string) => {
   const category = await getCategoryById(id);
 
   const stats = await prisma.product.groupBy({
-    by: ['status'],
+    by: ["status"],
     where: {
       categories: {
         some: { id },

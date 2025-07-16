@@ -95,13 +95,14 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const createCategory = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const isAdmin = req.user.type === "Admin";
@@ -110,6 +111,7 @@ export const createCategory = async (
         success: false,
         error: { message: "Apenas administradores podem criar categorias" },
       } as ApiResponse);
+      return;
     }
 
     const { name, description } = req.body;
@@ -119,6 +121,7 @@ export const createCategory = async (
         success: false,
         error: { message: "Nome e descrição são obrigatórios" },
       } as ApiResponse);
+      return;
     }
 
     const categoryData: CreateCategoryInput = {
@@ -148,13 +151,14 @@ export const createCategory = async (
 export const updateCategory = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -191,13 +195,14 @@ export const updateCategory = async (
 export const deleteCategory = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -221,13 +226,14 @@ export const deleteCategory = async (
 export const getCategoryStats = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const isAdmin = req.user.type === "Admin";
@@ -236,6 +242,7 @@ export const getCategoryStats = async (
         success: false,
         error: { message: "Apenas administradores podem ver estatísticas" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;

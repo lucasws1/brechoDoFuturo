@@ -8,7 +8,7 @@ import {
   changeUserRole,
 } from "../services/user.service";
 import { UserType } from "../../generated/prisma";
-import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 // Tipos para responses
 interface ApiResponse {

@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -28,15 +28,15 @@ export const createProductReview = async (
 ) => {
   // Validações básicas
   if (!data.productId) {
-    throw new Error('ID do produto é obrigatório');
+    throw new Error("ID do produto é obrigatório");
   }
 
   if (!data.rating || data.rating < 1 || data.rating > 5) {
-    throw new Error('Avaliação deve ser entre 1 e 5');
+    throw new Error("Avaliação deve ser entre 1 e 5");
   }
 
   if (!data.comment || data.comment.trim().length === 0) {
-    throw new Error('Comentário é obrigatório');
+    throw new Error("Comentário é obrigatório");
   }
 
   // Verificar se produto existe
@@ -45,12 +45,12 @@ export const createProductReview = async (
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
   // Verificar se usuário não está avaliando seu próprio produto
   if (product.sellerId === userId) {
-    throw new Error('Você não pode avaliar seu próprio produto');
+    throw new Error("Você não pode avaliar seu próprio produto");
   }
 
   // Verificar se usuário já avaliou este produto
@@ -64,7 +64,7 @@ export const createProductReview = async (
   });
 
   if (existingReview) {
-    throw new Error('Você já avaliou este produto');
+    throw new Error("Você já avaliou este produto");
   }
 
   // Verificar se usuário comprou o produto (opcional - pode ser implementado depois)
@@ -95,7 +95,7 @@ export const createProductReview = async (
 // Buscar avaliações de um produto
 export const getProductReviews = async (
   productId: string,
-  filters: Omit<ProductReviewFilters, 'productId'> = {}
+  filters: Omit<ProductReviewFilters, "productId"> = {}
 ) => {
   const page = filters?.page || 1;
   const limit = filters?.limit || 20;
@@ -120,7 +120,7 @@ export const getProductReviews = async (
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.productReview.count({ where }),
   ]);
@@ -139,7 +139,7 @@ export const getProductReviews = async (
 // Buscar avaliações de um usuário
 export const getUserReviews = async (
   userId: string,
-  filters: Omit<ProductReviewFilters, 'userId'> = {}
+  filters: Omit<ProductReviewFilters, "userId"> = {}
 ) => {
   const page = filters?.page || 1;
   const limit = filters?.limit || 20;
@@ -161,7 +161,7 @@ export const getUserReviews = async (
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.productReview.count({ where }),
   ]);
@@ -198,7 +198,7 @@ export const getProductReviewById = async (id: string) => {
   });
 
   if (!review) {
-    throw new Error('Avaliação não encontrada');
+    throw new Error("Avaliação não encontrada");
   }
 
   return review;
@@ -216,17 +216,17 @@ export const updateProductReview = async (
   });
 
   if (!review) {
-    throw new Error('Avaliação não encontrada');
+    throw new Error("Avaliação não encontrada");
   }
 
   // Verificar se usuário é dono da avaliação
   if (review.userId !== userId) {
-    throw new Error('Você só pode editar suas próprias avaliações');
+    throw new Error("Você só pode editar suas próprias avaliações");
   }
 
   // Validações
   if (data.rating && (data.rating < 1 || data.rating > 5)) {
-    throw new Error('Avaliação deve ser entre 1 e 5');
+    throw new Error("Avaliação deve ser entre 1 e 5");
   }
 
   return await prisma.productReview.update({
@@ -261,12 +261,12 @@ export const deleteProductReview = async (
   });
 
   if (!review) {
-    throw new Error('Avaliação não encontrada');
+    throw new Error("Avaliação não encontrada");
   }
 
   // Verificar permissões (dono da avaliação ou admin)
   if (!isAdmin && review.userId !== userId) {
-    throw new Error('Você só pode deletar suas próprias avaliações');
+    throw new Error("Você só pode deletar suas próprias avaliações");
   }
 
   await prisma.productReview.delete({
@@ -283,10 +283,10 @@ export const getProductReviewStats = async (productId: string) => {
   });
 
   const ratingDistribution = await prisma.productReview.groupBy({
-    by: ['rating'],
+    by: ["rating"],
     where: { productId },
     _count: { rating: true },
-    orderBy: { rating: 'desc' },
+    orderBy: { rating: "desc" },
   });
 
   return {
@@ -305,7 +305,7 @@ export const getAllReviews = async (
   isAdmin: boolean = false
 ) => {
   if (!isAdmin) {
-    throw new Error('Apenas administradores podem listar todas as avaliações');
+    throw new Error("Apenas administradores podem listar todas as avaliações");
   }
 
   const page = filters?.page || 1;
@@ -346,7 +346,7 @@ export const getAllReviews = async (
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.productReview.count({ where }),
   ]);

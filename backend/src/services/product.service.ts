@@ -1,4 +1,4 @@
-import { PrismaClient, ProductStatus } from '../../generated/prisma';
+import { PrismaClient, ProductStatus } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -44,8 +44,8 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 
   if (filters?.search) {
     where.OR = [
-      { name: { contains: filters.search, mode: 'insensitive' } },
-      { description: { contains: filters.search, mode: 'insensitive' } },
+      { name: { contains: filters.search, mode: "insensitive" } },
+      { description: { contains: filters.search, mode: "insensitive" } },
     ];
   }
 
@@ -86,7 +86,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.product.count({ where }),
   ]);
@@ -129,7 +129,7 @@ export const getProductById = async (id: string) => {
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
   return product;
@@ -142,20 +142,20 @@ export const createProduct = async (
 ) => {
   // Verificar se usuário é o vendedor
   if (data.sellerId !== userId) {
-    throw new Error('Você só pode criar produtos para si mesmo');
+    throw new Error("Você só pode criar produtos para si mesmo");
   }
 
   // Validações básicas
   if (!data.name || data.name.trim().length === 0) {
-    throw new Error('Nome do produto é obrigatório');
+    throw new Error("Nome do produto é obrigatório");
   }
 
   if (!data.price || data.price <= 0) {
-    throw new Error('Preço deve ser maior que zero');
+    throw new Error("Preço deve ser maior que zero");
   }
 
   if (!data.sellerId) {
-    throw new Error('ID do vendedor é obrigatório');
+    throw new Error("ID do vendedor é obrigatório");
   }
 
   return await prisma.product.create({
@@ -190,18 +190,18 @@ export const updateProduct = async (
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
   // Verificar permissões (admin ou dono)
   const isOwner = product.sellerId === userId;
   if (!isAdmin && !isOwner) {
-    throw new Error('Você não tem permissão para editar este produto');
+    throw new Error("Você não tem permissão para editar este produto");
   }
 
   // Validações
   if (data.price !== undefined && data.price <= 0) {
-    throw new Error('Preço deve ser maior que zero');
+    throw new Error("Preço deve ser maior que zero");
   }
 
   return await prisma.product.update({
@@ -233,13 +233,13 @@ export const deleteProduct = async (
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
   // Verificar permissões (admin ou dono)
   const isOwner = product.sellerId === userId;
   if (!isAdmin && !isOwner) {
-    throw new Error('Você não tem permissão para excluir este produto');
+    throw new Error("Você não tem permissão para excluir este produto");
   }
 
   // Soft delete alterando status
@@ -252,7 +252,7 @@ export const deleteProduct = async (
 // Buscar produtos por vendedor
 export const getProductsBySeller = async (
   sellerId: string,
-  filters: Omit<ProductFilters, 'sellerId'> = {}
+  filters: Omit<ProductFilters, "sellerId"> = {}
 ) => {
   return await getProducts({
     ...filters,
@@ -274,14 +274,14 @@ export const updateProductStatus = async (
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
   // Verificar permissões (admin ou dono)
   const isOwner = product.sellerId === userId;
   if (!isAdmin && !isOwner) {
     throw new Error(
-      'Você não tem permissão para atualizar o status deste produto'
+      "Você não tem permissão para atualizar o status deste produto"
     );
   }
 

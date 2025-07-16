@@ -45,13 +45,14 @@ interface UpdateProductReviewInput {
 export const createProductReview = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { productId } = req.params;
@@ -62,6 +63,7 @@ export const createProductReview = async (
         success: false,
         error: { message: "Avaliação e comentário são obrigatórios" },
       } as ApiResponse);
+      return;
     }
 
     if (rating < 1 || rating > 5) {
@@ -69,6 +71,7 @@ export const createProductReview = async (
         success: false,
         error: { message: "Avaliação deve ser entre 1 e 5" },
       } as ApiResponse);
+      return;
     }
 
     const reviewData: CreateProductReviewInput = {
@@ -99,7 +102,10 @@ export const createProductReview = async (
  * @route   GET /api/products/:productId/reviews
  * @access  Public
  */
-export const getProductReviews = async (req: Request, res: Response) => {
+export const getProductReviews = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { productId } = req.params;
     const { page = 1, limit = 20, rating } = req.query;
@@ -135,7 +141,10 @@ export const getProductReviews = async (req: Request, res: Response) => {
  * @route   GET /api/reviews/:id
  * @access  Public
  */
-export const getReviewById = async (req: Request, res: Response) => {
+export const getReviewById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const review = await productReviewService.getProductReviewById(id);
@@ -157,13 +166,14 @@ export const getReviewById = async (req: Request, res: Response) => {
 export const updateProductReview = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -174,6 +184,7 @@ export const updateProductReview = async (
         success: false,
         error: { message: "Avaliação deve ser entre 1 e 5" },
       } as ApiResponse);
+      return;
     }
 
     const updateData: UpdateProductReviewInput = {};
@@ -206,13 +217,14 @@ export const updateProductReview = async (
 export const deleteProductReview = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -237,13 +249,14 @@ export const deleteProductReview = async (
 export const getUserReviews = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { userId } = req.params;
@@ -256,6 +269,7 @@ export const getUserReviews = async (
         success: false,
         error: { message: "Você só pode ver suas próprias avaliações" },
       } as ApiResponse);
+      return;
     }
 
     const filters = {
@@ -285,7 +299,10 @@ export const getUserReviews = async (
  * @route   GET /api/products/:productId/reviews/stats
  * @access  Public
  */
-export const getProductReviewStats = async (req: Request, res: Response) => {
+export const getProductReviewStats = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { productId } = req.params;
     const stats = await productReviewService.getProductReviewStats(productId);
@@ -307,13 +324,14 @@ export const getProductReviewStats = async (req: Request, res: Response) => {
 export const getAllReviews = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { page = 1, limit = 20, productId, userId, rating } = req.query;

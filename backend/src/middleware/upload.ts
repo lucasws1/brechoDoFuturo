@@ -41,13 +41,13 @@ const upload = multer({
 });
 
 // Middleware para upload de uma única imagem
-export const uploadSingle = upload.single("image");
+export const uploadSingle = upload.single("image") as any;
 
 // Middleware para upload de múltiplas imagens
-export const uploadMultiple = upload.array("images", 5);
+export const uploadMultiple = upload.array("images", 5) as any;
 
 // Middleware para upload de imagens de produto
-export const uploadProductImages = upload.array("images", 5);
+export const uploadProductImages = upload.array("images", 5) as any;
 
 // Middleware para tratamento de erros de upload
 export const handleUploadError = (

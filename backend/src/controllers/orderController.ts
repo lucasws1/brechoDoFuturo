@@ -50,37 +50,44 @@ interface CreateOrderInput {
  * @route   POST /api/orders
  * @access  Private
  */
-export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
+export const createOrder = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { items, deliveryAddress, paymentMethod } = req.body;
 
     // Basic validation
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "Itens do pedido são obrigatórios" },
       } as ApiResponse);
+      return;
     }
 
     if (!deliveryAddress) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "Endereço de entrega é obrigatório" },
       } as ApiResponse);
+      return;
     }
 
     if (!paymentMethod) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "Método de pagamento é obrigatório" },
       } as ApiResponse);
+      return;
     }
 
     const orderData: CreateOrderInput = {
@@ -113,13 +120,17 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
  * @route   GET /api/orders
  * @access  Private
  */
-export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
+export const getOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { page = 1, limit = 20, status } = req.query;
@@ -157,13 +168,14 @@ export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
 export const getOrderById = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -171,10 +183,11 @@ export const getOrderById = async (
     const order = await orderService.getOrderById(id, req.user.id, isAdmin);
 
     if (!order) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: { message: "Pedido não encontrado" },
       } as ApiResponse);
+      return;
     }
 
     res.status(200).json({
@@ -191,13 +204,17 @@ export const getOrderById = async (
  * @route   PUT /api/orders/:id
  * @access  Private/Admin
  */
-export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
+export const updateOrder = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -228,13 +245,17 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
  * @route   DELETE /api/orders/:id
  * @access  Private/Admin
  */
-export const deleteOrder = async (req: AuthenticatedRequest, res: Response) => {
+export const deleteOrder = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -258,23 +279,25 @@ export const deleteOrder = async (req: AuthenticatedRequest, res: Response) => {
 export const getSalesStats = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { startDate, endDate } = req.query;
     const isAdmin = req.user.type === "Admin";
 
     if (!isAdmin) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         error: { message: "Acesso negado" },
       } as ApiResponse);
+      return;
     }
 
     // Implementar getSalesStats no service

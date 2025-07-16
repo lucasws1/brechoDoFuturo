@@ -1,4 +1,4 @@
-import { PrismaClient, OrderStatus } from '../../generated/prisma';
+import { PrismaClient, OrderStatus } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -96,7 +96,7 @@ export const getOrders = async (filters: OrderFilters = {}) => {
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.order.count({ where }),
   ]);
@@ -146,13 +146,13 @@ export const getOrderById = async (
   });
 
   if (!order) {
-    throw new Error('Pedido não encontrado');
+    throw new Error("Pedido não encontrado");
   }
 
   // Verificar se usuário é o dono ou admin
   const isOwner = order.customerId === userId;
   if (!isAdmin && !isOwner) {
-    throw new Error('Você não tem permissão para visualizar este pedido');
+    throw new Error("Você não tem permissão para visualizar este pedido");
   }
 
   return order;
@@ -162,29 +162,29 @@ export const getOrderById = async (
 export const createOrder = async (data: CreateOrderData, userId: string) => {
   // Verificar se o cliente é o mesmo que o usuário autenticado
   if (data.customerId !== userId) {
-    throw new Error('Você só pode criar pedidos para si mesmo');
+    throw new Error("Você só pode criar pedidos para si mesmo");
   }
 
   // Validações básicas
   if (!data.customerId) {
-    throw new Error('ID do cliente é obrigatório');
+    throw new Error("ID do cliente é obrigatório");
   }
 
   if (!data.items || data.items.length === 0) {
-    throw new Error('Pedido deve ter pelo menos um item');
+    throw new Error("Pedido deve ter pelo menos um item");
   }
 
   if (!data.deliveryAddress) {
-    throw new Error('Endereço de entrega é obrigatório');
+    throw new Error("Endereço de entrega é obrigatório");
   }
 
   // Calcular preço total
   const totalPrice = data.items.reduce((total, item) => {
     if (item.quantity <= 0) {
-      throw new Error('Quantidade deve ser maior que zero');
+      throw new Error("Quantidade deve ser maior que zero");
     }
     if (item.priceAtPurchase <= 0) {
-      throw new Error('Preço deve ser maior que zero');
+      throw new Error("Preço deve ser maior que zero");
     }
     return total + item.priceAtPurchase * item.quantity;
   }, 0);
@@ -199,7 +199,7 @@ export const createOrder = async (data: CreateOrderData, userId: string) => {
       throw new Error(`Produto ${item.productId} não encontrado`);
     }
 
-    if (product.status !== 'Available') {
+    if (product.status !== "Available") {
       throw new Error(`Produto ${product.name} não está disponível`);
     }
 
@@ -237,7 +237,7 @@ export const createOrder = async (data: CreateOrderData, userId: string) => {
     for (const item of data.items) {
       await tx.product.update({
         where: { id: item.productId },
-        data: { status: 'Sold' },
+        data: { status: "Sold" },
       });
     }
 
@@ -262,13 +262,13 @@ export const updateOrderStatus = async (
   });
 
   if (!order) {
-    throw new Error('Pedido não encontrado');
+    throw new Error("Pedido não encontrado");
   }
 
   // Apenas admin pode atualizar status do pedido
   if (!isAdmin) {
     throw new Error(
-      'Apenas administradores podem atualizar o status do pedido'
+      "Apenas administradores podem atualizar o status do pedido"
     );
   }
 
@@ -293,18 +293,18 @@ export const cancelOrder = async (
   });
 
   if (!order) {
-    throw new Error('Pedido não encontrado');
+    throw new Error("Pedido não encontrado");
   }
 
   // Verificar permissões (admin ou dono)
   const isOwner = order.customerId === userId;
   if (!isAdmin && !isOwner) {
-    throw new Error('Você não tem permissão para cancelar este pedido');
+    throw new Error("Você não tem permissão para cancelar este pedido");
   }
 
   // Verificar se pedido pode ser cancelado
-  if (!['Pending', 'Paid'].includes(order.status)) {
-    throw new Error('Este pedido não pode mais ser cancelado');
+  if (!["Pending", "Paid"].includes(order.status)) {
+    throw new Error("Este pedido não pode mais ser cancelado");
   }
 
   const updatedOrder = await prisma.order.update({
@@ -331,12 +331,12 @@ export const deleteOrder = async (
   });
 
   if (!order) {
-    throw new Error('Pedido não encontrado');
+    throw new Error("Pedido não encontrado");
   }
 
   // Apenas admin pode deletar pedidos
   if (!isAdmin) {
-    throw new Error('Apenas administradores podem excluir pedidos');
+    throw new Error("Apenas administradores podem excluir pedidos");
   }
 
   // Usar transação para deletar pedido e restaurar produtos
@@ -346,7 +346,7 @@ export const deleteOrder = async (
       for (const item of order.items) {
         await tx.product.update({
           where: { id: item.productId },
-          data: { status: 'Available' },
+          data: { status: "Available" },
         });
       }
     }
@@ -373,7 +373,7 @@ export const deleteOrder = async (
 // Buscar pedidos do usuário
 export const getUserOrders = async (
   userId: string,
-  filters: Omit<OrderFilters, 'customerId'> = {}
+  filters: Omit<OrderFilters, "customerId"> = {}
 ) => {
   return await getOrders({
     ...filters,
@@ -405,7 +405,7 @@ export const getOrderSalesStats = async (filters?: {
       _sum: { totalPrice: true },
     }),
     prisma.order.groupBy({
-      by: ['status'],
+      by: ["status"],
       where,
       _count: { status: true },
     }),

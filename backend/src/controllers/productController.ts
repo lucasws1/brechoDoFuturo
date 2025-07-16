@@ -81,16 +81,20 @@ export const getProducts = async (req: Request, res: Response) => {
  * @route   GET /api/products/:id
  * @access  Public
  */
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
-    const product = await productService.getProductById(id);
+    const product = await productService.getProductById(id as string);
 
     if (!product) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: { message: "Produto não encontrado" },
       } as ApiResponse);
+      return;
     }
 
     res.status(200).json({
@@ -110,13 +114,14 @@ export const getProductById = async (req: Request, res: Response) => {
 export const createProduct = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { name, description, price, categoryIds } = req.body;
@@ -170,13 +175,14 @@ export const createProduct = async (
 export const updateProduct = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;
@@ -228,13 +234,14 @@ export const updateProduct = async (
 export const deleteProduct = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { id } = req.params;

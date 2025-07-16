@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from "../../generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -83,7 +83,7 @@ export const addItemToCart = async (userId: string, data: AddCartItemData) => {
   const { productId, quantity } = data;
 
   if (quantity <= 0) {
-    throw new Error('Quantidade deve ser maior que zero');
+    throw new Error("Quantidade deve ser maior que zero");
   }
 
   // Verificar se produto existe e está disponível
@@ -92,16 +92,16 @@ export const addItemToCart = async (userId: string, data: AddCartItemData) => {
   });
 
   if (!product) {
-    throw new Error('Produto não encontrado');
+    throw new Error("Produto não encontrado");
   }
 
-  if (product.status !== 'Available') {
-    throw new Error('Produto não está disponível');
+  if (product.status !== "Available") {
+    throw new Error("Produto não está disponível");
   }
 
   // Verificar se o usuário não está tentando comprar seu próprio produto
   if (product.sellerId === userId) {
-    throw new Error('Você não pode adicionar seu próprio produto ao carrinho');
+    throw new Error("Você não pode adicionar seu próprio produto ao carrinho");
   }
 
   // Obter ou criar carrinho
@@ -164,7 +164,7 @@ export const updateCartItem = async (
   userId: string
 ) => {
   if (data.quantity <= 0) {
-    throw new Error('Quantidade deve ser maior que zero');
+    throw new Error("Quantidade deve ser maior que zero");
   }
 
   const item = await prisma.cartItem.findUnique({
@@ -177,12 +177,12 @@ export const updateCartItem = async (
   });
 
   if (!item) {
-    throw new Error('Item do carrinho não encontrado');
+    throw new Error("Item do carrinho não encontrado");
   }
 
   // Verificar se o usuário é dono do carrinho
   if (item.cart.userId !== userId) {
-    throw new Error('Você não tem permissão para atualizar este item');
+    throw new Error("Você não tem permissão para atualizar este item");
   }
 
   return await prisma.cartItem.update({
@@ -214,12 +214,12 @@ export const removeCartItem = async (itemId: string, userId: string) => {
   });
 
   if (!item) {
-    throw new Error('Item do carrinho não encontrado');
+    throw new Error("Item do carrinho não encontrado");
   }
 
   // Verificar se o usuário é dono do carrinho
   if (item.cart.userId !== userId) {
-    throw new Error('Você não tem permissão para remover este item');
+    throw new Error("Você não tem permissão para remover este item");
   }
 
   await prisma.cartItem.delete({
@@ -232,7 +232,7 @@ export const clearCart = async (userId: string) => {
   const cart = await getCartByUserId(userId);
 
   if (!cart) {
-    throw new Error('Carrinho não encontrado');
+    throw new Error("Carrinho não encontrado");
   }
 
   await prisma.cartItem.deleteMany({
@@ -259,7 +259,7 @@ export const removeUnavailableItems = async (userId: string) => {
   if (!cart || !cart.items) return;
 
   for (const item of cart.items) {
-    if (item.product.status !== 'Available') {
+    if (item.product.status !== "Available") {
       await prisma.cartItem.delete({
         where: { id: item.id },
       });
@@ -272,12 +272,12 @@ export const convertCartToOrder = async (userId: string) => {
   const cart = await getCartByUserId(userId);
 
   if (!cart || !cart.items || cart.items.length === 0) {
-    throw new Error('Carrinho vazio');
+    throw new Error("Carrinho vazio");
   }
 
   // Verificar se todos os produtos ainda estão disponíveis
   for (const item of cart.items) {
-    if (item.product.status !== 'Available') {
+    if (item.product.status !== "Available") {
       throw new Error(`Produto ${item.product.name} não está mais disponível`);
     }
   }

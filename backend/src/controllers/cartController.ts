@@ -40,13 +40,17 @@ interface UpdateCartItemInput {
  * @route   GET /api/cart
  * @access  Private
  */
-export const getCart = async (req: AuthenticatedRequest, res: Response) => {
+export const getCart = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const cart = await cartService.getCartByUserId(req.user.id);
@@ -68,29 +72,32 @@ export const getCart = async (req: AuthenticatedRequest, res: Response) => {
 export const addItemToCart = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { productId, quantity } = req.body;
 
     if (!productId || !quantity) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "ID do produto e quantidade são obrigatórios" },
       } as ApiResponse);
+      return;
     }
 
     if (quantity <= 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "Quantidade deve ser maior que zero" },
       } as ApiResponse);
+      return;
     }
 
     const itemData: AddCartItemInput = {
@@ -120,23 +127,25 @@ export const addItemToCart = async (
 export const updateCartItem = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { itemId } = req.params;
     const { quantity } = req.body;
 
     if (!quantity || quantity <= 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: "Quantidade deve ser maior que zero" },
       } as ApiResponse);
+      return;
     }
 
     const updateData: UpdateCartItemInput = {
@@ -169,13 +178,14 @@ export const updateCartItem = async (
 export const removeCartItem = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const { itemId } = req.params;
@@ -195,13 +205,17 @@ export const removeCartItem = async (
  * @route   DELETE /api/cart
  * @access  Private
  */
-export const clearCart = async (req: AuthenticatedRequest, res: Response) => {
+export const clearCart = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     await cartService.clearCart(req.user.id);
@@ -223,13 +237,14 @@ export const clearCart = async (req: AuthenticatedRequest, res: Response) => {
 export const getCartTotal = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     const total = await cartService.calculateCartTotal(req.user.id);
@@ -251,13 +266,14 @@ export const getCartTotal = async (
 export const getCartCheckout = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { message: "Não autorizado" },
       } as ApiResponse);
+      return;
     }
 
     // Remover itens indisponíveis antes do checkout

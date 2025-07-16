@@ -1,5 +1,5 @@
-import { PrismaClient, UserType, User } from '../../generated/prisma';
-import bcrypt from 'bcrypt';
+import { PrismaClient, UserType, User } from "../../generated/prisma";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -53,15 +53,15 @@ const isValidEmail = (email: string): boolean => {
 export const createUser = async (data: CreateUserData) => {
   // Validações básicas
   if (!data.name || data.name.trim().length === 0) {
-    throw new Error('Nome é obrigatório');
+    throw new Error("Nome é obrigatório");
   }
 
   if (!data.email || !isValidEmail(data.email)) {
-    throw new Error('Email válido é obrigatório');
+    throw new Error("Email válido é obrigatório");
   }
 
   if (!data.password || data.password.length < 6) {
-    throw new Error('Senha deve ter pelo menos 6 caracteres');
+    throw new Error("Senha deve ter pelo menos 6 caracteres");
   }
 
   // Verificar se email já existe
@@ -70,7 +70,7 @@ export const createUser = async (data: CreateUserData) => {
   });
 
   if (existingUser) {
-    throw new Error('Email já está em uso');
+    throw new Error("Email já está em uso");
   }
 
   // Hash da senha
@@ -96,12 +96,12 @@ export const authenticateUser = async (email: string, password: string) => {
   });
 
   if (!user) {
-    throw new Error('Credenciais inválidas');
+    throw new Error("Credenciais inválidas");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
-    throw new Error('Credenciais inválidas');
+    throw new Error("Credenciais inválidas");
   }
 
   const { password: _, ...userWithoutPassword } = user;
@@ -118,8 +118,8 @@ export const getUsers = async (filters: UserFilters = {}) => {
 
   if (filters?.search) {
     where.OR = [
-      { name: { contains: filters.search, mode: 'insensitive' } },
-      { email: { contains: filters.search, mode: 'insensitive' } },
+      { name: { contains: filters.search, mode: "insensitive" } },
+      { email: { contains: filters.search, mode: "insensitive" } },
     ];
   }
 
@@ -143,7 +143,7 @@ export const getUsers = async (filters: UserFilters = {}) => {
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.user.count({ where }),
   ]);
@@ -167,7 +167,7 @@ export const getUserById = async (
 ) => {
   // Usuários só podem ver seu próprio perfil, exceto admins
   if (!isAdmin && id !== userId) {
-    throw new Error('Você só pode visualizar seu próprio perfil');
+    throw new Error("Você só pode visualizar seu próprio perfil");
   }
 
   const user = await prisma.user.findUnique({
@@ -186,7 +186,7 @@ export const getUserById = async (
   });
 
   if (!user) {
-    throw new Error('Usuário não encontrado');
+    throw new Error("Usuário não encontrado");
   }
 
   return user;
@@ -201,7 +201,7 @@ export const updateUser = async (
 ) => {
   // Usuários só podem atualizar seu próprio perfil, exceto admins
   if (!isAdmin && id !== userId) {
-    throw new Error('Você só pode atualizar seu próprio perfil');
+    throw new Error("Você só pode atualizar seu próprio perfil");
   }
 
   // Verificar se usuário existe
@@ -211,12 +211,12 @@ export const updateUser = async (
   });
 
   if (!user) {
-    throw new Error('Usuário não encontrado');
+    throw new Error("Usuário não encontrado");
   }
 
   // Validações
   if (data.email && !isValidEmail(data.email)) {
-    throw new Error('Email inválido');
+    throw new Error("Email inválido");
   }
 
   // Verificar se o novo email já está em uso por outro usuário
@@ -226,7 +226,7 @@ export const updateUser = async (
     });
 
     if (existingUser) {
-      throw new Error('Email já está em uso');
+      throw new Error("Email já está em uso");
     }
   }
 
@@ -256,7 +256,7 @@ export const deleteUser = async (
 ): Promise<void> => {
   // Usuários só podem deletar sua própria conta, exceto admins
   if (!isAdmin && id !== userId) {
-    throw new Error('Você só pode excluir sua própria conta');
+    throw new Error("Você só pode excluir sua própria conta");
   }
 
   // Verificar se usuário existe
@@ -266,12 +266,12 @@ export const deleteUser = async (
   });
 
   if (!user) {
-    throw new Error('Usuário não encontrado');
+    throw new Error("Usuário não encontrado");
   }
 
   // Impedir exclusão de contas admin por não-admins
   if (user.type === UserType.Admin && !isAdmin) {
-    throw new Error('Não é possível excluir contas de administrador');
+    throw new Error("Não é possível excluir contas de administrador");
   }
 
   await prisma.user.delete({
@@ -288,12 +288,12 @@ export const changeUserRole = async (
 ) => {
   // Apenas admins podem alterar funções
   if (!isAdmin) {
-    throw new Error('Apenas administradores podem alterar funções de usuário');
+    throw new Error("Apenas administradores podem alterar funções de usuário");
   }
 
   // Impedir alteração da própria função
   if (id === adminId) {
-    throw new Error('Você não pode alterar sua própria função');
+    throw new Error("Você não pode alterar sua própria função");
   }
 
   // Verificar se usuário existe
@@ -303,7 +303,7 @@ export const changeUserRole = async (
   });
 
   if (!user) {
-    throw new Error('Usuário não encontrado');
+    throw new Error("Usuário não encontrado");
   }
 
   // Atualizar tipo do usuário
@@ -334,7 +334,7 @@ export const getUserOrders = async (
 ) => {
   // Verificar permissões
   if (!isAdmin && userId !== requesterId) {
-    throw new Error('Você só pode visualizar seus próprios pedidos');
+    throw new Error("Você só pode visualizar seus próprios pedidos");
   }
 
   const page = filters.page || 1;
@@ -354,7 +354,7 @@ export const getUserOrders = async (
       },
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.order.count({ where: { customerId: userId } }),
   ]);

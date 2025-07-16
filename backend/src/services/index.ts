@@ -8,7 +8,7 @@ export {
   deleteUser,
   changeUserRole,
   getUserOrders as getUserOrdersFromUserService,
-} from './user.service';
+} from "./user.service";
 
 // Product service
 export {
@@ -19,7 +19,7 @@ export {
   deleteProduct,
   getProductsBySeller,
   updateProductStatus,
-} from './product.service';
+} from "./product.service";
 
 // Order service
 export {
@@ -31,7 +31,7 @@ export {
   deleteOrder,
   getUserOrders as getUserOrdersFromOrderService,
   getOrderSalesStats,
-} from './order.service';
+} from "./order.service";
 
 // Category service
 export {
@@ -41,7 +41,7 @@ export {
   updateCategory,
   deleteCategory,
   getCategoryStats,
-} from './category.service';
+} from "./category.service";
 
 // Cart service
 export {
@@ -54,7 +54,7 @@ export {
   calculateCartTotal,
   removeUnavailableItems,
   convertCartToOrder,
-} from './cart.service';
+} from "./cart.service";
 
 // Product Review service
 export {
@@ -66,4 +66,4 @@ export {
   deleteProductReview,
   getProductReviewStats,
   getAllReviews,
-} from './productReview.service';
+} from "./productReview.service";
