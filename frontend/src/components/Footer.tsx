@@ -6,12 +6,12 @@ import {
 
 export function Footer() {
   return (
-    <footer className="border-border bg-background mt-8 border-t">
+    <footer className="mt-8 border-t bg-background">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-left md:grid-cols-5">
         {/* Logo + descrição */}
         <div className="col-span-2 space-y-3">
           <div className="text-lg font-bold">Brechó do Futuro</div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             Moda sustentável para todos. Peças únicas, preços justos.
           </p>
           <div className="mt-2 flex gap-3">
@@ -83,7 +83,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="text-muted-foreground py-2 text-center text-xs">
+      <div className="py-2 text-center text-xs text-muted-foreground">
         &copy; {new Date().getFullYear()} Brechó do Futuro. CNPJ
         00.000.000/0000-00
       </div>

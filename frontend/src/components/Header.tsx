@@ -12,7 +12,7 @@ const categories = [
 
 export function Header() {
   return (
-    <header className="border-border bg-background w-full border-b">
+    <header className="w-full border-b bg-background">
       {/* Topbar */}
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3">
         {/* Logo */}
@@ -39,7 +39,7 @@ export function Header() {
         </div>
       </div>
       {/* Categorias */}
-      <nav className="bg-muted border-border border-b">
+      <nav className="border-b bg-muted">
         <ul className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto px-4 py-2">
           {categories.map((cat) => (
             <li key={cat}>
