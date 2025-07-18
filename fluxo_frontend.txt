@@ -1,0 +1,79 @@
+Projeto brechoDoFuturo
+
+- Backend ok
+
+- Fluxo do frontend:
+
+1. **Setup do projeto e arquitetura básica**
+
+   - Configure o bundler (Vite, CRA, Next.js, etc.), define ESLint/Prettier, TypeScript (se for o caso) e estrutura de pastas (páginas, componentes, serviços, estilos).
+   - Garanta a integração com o seu design token ou biblioteca de estilos (Tailwind, Styled Components, CSS Modules…).
+
+     - OK - MERN stack - frontend: Vite, prettier, TS, react, tailwind, zod, react router dom, react hook form, clsx (lista não exaustiva).
+     - OK - Estrutura das páginas: assets components config contexts hooks layouts lib pages routes styles types
+
+2. **Componentes compartilhados (“Design System”)**
+
+   - Comece criando os blocos mais atômicos: botão, input, cards de produto, tipografia e cores.
+   - Assim, quando você for montar páginas, você já tem a base consistente.
+
+   - OK: componentes shadcn.
+
+3. **Layout global (Header / Footer / Grid container)**
+
+   - Crie o `Header` com logo, busca, botões de login/cadastro e carrinho.
+   - Defina o `Footer` com links e contatos.
+   - Implemente o container ou sistema de grid que vai receber as páginas filhas.
+   
+   - Header: 
+   topbar com pesquisa, categorias, carrinho, userprofile etc., sem sidebar:
+   
+| [LOGO] [Barra de Busca] [Entrar/Cadastrar ou PerfilDoUsuario] [Carrinho] |
+| [novidades] [ofertas] [masculino] [feminino] [infantil] ...              |
+
+A primeira linha (topbar) deve ter o logo, busca centralizada, e ícones de usuário/carrinho à direita.
+
+A segunda linha, logo abaixo, exibe as categorias principais em horizontal (podendo ser scrollável no mobile).
+   
+   - Footer:
+   
+| LOGO       | Institucional | Categorias | Minha Conta | Contato      | Redes Sociais |
+|------------|---------------|------------|-------------|--------------|---------------|
+| Brechó...  | Quem somos    | Masculino  | Meus pedidos| WhatsApp     | [Instagram]   |
+|            | Privacidade   | Feminino   | Endereços   | Email        | [Facebook]    |
+|            | FAQ           | Infantil   | Sair        | Telefone     | [TikTok]      |
+|            | ...           | ...        | ...         | ...          | ...           |
+|---------------------------------------------------------------------------------------|
+| CNPJ 00.000.000/0000-00 | © 2025 Brechó do Futuro |
+
+Use a grid do Tailwind para dividir em colunas no footer.
+No mobile, coloque as seções uma abaixo da outra, ou use um accordion para os grupos de links.
+Pegue componentes prontos do shadcn/ui e monte seu próprio footer combinando os blocos de link, icons, etc.
+
+4. **Home page**
+
+   - Use seus componentes atômicos e o layout global para montar a Home:  
+     • Topbar de categorias  
+     • Grid de produtos (card de produto + botão de “Adicionar”)  
+     • Paginação ou “Carregar mais”  
+     • Rodapé
+     
+     - Falta grid de produtos
+
+5. **Navegação e estado**
+   - Pense em como vai guardar o estado das categorias selecionadas, paginação e carrinho (Context API, Zustand, Redux, React Query…).
+
+Sobre **menu vertical vs horizontal**:
+
+- Vertical:  
+  • Ótimo quando há muitas categorias ou hierarquias.  
+  • Facilita a leitura dos itens e dá mais espaço para labels maiores.  
+  • Pode ocupar bastante área em telas pequenas (mobile vai colapsar em um drawer).
+
+- Horizontal:  
+  • Ideal com poucas categorias (5–6 no máximo).  
+  • Economiza altura da página, fica mais leve para mobile (pode rolar horizontal se precisar).  
+  • Menos destacado para hierarquias profundas.
+
+Dica: comece desenhando o menu, veja em diferentes tamanhos de tela e teste qual dá melhor usabilidade para seu público. Mas, estruturalmente, inicie pelos componentes globais (Header, Footer, Grid) antes de entrar no detalhe de cada página.
+Ps.: não tenho nem sei usar o figma
