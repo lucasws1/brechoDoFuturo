@@ -12,40 +12,46 @@ const categories = [
 
 export function Header() {
   return (
-    <header className="w-full border-b bg-background">
+    <header className="w-full">
       {/* Topbar */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4">
         {/* Logo */}
-        <a href="/" className="text-xl font-bold">
+        <a
+          href="/"
+          className="from-primary to-secondary bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent"
+        >
           Brechó do Futuro
         </a>
         {/* Search */}
-        <div className="mx-4 max-w-lg flex-1">
+        <div className="mx-2 max-w-lg flex-1">
           <Input placeholder="Buscar produtos..." className="w-full" />
         </div>
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button size="icon">
+          <Button size="icon" variant="ghost">
             <IconShoppingCart className="h-5 w-5" />
           </Button>
-          <Button size="icon">
+          <Button size="icon" variant="ghost">
             <IconUser className="h-5 w-5" />
           </Button>
-          {/* Ou, se não logado: */}
-          <Button size="sm" className="flex items-center gap-1">
+          <Button
+            size="sm"
+            className="flex items-center gap-1"
+            variant="outline"
+          >
             <IconLogin className="h-4 w-4" />
             Entrar
           </Button>
         </div>
       </div>
       {/* Categorias */}
-      <nav className="border-b bg-muted">
-        <ul className="mx-auto flex max-w-7xl items-center gap-3 overflow-x-auto px-4 py-2">
+      <nav className="bg-muted border-b">
+        <ul className="mx-auto flex max-w-7xl items-center justify-between gap-2 overflow-x-auto px-4 py-2">
           {categories.map((cat) => (
             <li key={cat}>
               <a
                 href={`/categoria/${cat.toLowerCase()}`}
-                className="text-sm font-medium hover:underline"
+                className="text-md font-medium hover:underline"
               >
                 {cat}
               </a>
