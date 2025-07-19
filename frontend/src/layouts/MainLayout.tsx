@@ -1,5 +1,3 @@
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
 import type { ReactNode } from "react";
 
 export function MainLayout({ children }: { children: ReactNode }) {
