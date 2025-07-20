@@ -5,6 +5,7 @@ import { UserType } from "../../generated/prisma";
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
+    name: string;
     email: string;
     type: UserType;
   };
@@ -27,6 +28,7 @@ export const authenticate = async (
 
     req.user = {
       id: decoded.id,
+      name: decoded.name,
       email: decoded.email,
       type: decoded.type as UserType,
     };

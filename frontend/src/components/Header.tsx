@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconShoppingCart, IconUser, IconLogin } from "@tabler/icons-react";
+import {
+  IconShoppingCart,
+  IconUser,
+  IconLogin,
+  IconLogout,
+} from "@tabler/icons-react";
 import { useProductsContext } from "@/contexts/ProductsContext";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext"; // Importa o hook de autenticação
 
 const categories = [
   "Novidades",
@@ -23,6 +29,7 @@ export function Header() {
     handleCategoryChange,
   } = useProductsContext();
   const { cartItems } = useCart();
+  const { isAuthenticated, user, logout, loading } = useAuth(); // Obtém o estado de autenticação
 
   return (
     <header className="w-full">
@@ -52,26 +59,57 @@ export function Header() {
         </div>
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" style={{ position: "relative" }}>
-            <Link to="/cart">
+          <Link to="/cart">
+            <Button
+              size="icon"
+              variant="ghost"
+              style={{ position: "relative" }}
+            >
               <IconShoppingCart className="relative h-5 w-5" />
-              <p className="absolute -top-1 -right-1 rounded-full bg-red-500 px-1 text-xs text-white">
-                {cartItems.length}
-              </p>
-            </Link>
-          </Button>
+              {cartItems.length > 0 && (
+                <p className="absolute -top-1 -right-1 rounded-full bg-red-500 px-1 text-xs text-white">
+                  {cartItems.length}
+                </p>
+              )}
+            </Button>
+          </Link>
 
-          <Button size="icon" variant="ghost">
-            <IconUser className="h-5 w-5" />
-          </Button>
-          <Button
-            size="sm"
-            className="flex items-center gap-1"
-            variant="outline"
-          >
-            <IconLogin className="h-4 w-4" />
-            Entrar
-          </Button>
+          {!loading && (
+            <>
+              {isAuthenticated && user ? (
+                <div className="flex items-center gap-2">
+                  <Link to="/profile">
+                    <Button size="icon" variant="ghost">
+                      <IconUser className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <span className="hidden text-sm md:block">
+                    Olá, {user.name.split(" ")[0]}
+                  </span>
+                  <Button
+                    size="sm"
+                    className="flex items-center gap-1"
+                    variant="outline"
+                    onClick={logout}
+                  >
+                    <IconLogout className="h-4 w-4" />
+                    Sair
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/auth">
+                  <Button
+                    size="sm"
+                    className="flex items-center gap-1"
+                    variant="outline"
+                  >
+                    <IconLogin className="h-4 w-4" />
+                    Entrar
+                  </Button>
+                </Link>
+              )}
+            </>
+          )}
         </div>
       </div>
       {/* Categorias */}

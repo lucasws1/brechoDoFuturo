@@ -55,4 +55,27 @@
 
 ---
 
+## Development Log & Next Steps
+
+**Objective:** Build a full-featured e-commerce frontend for "Brechó do Futuro".
+
+**Progress So Far:**
+
+1.  **Home Page (`/`):** Completed. Displays a paginated catalog of products fetched from a mock API. Uses `ProductsContext` to manage state.
+2.  **Product Page (`/product/:id`):** Completed. Displays detailed information for a single product. Uses a dedicated `useProductById` hook.
+3.  **Shopping Cart (`/cart`):** Completed. Manages cart state using `CartContext` and persists data to `localStorage`. Allows users to view, update quantities, and remove items.
+4.  **Checkout Page (`/checkout`):** Completed (UI & Mock Logic). Provides a complete, validated checkout form using `react-hook-form` and `zod`. Simulates the order placement process.
+
+**Current Status & Next Step:**
+
+The frontend currently operates in a mocked environment. The user has confirmed that a backend with JWT authentication is ready for integration.
+
+-   **Next Major Task:** Implement **User Authentication (Login/Register)** by connecting the frontend to the existing backend API.
+    -   **Plan:**
+        1.  Switch to a project view that includes both `frontend` and `backend` directories.
+        2.  Analyze backend authentication routes (`/login`, `/register`, `/refresh`) to understand API contracts.
+        3.  Create a real `AuthContext` to manage user state and tokens.
+        4.  Build an `AuthPage` with Login and Register forms that call the backend.
+        5.  Implement protected routes for user-specific pages.
+
 If any section is unclear or missing, please provide feedback for further refinement.

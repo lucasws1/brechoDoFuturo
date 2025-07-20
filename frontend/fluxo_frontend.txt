@@ -50,9 +50,9 @@ Projeto brechoDoFuturo
    - Home / Catálogo - ok
    - Página do Produto - ok, useProductById
    - Carrinho - CartContext - ok
-   - Checkout
-   - Login / Cadastro
-   - Painel do Usuário (Meus Pedidos)
+   - Checkout - ok
+   - Login / Cadastro - ok
+   - Painel do Usuário (Meus Pedidos) - ok
    - Painel do Admin (Gerenciar Produtos)
    - Página de Contato
 

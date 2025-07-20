@@ -54,6 +54,7 @@ export const register = async (
     // Gera o token JWT
     const token = generateAccessToken({
       id: user.id,
+      name: user.name,
       email: user.email,
       type: user.type,
     });
@@ -111,7 +112,12 @@ export const login = async (
     // });
 
     // Versao nova - ChatGPT
-    const payload = { id: user.id, email: user.email, type: user.type };
+    const payload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      type: user.type,
+    };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
@@ -124,7 +130,12 @@ export const login = async (
       data: {
         accessToken,
         refreshToken,
-        user: { id: user.id, email: user.email, type: user.type },
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          type: user.type,
+        },
       },
       error: null,
       message: "Login realizado com sucesso",
@@ -234,16 +245,19 @@ export const refreshToken = async (
   try {
     const payload = verifyRefreshToken(refreshToken) as {
       id: string;
+      name: string;
       email: string;
     };
     const newAccessToken = generateAccessToken({
       id: payload.id,
+      name: payload.name, // Adicionado
       email: payload.email,
       type: user?.type as UserType,
     });
     // Opcional: gerar novo refresh token ("rotation")
     const newRefreshToken = generateRefreshToken({
       id: payload.id,
+      name: payload.name, // Adicionado
       email: payload.email,
       type: user?.type as UserType,
     });

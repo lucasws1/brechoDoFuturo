@@ -6,6 +6,7 @@ import { UserType } from "../../generated/prisma";
 
 export interface TokenPayload {
   id: string;
+  name: string;
   email: string;
   type: UserType;
 }
