@@ -108,6 +108,9 @@ export function useProducts(
 
   const refetch = () => {
     fetchProducts();
+    setSelectedCategory(""); // Resetar categoria ao refazer a busca
+    setSearchTerm(""); // Resetar termo de busca ao refazer a busca
+    setCurrentPage(1); // Resetar para a primeira página
   };
 
   return {

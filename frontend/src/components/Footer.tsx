@@ -3,27 +3,28 @@ import {
   IconBrandInstagram,
   IconBrandTwitter,
 } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
-    <footer className="mt-8 border-t bg-background">
+    <footer className="bg-background mt-8 border-t">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-left md:grid-cols-5">
         {/* Logo + descrição */}
         <div className="col-span-2 space-y-3">
           <div className="text-lg font-bold">Brechó do Futuro</div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Moda sustentável para todos. Peças únicas, preços justos.
           </p>
           <div className="mt-2 flex gap-3">
-            <a href="#" aria-label="Instagram">
+            <Link to="#" aria-label="Instagram">
               <IconBrandInstagram className="h-5 w-5" />
-            </a>
-            <a href="#" aria-label="Facebook">
+            </Link>
+            <Link to="#" aria-label="Facebook">
               <IconBrandFacebook className="h-5 w-5" />
-            </a>
-            <a href="#" aria-label="Twitter">
+            </Link>
+            <Link to="#" aria-label="Twitter">
               <IconBrandTwitter className="h-5 w-5" />
-            </a>
+            </Link>
           </div>
         </div>
         {/* Institucional */}
@@ -31,16 +32,16 @@ export function Footer() {
           <div className="mb-2 font-semibold">Institucional</div>
           <ul className="space-y-1 text-sm">
             <li>
-              <a href="#">Quem somos</a>
+              <Link to="#">Quem somos</Link>
             </li>
             <li>
-              <a href="#">Política de Privacidade</a>
+              <Link to="#">Política de Privacidade</Link>
             </li>
             <li>
-              <a href="#">Trocas & Devoluções</a>
+              <Link to="#">Trocas & Devoluções</Link>
             </li>
             <li>
-              <a href="#">FAQ</a>
+              <Link to="#">FAQ</Link>
             </li>
           </ul>
         </div>
@@ -49,16 +50,16 @@ export function Footer() {
           <div className="mb-2 font-semibold">Categorias</div>
           <ul className="space-y-1 text-sm">
             <li>
-              <a href="#">Masculino</a>
+              <Link to="#">Masculino</Link>
             </li>
             <li>
-              <a href="#">Feminino</a>
+              <Link to="#">Feminino</Link>
             </li>
             <li>
-              <a href="#">Infantil</a>
+              <Link to="#">Infantil</Link>
             </li>
             <li>
-              <a href="#">Ofertas</a>
+              <Link to="#">Ofertas</Link>
             </li>
           </ul>
         </div>
@@ -67,13 +68,13 @@ export function Footer() {
           <div className="mb-2 font-semibold">Minha Conta</div>
           <ul className="space-y-1 text-sm">
             <li>
-              <a href="#">Meus pedidos</a>
+              <Link to="#">Meus pedidos</Link>
             </li>
             <li>
-              <a href="#">Endereços</a>
+              <Link to="#">Endereços</Link>
             </li>
             <li>
-              <a href="#">Sair</a>
+              <Link to="#">Sair</Link>
             </li>
           </ul>
           <div className="mt-4">
@@ -83,7 +84,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="py-2 text-center text-xs text-muted-foreground">
+      <div className="text-muted-foreground py-2 text-center text-xs">
         &copy; {new Date().getFullYear()} Brechó do Futuro. CNPJ
         00.000.000/0000-00
       </div>

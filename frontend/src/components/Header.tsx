@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconShoppingCart, IconUser, IconLogin } from "@tabler/icons-react";
 import { useProductsContext } from "@/contexts/ProductsContext";
+import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const categories = [
   "Novidades",
@@ -12,6 +14,7 @@ const categories = [
 ];
 
 export function Header() {
+  const { refetch } = useProductsContext();
   const {
     searchTerm,
     setSearchTerm,
@@ -19,18 +22,20 @@ export function Header() {
     selectedCategory,
     handleCategoryChange,
   } = useProductsContext();
+  const { cartItems } = useCart();
 
   return (
     <header className="w-full">
       {/* Topbar */}
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4">
         {/* Logo */}
-        <a
-          href="/"
+        <Link
+          onClick={refetch}
+          to="/"
           className="from-primary to-secondary bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent"
         >
           Brechó do Futuro
-        </a>
+        </Link>
         {/* Search */}
         <div className="mx-2 max-w-lg flex-1">
           <form onSubmit={handleSearch} className="flex gap-2">
@@ -47,9 +52,15 @@ export function Header() {
         </div>
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost">
-            <IconShoppingCart className="h-5 w-5" />
+          <Button size="icon" variant="ghost" style={{ position: "relative" }}>
+            <Link to="/cart">
+              <IconShoppingCart className="relative h-5 w-5" />
+              <p className="absolute -top-1 -right-1 rounded-full bg-red-500 px-1 text-xs text-white">
+                {cartItems.length}
+              </p>
+            </Link>
           </Button>
+
           <Button size="icon" variant="ghost">
             <IconUser className="h-5 w-5" />
           </Button>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Product } from "@/types/Product";
+import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,13 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Impede que o link seja acionado ao clicar no botão
     e.stopPropagation(); // Impede a propagação do evento para o Link pai
-    console.log(`Produto ${product.name} adicionado ao carrinho!`);
-    // Aqui você adicionaria a lógica do seu context de carrinho
+    addToCart(product);
+    toast.success(`${product.name} foi adicionado ao carrinho!`);
   };
 
   return (
