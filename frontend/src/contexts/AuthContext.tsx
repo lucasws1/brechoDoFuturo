@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-// import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 
 // Tipos
@@ -19,7 +18,8 @@ interface AuthContextType {
   loading: boolean;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
-  refreshUser: () => Promise<void>; // Adiciona a função refreshUser
+  refreshUser: () => Promise<void>;
+  onAuthChange?: () => void; // Callback para notificar mudanças de auth
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,7 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, loading, login, logout, refreshUser: fetchUser }}
+      value={{
+        isAuthenticated,
+        user,
+        loading,
+        login,
+        logout,
+        refreshUser: fetchUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

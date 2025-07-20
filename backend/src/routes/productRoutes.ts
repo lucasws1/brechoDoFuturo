@@ -7,6 +7,7 @@ import {
   deleteProduct,
   getMockProducts,
   getMockProductsById,
+  populateMockProducts,
 } from "../controllers/productController";
 import { authenticate } from "../middleware/auth";
 import { uploadProductImages } from "../middleware/upload";
@@ -27,6 +28,13 @@ router.get("/", getProducts);
  */
 router.get("/mock", getMockProducts);
 router.get("/mock/:id", getMockProductsById);
+
+/**
+ * @route POST /api/products/populate
+ * @desc Popular banco com produtos mock (Admin only)
+ * @access Private (Admin only)
+ */
+router.post("/populate", authenticate, populateMockProducts);
 
 /**
  * @route GET /api/products/:id

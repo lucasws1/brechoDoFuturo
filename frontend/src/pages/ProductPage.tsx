@@ -22,8 +22,8 @@ export function ProductPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <Skeleton className="w-full h-[400px] rounded-lg" />
+        <div className="grid gap-8 md:grid-cols-2">
+          <Skeleton className="h-[400px] w-full rounded-lg" />
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-12 w-1/2" />
@@ -52,27 +52,31 @@ export function ProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid md:grid-cols-2 gap-8 items-start">
+      <div className="grid items-start gap-8 md:grid-cols-2">
         <div className="w-full">
           <img
-            src={product.image || 'https://via.placeholder.com/400'}
+            src={product.images?.[0] || "https://via.placeholder.com/400"}
             alt={product.name}
-            className="w-full h-auto object-cover rounded-lg shadow-lg"
+            className="h-auto w-full rounded-lg object-cover shadow-lg"
           />
         </div>
         <div className="space-y-6">
           <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
-          <p className="text-4xl font-bold text-primary">
+          <p className="text-primary text-4xl font-bold">
             {new Intl.NumberFormat("pt-BR", {
               style: "currency",
               currency: "BRL",
             }).format(product.price)}
           </p>
           <div>
-            <h2 className="text-xl font-semibold mb-2">Descrição</h2>
+            <h2 className="mb-2 text-xl font-semibold">Descrição</h2>
             <p className="text-muted-foreground">{product.description}</p>
           </div>
-          <Button size="lg" className="w-full md:w-auto" onClick={handleAddToCart}>
+          <Button
+            size="lg"
+            className="w-full md:w-auto"
+            onClick={handleAddToCart}
+          >
             <ShoppingCart className="mr-2 h-5 w-5" />
             Adicionar ao Carrinho
           </Button>

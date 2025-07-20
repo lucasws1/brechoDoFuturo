@@ -4,7 +4,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  image: string;
+  images: string[]; // Array de imagens do backend
   category: string;
   description: string;
   stock?: number;
@@ -38,7 +38,7 @@ export function useProductById(productId?: string): UseProductByIdReturn {
       setLoading(true);
       setError(null);
 
-      const apiUrl = `http://localhost:3001/api/products/mock/${productId}`;
+      const apiUrl = `http://localhost:3001/api/products/${productId}`;
       const response = await fetch(apiUrl);
       console.log("Fetching product from:", apiUrl);
 

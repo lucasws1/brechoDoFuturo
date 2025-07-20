@@ -7,6 +7,7 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed:categories": "ts-node src/scripts/seedCategories.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
@@ -26,8 +27,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
-    "multer": "^2.0.1",
-    "prisma": "^6.11.1"
+    "multer": "^2.0.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -36,6 +36,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^24.0.14",
     "nodemon": "^3.1.10",
+    "prisma": "^6.12.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }

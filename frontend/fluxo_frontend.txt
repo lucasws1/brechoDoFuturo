@@ -59,26 +59,21 @@ Projeto brechoDoFuturo
 5. **Navegação e estado**
    - Pense em como vai guardar o estado das categorias selecionadas, paginação e carrinho (Context API, Zustand, Redux, React Query…).
 
-Sobre **menu vertical vs horizontal**:
 
-- Vertical:  
-  • Ótimo quando há muitas categorias ou hierarquias.  
-  • Facilita a leitura dos itens e dá mais espaço para labels maiores.  
-  • Pode ocupar bastante área em telas pequenas (mobile vai colapsar em um drawer).
+Implementações futuras / finais:
 
-- Horizontal:  
-  • Ideal com poucas categorias (5–6 no máximo).  
-  • Economiza altura da página, fica mais leve para mobile (pode rolar horizontal se precisar).  
-  • Menos destacado para hierarquias profundas.
-
-Dica: comece desenhando o menu, veja em diferentes tamanhos de tela e teste qual dá melhor usabilidade para seu público. Mas, estruturalmente, inicie pelos componentes globais (Header, Footer, Grid) antes de entrar no detalhe de cada página.
-Ps.: não tenho nem sei usar o figma
-
-
-Implementações futuras:
 Carrinho:
    1. Verificação de Estoque: Impedir que o usuário adicione ao carrinho mais itens do que o disponível em estoque (product.stock). Isso seria uma pequena adição na função
       addToCart e updateQuantity dentro do CartContext.
    2. Mini-Carrinho (Popover): Ao invés de ir direto para a página, um clique (ou hover) no ícone do carrinho poderia abrir um pequeno resumo flutuante, com um link para a
       página completa.
    3. Campo de Cupom de Desconto: Adicionar um campo de input no resumo do pedido para aplicar descontos.
+
+Autenticação:
+Checklist final para jwt:
+ JWT gerando e validando corretamente? - ok
+ Rotas protegidas só acessam com token? - ok (testes realizados só no backend)
+ Frontend armazena e envia token corretamente?
+ Logout limpa token do lado do cliente?
+ Chave secreta protegida?
+ Refresh token só se quiser sessões longas (pode ser depois)

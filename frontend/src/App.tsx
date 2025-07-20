@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import { ProductPage } from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute"; // Importa o ProtectedRoute
+import { AuthCartSync } from "./components/AuthCartSync"; // Importa o componente de sincronização
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner"; // Importa o Toaster
 
@@ -16,8 +17,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ProductsProvider>
-          <CartProvider>
+        <CartProvider>
+          <AuthCartSync /> {/* Componente que sincroniza os contextos */}
+          <ProductsProvider>
             <MainLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -28,13 +30,15 @@ function App() {
                 <Route path="/checkout" element={<ProtectedRoute />}>
                   <Route index element={<CheckoutPage />} />
                 </Route>
-                <Route path="/profile" element={<ProtectedRoute />}> {/* Rota de perfil protegida */}
+                <Route path="/profile" element={<ProtectedRoute />}>
+                  {" "}
+                  {/* Rota de perfil protegida */}
                   <Route index element={<ProfilePage />} />
                 </Route>
               </Routes>
             </MainLayout>
-          </CartProvider>
-        </ProductsProvider>
+          </ProductsProvider>
+        </CartProvider>
         <Toaster /> {/* Adiciona o Toaster aqui */}
       </AuthProvider>
     </Router>

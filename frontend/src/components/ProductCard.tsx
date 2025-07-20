@@ -16,6 +16,10 @@ import { toast } from "sonner";
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
 
+  // Usar a primeira imagem do array ou fallback
+  const imageUrl =
+    product.images?.[0] || product.image || "/placeholder-image.jpg";
+
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Impede que o link seja acionado ao clicar no botão
     e.stopPropagation(); // Impede a propagação do evento para o Link pai
@@ -28,18 +32,18 @@ export function ProductCard({ product }: { product: Product }) {
       <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 group-hover:shadow-xl">
         <CardHeader className="p-4">
           <CardTitle className="truncate">{product.name}</CardTitle>
-          <CardDescription className="truncate h-10">
+          <CardDescription className="h-10 truncate">
             {product.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <img
-            src={product.image}
+            src={imageUrl}
             alt={product.name}
             className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </CardContent>
-        <CardFooter className="p-4 flex justify-between items-center">
+        <CardFooter className="flex items-center justify-between p-4">
           <p className="text-lg font-semibold">
             {product.price.toLocaleString("pt-BR", {
               style: "currency",

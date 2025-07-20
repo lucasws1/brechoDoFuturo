@@ -8,17 +8,25 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 export function CartItemCard({ item }: { item: CartItem }) {
   const { updateQuantity, removeFromCart } = useCart();
 
+  // Usar a primeira imagem do array ou fallback
+  const imageUrl =
+    Array.isArray(item.images) && item.images.length > 0
+      ? item.images[0]
+      : item.image || "/placeholder-image.jpg";
+
   return (
     <Card>
       <CardContent className="flex items-center gap-4 p-4">
         <img
-          src={item.image}
+          src={imageUrl}
           alt={item.name}
           className="h-24 w-24 rounded-md object-cover"
         />
         <div className="flex-grow">
           <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-muted-foreground text-sm">{item.category}</p>
+          <p className="text-muted-foreground text-sm">
+            {item.category || "Sem categoria"}
+          </p>
           <p className="mt-1 text-lg font-bold">
             {new Intl.NumberFormat("pt-BR", {
               style: "currency",

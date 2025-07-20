@@ -18,7 +18,7 @@ const checkoutSchema = z.object({
   city: z.string().min(3, "Cidade é obrigatória"),
   state: z.string().min(2, "Estado é obrigatório"),
   zip: z.string().regex(/^\d{5}-?\d{3}$/, "CEP inválido"),
-  paymentMethod: z.enum(["credit-card", "pix", "boleto"], { required_error: "Escolha um método de pagamento" }),
+  paymentMethod: z.enum(["credit-card", "pix", "boleto"], { message: "Escolha um método de pagamento" }),
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;

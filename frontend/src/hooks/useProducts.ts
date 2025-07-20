@@ -62,12 +62,14 @@ export function useProducts(
       if (selectedCategory) params.append("category", selectedCategory);
 
       // URL da API
-      const apiUrl = `http://localhost:3001/api/products/mock?${params.toString()}`;
+      const apiUrl = `http://localhost:3001/api/products?${params.toString()}`;
 
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
-        throw new Error(`Erro na requisição: ${response.status}`);
+        throw new Error(
+          `Erro na requisição: ${response.status} ${response.statusText}`,
+        );
       }
 
       const data: ApiResponse = await response.json();
@@ -108,7 +110,7 @@ export function useProducts(
 
   const refetch = () => {
     fetchProducts();
-    setSelectedCategory(""); // Resetar categoria ao refazer a busca
+    // setSelectedCategory(""); // Resetar categoria ao refazer a busca
     setSearchTerm(""); // Resetar termo de busca ao refazer a busca
     setCurrentPage(1); // Resetar para a primeira página
   };

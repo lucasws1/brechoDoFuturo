@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { useProductsContext } from "@/contexts/ProductsContext";
 import {
-  IconShoppingCart,
-  IconUser,
   IconLogin,
   IconLogout,
+  IconShoppingCart,
+  IconUser,
 } from "@tabler/icons-react";
-import { useProductsContext } from "@/contexts/ProductsContext";
 import { Link } from "react-router-dom";
-import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext"; // Importa o hook de autenticação
 
 const categories = [
   "Novidades",
@@ -116,15 +116,16 @@ export function Header() {
       <nav className="bg-muted border-b">
         <ul className="mx-auto flex max-w-7xl items-center justify-between gap-2 overflow-x-auto px-4 py-2">
           {categories.map((cat) => (
-            <li key={cat}>
-              <button
+            <li key={cat} className="flex items-center gap-2">
+              <Button
+                variant={"link"}
                 onClick={() => handleCategoryChange(cat)}
-                className={`text-md font-medium hover:underline ${
-                  selectedCategory === cat ? "text-primary font-semibold" : ""
+                className={`cursor-pointer font-medium ${
+                  selectedCategory === cat ? "text-green-500" : ""
                 }`}
               >
                 {cat}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

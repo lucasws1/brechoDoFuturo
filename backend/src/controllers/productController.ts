@@ -336,3 +336,48 @@ export const getMockProductsById = async (
     handleError(res, error, "Erro ao buscar produto mock");
   }
 };
+
+/**
+ * @desc    Populate database with mock products
+ * @route   POST /api/products/populate
+ * @access  Private (Admin only)
+ */
+export const populateMockProducts = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        error: { message: "Não autorizado" },
+      } as ApiResponse);
+      return;
+    }
+
+    if (req.user.type !== "Admin") {
+      res.status(403).json({
+        success: false,
+        error: {
+          message:
+            "Acesso negado. Apenas administradores podem popular produtos.",
+        },
+      } as ApiResponse);
+      return;
+    }
+
+    const createdProducts = await productService.populateMockProducts(
+      req.user.id
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        message: `${createdProducts.length} produtos foram criados com sucesso`,
+        products: createdProducts,
+      },
+    } as ApiResponse);
+  } catch (error) {
+    handleError(res, error, "Erro ao popular produtos mock");
+  }
+};
