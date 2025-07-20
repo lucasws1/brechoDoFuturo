@@ -1,14 +1,5 @@
+import type { Product } from "../types/Product"; // Importando o tipo Product
 import { useState, useEffect } from "react";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  description: string;
-  stock?: number;
-}
 
 interface PaginationInfo {
   page: number;

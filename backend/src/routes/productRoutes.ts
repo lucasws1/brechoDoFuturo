@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
   getMockProducts,
+  getMockProductsById,
 } from "../controllers/productController";
 import { authenticate } from "../middleware/auth";
 import { uploadProductImages } from "../middleware/upload";
@@ -25,6 +26,7 @@ router.get("/", getProducts);
  * @access Public
  */
 router.get("/mock", getMockProducts);
+router.get("/mock/:id", getMockProductsById);
 
 /**
  * @route GET /api/products/:id

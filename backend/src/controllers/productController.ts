@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as productService from "../services/product.service";
 import { AuthenticatedRequest } from "../middleware/auth";
+import { mockProducts } from "../utils/mockProducts"; // Importando os produtos mock
 
 // Tipos para responses
 interface ApiResponse {
@@ -268,190 +269,6 @@ export const getMockProducts = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 8, search, category } = req.query;
 
-    // Dados mock para teste
-    const mockProducts = [
-      {
-        id: "1",
-        name: "Camiseta Vintage",
-        price: 49.9,
-        image: "https://picsum.photos/300/300?random=1",
-        category: "Masculino",
-        description: "Camiseta retrô em algodão sustentável.",
-        stock: 15,
-      },
-      {
-        id: "2",
-        name: "Vestido Floral",
-        price: 89.9,
-        image: "https://picsum.photos/300/300?random=2",
-        category: "Feminino",
-        description: "Vestido leve, perfeito para o verão.",
-        stock: 8,
-      },
-      {
-        id: "3",
-        name: "Calça Jeans Skinny",
-        price: 129.9,
-        image: "https://picsum.photos/300/300?random=3",
-        category: "Feminino",
-        description: "Calça jeans skinny de alta qualidade.",
-        stock: 12,
-      },
-      {
-        id: "4",
-        name: "Blazer Casual",
-        price: 199.9,
-        image: "https://picsum.photos/300/300?random=4",
-        category: "Masculino",
-        description: "Blazer elegante para ocasiões especiais.",
-        stock: 5,
-      },
-      {
-        id: "5",
-        name: "Saia Midi Plissada",
-        price: 79.9,
-        image: "https://picsum.photos/300/300?random=5",
-        category: "Feminino",
-        description: "Saia midi plissada, versátil e confortável.",
-        stock: 20,
-      },
-      {
-        id: "6",
-        name: "Camisa Social",
-        price: 149.9,
-        image: "https://picsum.photos/300/300?random=6",
-        category: "Masculino",
-        description: "Camisa social de algodão egípcio.",
-        stock: 10,
-      },
-      {
-        id: "7",
-        name: "Jaqueta Bomber",
-        price: 179.9,
-        image: "https://picsum.photos/300/300?random=7",
-        category: "Unissex",
-        description: "Jaqueta bomber estilo streetwear.",
-        stock: 7,
-      },
-      {
-        id: "8",
-        name: "Blusa de Tricô",
-        price: 99.9,
-        image: "https://picsum.photos/300/300?random=8",
-        category: "Feminino",
-        description: "Blusa de tricô macia e aconchegante.",
-        stock: 18,
-      },
-      {
-        id: "9",
-        name: "Tênis Casual",
-        price: 159.9,
-        image: "https://picsum.photos/300/300?random=9",
-        category: "Unissex",
-        description: "Tênis confortável para o dia a dia.",
-        stock: 25,
-      },
-      {
-        id: "10",
-        name: "Shorts Esportivo",
-        price: 69.9,
-        image: "https://picsum.photos/300/300?random=10",
-        category: "Masculino",
-        description: "Shorts esportivo com tecnologia dry-fit.",
-        stock: 30,
-      },
-      {
-        id: "11",
-        name: "Cardigan Oversized",
-        price: 119.9,
-        image: "https://picsum.photos/300/300?random=11",
-        category: "Feminino",
-        description: "Cardigan oversized, perfeito para o inverno.",
-        stock: 12,
-      },
-      {
-        id: "12",
-        name: "Cinto de Couro",
-        price: 89.9,
-        image: "https://picsum.photos/300/300?random=12",
-        category: "Masculino",
-        description: "Cinto de couro genuíno, elegante e durável.",
-        stock: 15,
-      },
-      {
-        id: "13",
-        name: "Bolsa Transversal",
-        price: 189.9,
-        image: "https://picsum.photos/300/300?random=13",
-        category: "Feminino",
-        description: "Bolsa transversal em couro sintético.",
-        stock: 9,
-      },
-      {
-        id: "14",
-        name: "Relógio Minimalista",
-        price: 299.9,
-        image: "https://picsum.photos/300/300?random=14",
-        category: "Unissex",
-        description: "Relógio com design minimalista e elegante.",
-        stock: 6,
-      },
-      {
-        id: "15",
-        name: "Óculos de Sol",
-        price: 129.9,
-        image: "https://picsum.photos/300/300?random=15",
-        category: "Unissex",
-        description: "Óculos de sol com proteção UV.",
-        stock: 22,
-      },
-      {
-        id: "16",
-        name: "Colar Delicado",
-        price: 79.9,
-        image: "https://picsum.photos/300/300?random=16",
-        category: "Feminino",
-        description: "Colar delicado em prata 925.",
-        stock: 35,
-      },
-      {
-        id: "17",
-        name: "Pulseira de Couro",
-        price: 59.9,
-        image: "https://picsum.photos/300/300?random=17",
-        category: "Unissex",
-        description: "Pulseira de couro artesanal.",
-        stock: 28,
-      },
-      {
-        id: "18",
-        name: "Anel Prateado",
-        price: 89.9,
-        image: "https://picsum.photos/300/300?random=18",
-        category: "Feminino",
-        description: "Anel em prata 925 com pedra natural.",
-        stock: 14,
-      },
-      {
-        id: "19",
-        name: "Perfume Masculino",
-        price: 249.9,
-        image: "https://picsum.photos/300/300?random=19",
-        category: "Masculino",
-        description: "Perfume masculino com fragrância duradoura.",
-        stock: 11,
-      },
-      {
-        id: "20",
-        name: "Perfume Feminino",
-        price: 269.9,
-        image: "https://picsum.photos/300/300?random=20",
-        category: "Feminino",
-        description: "Perfume feminino com notas florais.",
-        stock: 13,
-      },
-    ];
-
     // Aplicar filtros
     let filteredProducts = mockProducts;
 
@@ -492,5 +309,30 @@ export const getMockProducts = async (req: Request, res: Response) => {
     } as ApiResponse);
   } catch (error) {
     handleError(res, error, "Erro ao buscar produtos mock");
+  }
+};
+
+export const getMockProductsById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const product = mockProducts.find((p) => p.id === id);
+
+    if (!product) {
+      res.status(404).json({
+        success: false,
+        error: { message: "Produto não encontrado" },
+      } as ApiResponse);
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: product,
+    } as ApiResponse);
+  } catch (error) {
+    handleError(res, error, "Erro ao buscar produto mock");
   }
 };

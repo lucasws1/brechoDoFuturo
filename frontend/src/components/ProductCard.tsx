@@ -1,49 +1,57 @@
+import { Link } from "react-router-dom";
 import type { Product } from "@/types/Product";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { IconShoppingCart } from "@tabler/icons-react";
+import { ShoppingCart } from "lucide-react";
 
 export function ProductCard({ product }: { product: Product }) {
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Impede que o link seja acionado ao clicar no botão
+    e.stopPropagation(); // Impede a propagação do evento para o Link pai
+    console.log(`Produto ${product.name} adicionado ao carrinho!`);
+    // Aqui você adicionaria a lógica do seu context de carrinho
+  };
+
   return (
-    <div>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>{product.name}</CardTitle>
-          <CardDescription>{product.description}</CardDescription>
-          <CardAction>
-            <Button variant="link">
-              <IconShoppingCart />
-            </Button>
-          </CardAction>
+    <Link to={`/product/${product.id}`} className="group block">
+      <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 group-hover:shadow-xl">
+        <CardHeader className="p-4">
+          <CardTitle className="truncate">{product.name}</CardTitle>
+          <CardDescription className="truncate h-10">
+            {product.description}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <img
             src={product.image}
             alt={product.name}
-            className="h-48 w-full object-cover"
+            className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <p className="text-sm">{product.category}</p>
-            <p className="text-sm">
-              {product.price.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </p>
-          </div>
         </CardContent>
-        <CardFooter className="flex-col gap-2">
-          <Button>Adicionar ao carrinho</Button>
+        <CardFooter className="p-4 flex justify-between items-center">
+          <p className="text-lg font-semibold">
+            {product.price.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </p>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleAddToCart}
+            aria-label="Adicionar ao carrinho"
+          >
+            <ShoppingCart className="h-5 w-5" />
+          </Button>
         </CardFooter>
       </Card>
-    </div>
+    </Link>
   );
 }
