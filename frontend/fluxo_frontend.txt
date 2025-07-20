@@ -9,15 +9,15 @@ Projeto brechoDoFuturo
    - Configure o bundler (Vite, CRA, Next.js, etc.), define ESLint/Prettier, TypeScript (se for o caso) e estrutura de pastas (páginas, componentes, serviços, estilos).
    - Garanta a integração com o seu design token ou biblioteca de estilos (Tailwind, Styled Components, CSS Modules…).
 
-     - OK - MERN stack - frontend: Vite, prettier, TS, react, tailwind, zod, react router dom, react hook form, clsx (lista não exaustiva).
-     - OK - Estrutura das páginas: assets components config contexts hooks layouts lib pages routes styles types
+      OK - MERN stack - frontend: Vite, prettier, TS, react, tailwind, zod, react router dom, react hook form, clsx (lista não exaustiva).
+      OK - Estrutura das páginas: assets components config contexts hooks layouts lib pages routes styles types
 
 2. **Componentes compartilhados (“Design System”)**
 
    - Comece criando os blocos mais atômicos: botão, input, cards de produto, tipografia e cores.
    - Assim, quando você for montar páginas, você já tem a base consistente.
 
-   - OK: componentes shadcn.
+      OK: componentes shadcn.
 
 3. **Layout global (Header / Footer / Grid container)**
 
@@ -25,30 +25,11 @@ Projeto brechoDoFuturo
    - Defina o `Footer` com links e contatos.
    - Implemente o container ou sistema de grid que vai receber as páginas filhas.
    
-   - Header: 
-   topbar com pesquisa, categorias, carrinho, userprofile etc., sem sidebar:
-   
-| [LOGO] [Barra de Busca] [Entrar/Cadastrar ou PerfilDoUsuario] [Carrinho] |
-| [novidades] [ofertas] [masculino] [feminino] [infantil] ...              |
-
-A primeira linha (topbar) deve ter o logo, busca centralizada, e ícones de usuário/carrinho à direita.
-
-A segunda linha, logo abaixo, exibe as categorias principais em horizontal (podendo ser scrollável no mobile).
-   
-   - Footer:
-   
-| LOGO       | Institucional | Categorias | Minha Conta | Contato      | Redes Sociais |
-|------------|---------------|------------|-------------|--------------|---------------|
-| Brechó...  | Quem somos    | Masculino  | Meus pedidos| WhatsApp     | [Instagram]   |
-|            | Privacidade   | Feminino   | Endereços   | Email        | [Facebook]    |
-|            | FAQ           | Infantil   | Sair        | Telefone     | [TikTok]      |
-|            | ...           | ...        | ...         | ...          | ...           |
-|---------------------------------------------------------------------------------------|
-| CNPJ 00.000.000/0000-00 | © 2025 Brechó do Futuro |
-
-Use a grid do Tailwind para dividir em colunas no footer.
-No mobile, coloque as seções uma abaixo da outra, ou use um accordion para os grupos de links.
-Pegue componentes prontos do shadcn/ui e monte seu próprio footer combinando os blocos de link, icons, etc.
+      OK -> header com pesquisa funcionando. 
+      Home com paginação. 
+      Contexto global para produtos implementado. 
+      Footer ok (mock). 
+      Estilo será aprimorado no final para não 'perder' tempo. Por enquanto estou focando em implementar as funções.
 
 4. **Home page**
 
@@ -58,7 +39,22 @@ Pegue componentes prontos do shadcn/ui e monte seu próprio footer combinando os
      • Paginação ou “Carregar mais”  
      • Rodapé
      
-     - Falta grid de produtos
+     OK:
+     - Topbar com pesquisa e categorias.
+     - Grid com produtos.
+     - Paginação ok (carregar mais e números por enquanto, ajustar no final).
+     - Rodapé - design 'ok', aprimoramentos no final.
+     - Vou trocar o botão 'adicionar' por 'menu do administrador' ou algo que o valha, sem urgencia nesse momento.
+     
+4.1. Páginas a serem criadas:
+   - Home / Catálogo - ok
+   - Página do Produto
+   - Carrinho - CartContext
+   - Checkout
+   - Login / Cadastro
+   - Painel do Usuário (Meus Pedidos)
+   - Painel do Admin (Gerenciar Produtos)
+   - Página de Contato
 
 5. **Navegação e estado**
    - Pense em como vai guardar o estado das categorias selecionadas, paginação e carrinho (Context API, Zustand, Redux, React Query…).

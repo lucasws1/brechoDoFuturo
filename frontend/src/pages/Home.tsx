@@ -9,7 +9,7 @@ const Home = () => {
     pagination,
     loading,
     error,
-    currentPage,
+    //currentPage,
     setCurrentPage,
     refetch,
   } = useProductsContext();
