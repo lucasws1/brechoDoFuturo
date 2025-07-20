@@ -5,6 +5,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  getMockProducts,
 } from "../controllers/productController";
 import { authenticate } from "../middleware/auth";
 import { uploadProductImages } from "../middleware/upload";
@@ -17,6 +18,13 @@ const router: Router = Router();
  * @access Public
  */
 router.get("/", getProducts);
+
+/**
+ * @route GET /api/products/mock
+ * @desc Listar produtos mock para testes de paginação
+ * @access Public
+ */
+router.get("/mock", getMockProducts);
 
 /**
  * @route GET /api/products/:id

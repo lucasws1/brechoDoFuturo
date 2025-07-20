@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconShoppingCart, IconUser, IconLogin } from "@tabler/icons-react";
+import { useProductsContext } from "@/contexts/ProductsContext";
 
 const categories = [
   "Novidades",
@@ -11,6 +12,14 @@ const categories = [
 ];
 
 export function Header() {
+  const {
+    searchTerm,
+    setSearchTerm,
+    handleSearch,
+    selectedCategory,
+    handleCategoryChange,
+  } = useProductsContext();
+
   return (
     <header className="w-full">
       {/* Topbar */}
@@ -24,7 +33,17 @@ export function Header() {
         </a>
         {/* Search */}
         <div className="mx-2 max-w-lg flex-1">
-          <Input placeholder="Buscar produtos..." className="w-full" />
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <Input
+              placeholder="Buscar produtos..."
+              className="w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button type="submit" size="sm">
+              Buscar
+            </Button>
+          </form>
         </div>
         {/* Actions */}
         <div className="flex items-center gap-2">
@@ -49,12 +68,14 @@ export function Header() {
         <ul className="mx-auto flex max-w-7xl items-center justify-between gap-2 overflow-x-auto px-4 py-2">
           {categories.map((cat) => (
             <li key={cat}>
-              <a
-                href={`/categoria/${cat.toLowerCase()}`}
-                className="text-md font-medium hover:underline"
+              <button
+                onClick={() => handleCategoryChange(cat)}
+                className={`text-md font-medium hover:underline ${
+                  selectedCategory === cat ? "text-primary font-semibold" : ""
+                }`}
               >
                 {cat}
-              </a>
+              </button>
             </li>
           ))}
         </ul>

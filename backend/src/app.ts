@@ -7,10 +7,28 @@ dotenv.config();
 
 const app: Express = express();
 
+// Configuração de CORS para aceitar múltiplas origens
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:4173", // Vite preview
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:3000",
+];
+
 // Middlewares globais
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: function (origin, callback) {
+      // Permitir requisições sem origin (como Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Não permitido pelo CORS"));
+      }
+    },
     credentials: true,
   })
 );
