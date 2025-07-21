@@ -136,6 +136,13 @@ export function Header() {
               </Button>
             </li>
           ))}
+          <li className="flex items-center gap-2">
+            <Link to="/contact">
+              <Button variant={"link"} className="cursor-pointer font-medium">
+                Contato
+              </Button>
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>
