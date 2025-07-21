@@ -53,7 +53,7 @@ Projeto brechoDoFuturo
    - Checkout - ok
    - Login / Cadastro - ok
    - Painel do Usuário (Meus Pedidos) - ok
-   - Painel do Admin (Gerenciar Produtos)
+   - Painel do Admin (Gerenciar Produtos) - lista de clientes não funciona
    - Página de Contato
 
 5. **Navegação e estado**
@@ -77,3 +77,5 @@ Checklist final para jwt:
  Logout limpa token do lado do cliente?
  Chave secreta protegida?
  Refresh token só se quiser sessões longas (pode ser depois)
+
+Estética:

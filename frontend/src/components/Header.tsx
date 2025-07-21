@@ -8,6 +8,7 @@ import {
   IconLogout,
   IconShoppingCart,
   IconUser,
+  IconSettings,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
@@ -78,6 +79,13 @@ export function Header() {
             <>
               {isAuthenticated && user ? (
                 <div className="flex items-center gap-2">
+                  {user.type === "Admin" && (
+                    <Link to="/admin">
+                      <Button size="icon" variant="ghost" title="Painel Admin">
+                        <IconSettings className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/profile">
                     <Button size="icon" variant="ghost">
                       <IconUser className="h-5 w-5" />

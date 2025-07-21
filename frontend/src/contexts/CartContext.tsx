@@ -61,7 +61,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
     try {
       const response = await api.get("/cart");
-      if (response.data.success) {
+      if (
+        response.data.success &&
+        response.data.data &&
+        response.data.data.items
+      ) {
         // Mapear os itens do carrinho do backend para o formato CartItem
         const fetchedCartItems: CartItem[] = response.data.data.items.map(
           (item: any) => ({
@@ -76,13 +80,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         );
         setCartItems(fetchedCartItems);
       } else {
-        setError(response.data.error?.message || "Erro ao buscar carrinho");
+        // Se não há carrinho ou itens, inicializar como array vazio
+        setCartItems([]);
+        if (response.data.error) {
+          setError(response.data.error.message);
+        }
       }
     } catch (err: any) {
-      setError(
-        err.response?.data?.error?.message || "Erro de rede ao buscar carrinho",
-      );
-      console.error("Erro ao buscar carrinho:", err);
+      // Se há erro 404 (carrinho não existe), isso é normal para novos usuários
+      if (err.response?.status === 404) {
+        setCartItems([]);
+      } else {
+        setError(
+          err.response?.data?.error?.message ||
+            "Erro de rede ao buscar carrinho",
+        );
+        console.error("Erro ao buscar carrinho:", err);
+      }
     } finally {
       setLoading(false);
     }

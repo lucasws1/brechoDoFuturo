@@ -55,6 +55,21 @@ export const getCart = async (
 
     const cart = await cartService.getCartByUserId(req.user.id);
 
+    // Se não há carrinho, retornar um carrinho vazio ao invés de null
+    if (!cart) {
+      res.status(200).json({
+        success: true,
+        data: {
+          id: null,
+          userId: req.user.id,
+          items: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as ApiResponse);
+      return;
+    }
+
     res.status(200).json({
       success: true,
       data: cart,

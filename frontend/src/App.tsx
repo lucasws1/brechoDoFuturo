@@ -8,6 +8,7 @@ import { CheckoutPage } from "./pages/CheckoutPage";
 import Home from "./pages/Home";
 import { ProductPage } from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
+import AdminPage from "./pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute"; // Importa o ProtectedRoute
 import { AuthCartSync } from "./components/AuthCartSync"; // Importa o componente de sincronização
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -34,6 +35,11 @@ function App() {
                   {" "}
                   {/* Rota de perfil protegida */}
                   <Route index element={<ProfilePage />} />
+                </Route>
+                <Route path="/admin" element={<ProtectedRoute />}>
+                  {" "}
+                  {/* Rota de admin protegida */}
+                  <Route index element={<AdminPage />} />
                 </Route>
               </Routes>
             </MainLayout>
