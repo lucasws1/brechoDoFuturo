@@ -53,7 +53,7 @@
 - Login / Cadastro - ok
 - Painel do Usuário (Meus Pedidos) - ok
 - Painel do Admin (Gerenciar Produtos) - Ok
-- Página de Contato
+- Página de Contato - ok
 
 Implementações futuras:
 

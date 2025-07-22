@@ -10,6 +10,7 @@ import {
 } from "@tabler/icons-react";
 import { Clock, Mail, MapPin, MessageSquare, Phone } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function ContactPage() {
@@ -20,6 +21,7 @@ export default function ContactPage() {
     message: "",
   });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -322,10 +324,7 @@ export default function ContactPage() {
             sustentabilidade.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button
-              onClick={() => (window.location.href = "/")}
-              className="cursor-pointer"
-            >
+            <Button onClick={() => navigate("/")} className="cursor-pointer">
               Ver Produtos
             </Button>
             <Button

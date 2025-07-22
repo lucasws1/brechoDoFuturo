@@ -203,6 +203,13 @@ export const createOrder = async (data: CreateOrderData, userId: string) => {
       throw new Error(`Produto ${product.name} não está disponível`);
     }
 
+    // Verificar se há estoque suficiente
+    if (product.stock < item.quantity) {
+      throw new Error(
+        `Estoque insuficiente para o produto ${product.name}. Disponível: ${product.stock}, Solicitado: ${item.quantity}`
+      );
+    }
+
     // Verificar se o preço não mudou
     if (product.price !== item.priceAtPurchase) {
       throw new Error(
@@ -233,11 +240,25 @@ export const createOrder = async (data: CreateOrderData, userId: string) => {
       })),
     });
 
-    // Atualizar status dos produtos para Sold
+    // Atualizar estoque dos produtos
     for (const item of data.items) {
+      const product = await tx.product.findUnique({
+        where: { id: item.productId },
+      });
+
+      if (!product) {
+        throw new Error(`Produto ${item.productId} não encontrado`);
+      }
+
+      const newStock = product.stock - item.quantity;
+
+      // Atualizar estoque e status se necessário
       await tx.product.update({
         where: { id: item.productId },
-        data: { status: "Sold" },
+        data: {
+          stock: newStock,
+          status: newStock === 0 ? "Sold" : "Available",
+        },
       });
     }
 

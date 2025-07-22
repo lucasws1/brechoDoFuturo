@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
-import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -24,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
     e.preventDefault(); // Impede que o link seja acionado ao clicar no botão
     e.stopPropagation(); // Impede a propagação do evento para o Link pai
     addToCart(product);
-    toast.success(`${product.name} foi adicionado ao carrinho!`);
+    // Toast será exibido automaticamente pelo CartContext
   };
 
   return (
@@ -43,21 +42,39 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </CardContent>
-        <CardFooter className="flex items-center justify-between p-4">
-          <p className="text-lg font-semibold">
-            {product.price.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}
-          </p>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleAddToCart}
-            aria-label="Adicionar ao carrinho"
-          >
-            <ShoppingCart className="h-5 w-5" />
-          </Button>
+        <CardFooter className="flex flex-col gap-2 p-4">
+          <div className="flex w-full items-center justify-between">
+            <p className="text-lg font-semibold">
+              {product.price.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+            </p>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleAddToCart}
+              disabled={(product.stock || 0) === 0}
+              aria-label="Adicionar ao carrinho"
+            >
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="text-muted-foreground flex w-full justify-between text-xs">
+            <span
+              className={`${
+                (product.stock || 0) > 5
+                  ? "text-green-600"
+                  : (product.stock || 0) > 0
+                    ? "text-yellow-600"
+                    : "text-red-600"
+              }`}
+            >
+              {(product.stock || 0) === 0
+                ? "Fora de estoque"
+                : `${product.stock} em estoque`}
+            </span>
+          </div>
         </CardFooter>
       </Card>
     </Link>

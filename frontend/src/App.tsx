@@ -47,7 +47,15 @@ function App() {
             </MainLayout>
           </ProductsProvider>
         </CartProvider>
-        <Toaster /> {/* Adiciona o Toaster aqui */}
+        <Toaster
+          position="top-right"
+          expand={true}
+          richColors={true}
+          closeButton={true}
+          toastOptions={{
+            duration: 4000,
+          }}
+        />
       </AuthProvider>
     </Router>
   );

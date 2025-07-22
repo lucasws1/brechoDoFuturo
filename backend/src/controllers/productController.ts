@@ -33,12 +33,14 @@ interface CreateProductInput {
   images: string[];
   sellerId: string;
   categoryIds: string[];
+  stock: number;
 }
 
 interface UpdateProductInput {
   name?: string;
   description?: string;
   price?: number;
+  stock?: number;
   images?: string[];
   status?: any;
   categoryIds?: string[];
@@ -125,13 +127,13 @@ export const createProduct = async (
       return;
     }
 
-    const { name, description, price, categoryIds } = req.body;
+    const { name, description, price, stock, categoryIds } = req.body;
 
     // Basic validation
-    if (!name || !description || !price) {
+    if (!name || !description || !price || stock === undefined) {
       res.status(400).json({
         success: false,
-        error: { message: "Nome, descrição e preço são obrigatórios" },
+        error: { message: "Nome, descrição, preço e estoque são obrigatórios" },
       } as ApiResponse);
     }
 
@@ -144,6 +146,7 @@ export const createProduct = async (
       name,
       description,
       price: Number(price),
+      stock: Number(stock),
       images,
       sellerId: req.user.id,
       categoryIds: Array.isArray(categoryIds)
@@ -187,12 +190,13 @@ export const updateProduct = async (
     }
 
     const { id } = req.params;
-    const { name, description, price, categoryIds, status } = req.body;
+    const { name, description, price, stock, categoryIds, status } = req.body;
 
     const updateData: UpdateProductInput = {};
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (price) updateData.price = Number(price);
+    if (stock !== undefined) updateData.stock = Number(stock);
     if (categoryIds) {
       updateData.categoryIds = Array.isArray(categoryIds)
         ? categoryIds

@@ -99,6 +99,13 @@ export const addItemToCart = async (userId: string, data: AddCartItemData) => {
     throw new Error("Produto não está disponível");
   }
 
+  // Verificar se há estoque suficiente
+  if (product.stock < quantity) {
+    throw new Error(
+      `Estoque insuficiente. Disponível: ${product.stock}, Solicitado: ${quantity}`
+    );
+  }
+
   // Verificar se o usuário não está tentando comprar seu próprio produto
   if (product.sellerId === userId) {
     throw new Error("Você não pode adicionar seu próprio produto ao carrinho");
@@ -118,10 +125,18 @@ export const addItemToCart = async (userId: string, data: AddCartItemData) => {
   });
 
   if (existingItem) {
+    // Verificar se há estoque suficiente para a nova quantidade total
+    const newQuantity = existingItem.quantity + quantity;
+    if (product.stock < newQuantity) {
+      throw new Error(
+        `Estoque insuficiente. Disponível: ${product.stock}, Total solicitado: ${newQuantity}`
+      );
+    }
+
     // Atualizar quantidade
     return await prisma.cartItem.update({
       where: { id: existingItem.id },
-      data: { quantity: existingItem.quantity + quantity },
+      data: { quantity: newQuantity },
       include: {
         product: {
           select: {
@@ -173,6 +188,13 @@ export const updateCartItem = async (
       cart: {
         select: { userId: true },
       },
+      product: {
+        select: {
+          id: true,
+          stock: true,
+          status: true,
+        },
+      },
     },
   });
 
@@ -183,6 +205,13 @@ export const updateCartItem = async (
   // Verificar se o usuário é dono do carrinho
   if (item.cart.userId !== userId) {
     throw new Error("Você não tem permissão para atualizar este item");
+  }
+
+  // Verificar se há estoque suficiente
+  if (item.product.stock < data.quantity) {
+    throw new Error(
+      `Estoque insuficiente. Disponível: ${item.product.stock}, Solicitado: ${data.quantity}`
+    );
   }
 
   return await prisma.cartItem.update({

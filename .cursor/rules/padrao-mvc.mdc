@@ -4,7 +4,7 @@ alwaysApply: true
 
 # Padrão MVC no Projeto Brechó do Futuro
 
-## Visão Geral
+## Visão Geral - backend
 
 Este projeto segue o padrão MVC (Model-View-Controller) adaptado para uma API REST moderna, utilizando Node.js, TypeScript e Prisma ORM. O foco é a separação clara de responsabilidades, facilitando manutenção, testes e evolução do sistema.
 

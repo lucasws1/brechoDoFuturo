@@ -7,6 +7,7 @@ interface CreateProductData {
   name: string;
   description: string;
   price: number;
+  stock: number;
   images: string[];
   sellerId: string;
   categoryIds: string[];
@@ -16,6 +17,7 @@ interface UpdateProductData {
   name?: string;
   description?: string;
   price?: number;
+  stock?: number;
   images?: string[];
   status?: ProductStatus;
   categoryIds?: string[];
@@ -169,6 +171,10 @@ export const createProduct = async (
 
   if (!data.price || data.price <= 0) {
     throw new Error("Preço deve ser maior que zero");
+  }
+
+  if (data.stock === undefined || data.stock < 0) {
+    throw new Error("Estoque deve ser maior ou igual a zero");
   }
 
   if (!data.sellerId) {

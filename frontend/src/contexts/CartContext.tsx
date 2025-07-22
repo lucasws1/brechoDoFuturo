@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import type { Product } from "@/types/Product";
 import { useAuth } from "./AuthContext"; // Importar AuthContext
+import { useNotifications } from "@/hooks/useNotifications"; // Hook de notificações
 import api from "@/services/api"; // Importar a instância da API
 
 // Define o tipo para um item do carrinho (produto + quantidade)
@@ -19,7 +20,7 @@ export interface CartItem extends Product {
 // Define o tipo para o valor do nosso contexto
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: Product) => Promise<void>;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -27,7 +28,7 @@ interface CartContextType {
   subtotal: number;
   loading: boolean;
   error: string | null;
-  fetchCart: () => Promise<void>; // Adicionar função para buscar o carrinho
+  fetchCart: (silent?: boolean) => Promise<void>; // Adicionar função para buscar o carrinho
 }
 
 // Cria o Context com um valor padrão undefined
@@ -50,64 +51,80 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Hook para notificações automáticas
+  useNotifications({
+    error,
+    loading,
+    success: successMessage,
+    onErrorDismiss: () => setError(null),
+    onSuccessDismiss: () => setSuccessMessage(null),
+  });
 
   // Função para buscar o carrinho do backend
-  const fetchCart = useCallback(async () => {
-    if (!isAuthenticated || !user) {
-      setCartItems([]); // Limpar carrinho se não estiver autenticado
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.get("/cart");
-      if (
-        response.data.success &&
-        response.data.data &&
-        response.data.data.items
-      ) {
-        // Mapear os itens do carrinho do backend para o formato CartItem
-        const fetchedCartItems: CartItem[] = response.data.data.items.map(
-          (item: any) => ({
-            id: item.product.id, // ID do produto
-            name: item.product.name,
-            price: item.product.price,
-            images: item.product.images,
-            status: item.product.status,
-            quantity: item.quantity,
-            itemId: item.id, // ID do item no carrinho
-          }),
-        );
-        setCartItems(fetchedCartItems);
-      } else {
-        // Se não há carrinho ou itens, inicializar como array vazio
-        setCartItems([]);
-        if (response.data.error) {
-          setError(response.data.error.message);
+  const fetchCart = useCallback(
+    async (silent: boolean = true) => {
+      if (!isAuthenticated || !user) {
+        setCartItems([]); // Limpar carrinho se não estiver autenticado
+        return;
+      }
+      if (!silent) {
+        setLoading(true);
+      }
+      setError(null);
+      try {
+        const response = await api.get("/cart");
+        if (
+          response.data.success &&
+          response.data.data &&
+          response.data.data.items
+        ) {
+          // Mapear os itens do carrinho do backend para o formato CartItem
+          const fetchedCartItems: CartItem[] = response.data.data.items.map(
+            (item: any) => ({
+              id: item.product.id, // ID do produto
+              name: item.product.name,
+              price: item.product.price,
+              images: item.product.images,
+              status: item.product.status,
+              quantity: item.quantity,
+              itemId: item.id, // ID do item no carrinho
+            }),
+          );
+          setCartItems(fetchedCartItems);
+        } else {
+          // Se não há carrinho ou itens, inicializar como array vazio
+          setCartItems([]);
+          if (response.data.error) {
+            setError(response.data.error.message);
+          }
+        }
+      } catch (err: any) {
+        // Se há erro 404 (carrinho não existe), isso é normal para novos usuários
+        if (err.response?.status === 404) {
+          setCartItems([]);
+        } else {
+          setError(
+            err.response?.data?.error?.message ||
+              "Erro de rede ao buscar carrinho",
+          );
+        }
+      } finally {
+        if (!silent) {
+          setLoading(false);
         }
       }
-    } catch (err: any) {
-      // Se há erro 404 (carrinho não existe), isso é normal para novos usuários
-      if (err.response?.status === 404) {
-        setCartItems([]);
-      } else {
-        setError(
-          err.response?.data?.error?.message ||
-            "Erro de rede ao buscar carrinho",
-        );
-        console.error("Erro ao buscar carrinho:", err);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [isAuthenticated, user]);
+    },
+    [isAuthenticated, user],
+  );
 
   // Efeito para buscar o carrinho quando o status de autenticação ou o usuário mudar
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
-  const addToCart = async (product: Product) => {
+  const addToCart = async (product: Product, quantity: number = 1) => {
     if (!isAuthenticated || !user) {
       setError("Você precisa estar logado para adicionar itens ao carrinho.");
       return;
@@ -117,10 +134,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const response = await api.post("/cart/items", {
         productId: product.id,
-        quantity: 1, // Sempre adiciona 1 por vez na função addToCart
+        quantity, // Usar a quantidade passada como parâmetro
       });
       if (response.data.success) {
-        await fetchCart(); // Recarrega o carrinho após adicionar
+        await fetchCart(false); // Recarrega o carrinho após adicionar (com loading)
+        setSuccessMessage(
+          quantity === 1
+            ? `${product.name} foi adicionado ao carrinho!`
+            : `${quantity} unidades de ${product.name} foram adicionadas ao carrinho!`,
+        );
       } else {
         setError(
           response.data.error?.message || "Erro ao adicionar item ao carrinho",
@@ -131,7 +153,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         err.response?.data?.error?.message ||
           "Erro de rede ao adicionar item ao carrinho",
       );
-      console.error("Erro ao adicionar item ao carrinho:", err);
     } finally {
       setLoading(false);
     }
@@ -154,7 +175,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       const response = await api.delete(`/cart/items/${itemToRemove.itemId}`);
       if (response.data.success) {
-        await fetchCart(); // Recarrega o carrinho após remover
+        await fetchCart(false); // Recarrega o carrinho após remover (com loading)
+        setSuccessMessage("Item removido do carrinho");
       } else {
         setError(
           response.data.error?.message || "Erro ao remover item do carrinho",
@@ -165,7 +187,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         err.response?.data?.error?.message ||
           "Erro de rede ao remover item do carrinho",
       );
-      console.error("Erro ao remover item do carrinho:", err);
     } finally {
       setLoading(false);
     }
@@ -196,7 +217,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         quantity,
       });
       if (response.data.success) {
-        await fetchCart(); // Recarrega o carrinho após atualizar
+        await fetchCart(false); // Recarrega o carrinho após atualizar (com loading)
+        setSuccessMessage("Quantidade atualizada");
       } else {
         setError(
           response.data.error?.message ||
@@ -208,7 +230,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         err.response?.data?.error?.message ||
           "Erro de rede ao atualizar quantidade do item",
       );
-      console.error("Erro ao atualizar quantidade do item:", err);
     } finally {
       setLoading(false);
     }
@@ -224,7 +245,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const response = await api.delete("/cart");
       if (response.data.success) {
-        await fetchCart(); // Recarrega o carrinho após limpar
+        await fetchCart(false); // Recarrega o carrinho após limpar (com loading)
+        setSuccessMessage("Carrinho limpo");
       } else {
         setError(response.data.error?.message || "Erro ao limpar carrinho");
       }
@@ -232,7 +254,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setError(
         err.response?.data?.error?.message || "Erro de rede ao limpar carrinho",
       );
-      console.error("Erro ao limpar carrinho:", err);
     } finally {
       setLoading(false);
     }

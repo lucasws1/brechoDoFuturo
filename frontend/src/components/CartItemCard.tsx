@@ -38,11 +38,13 @@ export function CartItemCard({ item }: { item: CartItem }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={
-              item.quantity > 1
-                ? () => updateQuantity(item.id, item.quantity - 1)
-                : undefined
-            }
+            onClick={() => {
+              if (item.quantity > 1) {
+                updateQuantity(item.id, item.quantity - 1);
+              } else {
+                removeFromCart(item.id);
+              }
+            }}
           >
             <Minus className="h-4 w-4" />
           </Button>
