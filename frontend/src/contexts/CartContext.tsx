@@ -62,6 +62,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     onSuccessDismiss: () => setSuccessMessage(null),
   });
 
+  // Limpar mensagens de sucesso automaticamente após um curto delay
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 100); // Pequeno delay para garantir que a notificação seja exibida
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  // Limpar mensagens de erro automaticamente após um curto delay
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 100); // Pequeno delay para garantir que a notificação seja exibida
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   // Função para buscar o carrinho do backend
   const fetchCart = useCallback(
     async (silent: boolean = true) => {
@@ -123,6 +143,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  // Limpeza dos estados ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      setError(null);
+      setSuccessMessage(null);
+    };
+  }, []);
 
   const addToCart = async (product: Product, quantity: number = 1) => {
     if (!isAuthenticated || !user) {

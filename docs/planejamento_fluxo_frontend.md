@@ -58,16 +58,12 @@
 Implementações futuras:
 
 Carrinho:
-
-1. Verificação de Estoque: Impedir que o usuário adicione ao carrinho mais itens do que o disponível em estoque (product.stock). Seria uma pequena adição nas funções addToCart e updateQuantity dentro do CartContext.
-2. Mini-Carrinho (Popover): Em vez de ir direto para a página, um clique (ou hover) no ícone do carrinho poderia abrir um pequeno resumo flutuante, com link para a página completa.
-3. Campo de Cupom de Desconto: Adicionar um campo de input no resumo do pedido para aplicar descontos.
+1. Mini-Carrinho (Popover): Em vez de ir direto para a página, um clique (ou hover) no ícone do carrinho poderia abrir um pequeno resumo flutuante, com link para a página completa.
 
 Autenticação
 Checklist final para JWT:
 - JWT gerando e validando corretamente? - ok
 - Rotas protegidas só acessam com token? - ok (testes realizados só no backend)
-- Frontend armazena e envia token corretamente?
-- Logout limpa token do lado do cliente?
-- Chave secreta protegida?
-- Refresh token só se quiser sessões longas (pode ser implementado depois)
+- Frontend armazena e envia token corretamente? - ok
+- Logout limpa token do lado do cliente? - ok
+- Refresh token implementado? - ok
