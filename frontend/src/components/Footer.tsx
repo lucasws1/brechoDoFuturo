@@ -77,10 +77,13 @@ export function Footer() {
               <Link to="#">Sair</Link>
             </li>
           </ul>
-          <div className="mt-4">
-            <div className="font-serif font-semibold">Contato</div>
-            <div className="text-sm">contato@brechodofuturo.com</div>
-            <div className="text-sm">WhatsApp: (11) 99999-9999</div>
+          <div className="mt-4 flex flex-col items-start">
+            <Link to="/contact" className="font-serif font-bold">
+              Entre em Contato
+            </Link>
+            <Link to="/contact" className="">
+              Clique aqui para falar conosco
+            </Link>
           </div>
         </div>
       </div>

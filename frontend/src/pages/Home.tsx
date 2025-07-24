@@ -2,6 +2,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
+import { Gift } from "lucide-react";
 
 const Home = () => {
   const {
@@ -31,82 +32,75 @@ const Home = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-4">
-      {/* Header da seção */}
-      <div className="text-center">
-        <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
-          Nossa Coleção
-        </h2>
-        <p className="text-muted-foreground font-sans">
-          Descubra peças únicas que você só encontra aqui.
-        </p>
-      </div>
-
-      {/* Loading */}
-      {loading && (
-        <div className="flex justify-center py-8">
-          <div className="text-lg">Carregando produtos...</div>
-        </div>
-      )}
-
-      {/* Grade de Produtos */}
-      {!loading && products.length > 0 && (
-        <>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+    <>
+      {/* <TestPage /> */}
+      <div className="mx-auto max-w-7xl space-y-8 p-4">
+        {/* Loading */}
+        {loading && (
+          <div className="flex justify-center py-8">
+            <div className="text-lg">Carregando produtos...</div>
           </div>
+        )}
 
-          {/* Paginação */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className="mt-12">
-              <ProductPagination
-                currentPage={pagination.page}
-                totalPages={pagination.totalPages}
-                onPageChange={setCurrentPage}
-              />
+        {/* Grade de Produtos */}
+        {!loading && products.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
-          )}
 
-          {/* Botão "Ver mais" - só aparece se há mais páginas */}
-          {pagination && pagination.page < pagination.totalPages && (
-            <div className="mt-8 flex justify-center">
-              <Button
-                variant="outline"
-                className="w-full max-w-xs"
-                onClick={() => setCurrentPage(pagination.page + 1)}
-              >
-                Ver mais
-              </Button>
-            </div>
-          )}
-        </>
-      )}
+            {/* Paginação */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="mt-12">
+                <ProductPagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
 
-      {/* Estado vazio */}
-      {!loading && products.length === 0 && (
-        <div className="flex flex-col items-center gap-4 py-8 text-center">
-          <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
-          <p className="text-muted-foreground">
-            Não há produtos disponíveis no momento
-          </p>
-        </div>
-      )}
+            {/* Botão "Ver mais" - só aparece se há mais páginas */}
+            {pagination && pagination.page < pagination.totalPages && (
+              <div className="mt-8 flex justify-center">
+                <Button
+                  variant="outline"
+                  className="w-full max-w-xs"
+                  onClick={() => setCurrentPage(pagination.page + 1)}
+                >
+                  Ver mais
+                </Button>
+              </div>
+            )}
+          </>
+        )}
 
-      {/* Informações de paginação */}
-      {pagination && (
-        <div className="text-muted-foreground mt-4 text-center text-sm">
-          Mostrando {products.length} de {pagination.total} produtos
-          {pagination.totalPages > 1 && (
-            <span>
-              {" "}
-              • Página {pagination.page} de {pagination.totalPages}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
+        {/* Estado vazio */}
+        {!loading && products.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-8 text-center">
+            <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
+            <p className="text-muted-foreground">
+              Não há produtos disponíveis no momento
+            </p>
+          </div>
+        )}
+
+        {/* Informações de paginação */}
+        {pagination && (
+          <div className="text-muted-foreground mt-4 text-center text-sm">
+            Mostrando {products.length} de {pagination.total} produtos
+            {pagination.totalPages > 1 && (
+              <span>
+                {" "}
+                • Página {pagination.page} de {pagination.totalPages}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
