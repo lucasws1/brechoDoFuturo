@@ -93,8 +93,10 @@ export function ProductPage() {
           />
         </div>
         <div className="space-y-6">
-          <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
-          <p className="text-primary text-4xl font-bold">
+          <h1 className="font-serif text-3xl font-bold tracking-tight">
+            {product.name}
+          </h1>
+          <p className="text-primary font-sans text-4xl font-bold">
             {new Intl.NumberFormat("pt-BR", {
               style: "currency",
               currency: "BRL",
@@ -128,8 +130,10 @@ export function ProductPage() {
           )}
 
           <div>
-            <h2 className="mb-2 text-xl font-semibold">Descrição</h2>
-            <p className="text-muted-foreground">{product.description}</p>
+            <h2 className="mb-2 font-serif text-xl font-semibold">Descrição</h2>
+            <p className="text-muted-foreground font-sans">
+              {product.description}
+            </p>
           </div>
 
           {cartItem ? (

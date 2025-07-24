@@ -31,15 +31,14 @@ const Home = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-4">
-      {/* Seção de Cabeçalho */}
-      <div className="flex flex-col items-center gap-4 py-8 text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <div className="mx-auto max-w-7xl space-y-8 p-4">
+      {/* Header da seção */}
+      <div className="text-center">
+        <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
           Nossa Coleção
         </h2>
-        <p className="text-muted-foreground max-w-2xl">
-          Descubra peças únicas e cheias de estilo. Qualidade e curadoria que
-          você só encontra aqui.
+        <p className="text-muted-foreground font-sans">
+          Descubra peças únicas que você só encontra aqui.
         </p>
       </div>
 

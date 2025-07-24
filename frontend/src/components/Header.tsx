@@ -40,7 +40,7 @@ export function Header() {
         <Link
           onClick={refetch}
           to="/"
-          className="from-primary to-secondary bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent"
+          className="from-primary to-secondary bg-gradient-to-r bg-clip-text font-serif text-2xl font-bold text-transparent"
         >
           Brechó do Futuro
         </Link>

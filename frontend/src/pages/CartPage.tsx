@@ -12,8 +12,10 @@ export function CartPage() {
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="mb-4 text-3xl font-bold">Seu carrinho está vazio</h1>
-        <p className="text-muted-foreground mb-6">
+        <h1 className="mb-4 font-serif text-3xl font-bold">
+          Seu carrinho está vazio
+        </h1>
+        <p className="text-muted-foreground mb-6 font-sans">
           Parece que você ainda não adicionou nenhum item.
         </p>
         <Button asChild>
@@ -26,7 +28,7 @@ export function CartPage() {
   return (
     <LoadingOverlay isLoading={loading} text="Atualizando carrinho...">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">
+        <h1 className="mb-6 font-serif text-3xl font-bold">
           Seu Carrinho ({totalItems} itens)
         </h1>
         <div className="grid gap-8 lg:grid-cols-3">

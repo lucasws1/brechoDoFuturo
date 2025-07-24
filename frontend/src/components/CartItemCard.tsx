@@ -23,11 +23,11 @@ export function CartItemCard({ item }: { item: CartItem }) {
           className="h-24 w-24 rounded-md object-cover"
         />
         <div className="flex-grow">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-muted-foreground text-sm">
+          <h3 className="font-serif font-semibold">{item.name}</h3>
+          <p className="text-muted-foreground font-sans text-sm">
             {item.category || "Sem categoria"}
           </p>
-          <p className="mt-1 text-lg font-bold">
+          <p className="mt-1 font-sans text-lg font-bold">
             {new Intl.NumberFormat("pt-BR", {
               style: "currency",
               currency: "BRL",

@@ -11,8 +11,8 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-left md:grid-cols-5">
         {/* Logo + descrição */}
         <div className="col-span-2 space-y-3">
-          <div className="text-lg font-bold">Brechó do Futuro</div>
-          <p className="text-muted-foreground text-sm">
+          <div className="font-serif text-lg font-bold">Brechó do Futuro</div>
+          <p className="text-muted-foreground font-sans text-sm">
             Moda sustentável para todos. Peças únicas, preços justos.
           </p>
           <div className="mt-2 flex gap-3">
@@ -29,7 +29,7 @@ export function Footer() {
         </div>
         {/* Institucional */}
         <div>
-          <div className="mb-2 font-semibold">Institucional</div>
+          <div className="mb-2 font-serif font-semibold">Institucional</div>
           <ul className="space-y-1 text-sm">
             <li>
               <Link to="#">Quem somos</Link>
@@ -47,7 +47,7 @@ export function Footer() {
         </div>
         {/* Categorias */}
         <div>
-          <div className="mb-2 font-semibold">Categorias</div>
+          <div className="mb-2 font-serif font-semibold">Categorias</div>
           <ul className="space-y-1 text-sm">
             <li>
               <Link to="#">Masculino</Link>
@@ -65,7 +65,7 @@ export function Footer() {
         </div>
         {/* Minha Conta */}
         <div>
-          <div className="mb-2 font-semibold">Minha Conta</div>
+          <div className="mb-2 font-serif font-semibold">Minha Conta</div>
           <ul className="space-y-1 text-sm">
             <li>
               <Link to="#">Meus pedidos</Link>
@@ -78,7 +78,7 @@ export function Footer() {
             </li>
           </ul>
           <div className="mt-4">
-            <div className="font-semibold">Contato</div>
+            <div className="font-serif font-semibold">Contato</div>
             <div className="text-sm">contato@brechodofuturo.com</div>
             <div className="text-sm">WhatsApp: (11) 99999-9999</div>
           </div>

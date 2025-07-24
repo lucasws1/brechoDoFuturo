@@ -30,8 +30,8 @@ export function ProductCard({ product }: { product: Product }) {
     <Link to={`/product/${product.id}`} className="group block">
       <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 group-hover:shadow-xl">
         <CardHeader className="p-4">
-          <CardTitle className="truncate">{product.name}</CardTitle>
-          <CardDescription className="h-10 truncate">
+          <CardTitle className="truncate font-serif">{product.name}</CardTitle>
+          <CardDescription className="h-10 truncate font-sans">
             {product.description}
           </CardDescription>
         </CardHeader>
@@ -44,7 +44,7 @@ export function ProductCard({ product }: { product: Product }) {
         </CardContent>
         <CardFooter className="flex flex-col gap-2 p-4">
           <div className="flex w-full items-center justify-between">
-            <p className="text-lg font-semibold">
+            <p className="font-sans text-lg font-semibold">
               {product.price.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
