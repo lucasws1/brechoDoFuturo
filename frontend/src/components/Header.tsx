@@ -36,15 +36,15 @@ export function Header() {
   const { isAuthenticated, user, logout, loading } = useAuth(); // Obtém o estado de autenticação
 
   return (
-    <header className="w-full items-center border-b shadow-sm">
+    <header className="w-full items-center">
       {/* Topbar */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-        <div className="flex flex-1 items-center gap-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+        <div className="flex flex-1 items-center gap-2">
           <Link onClick={refetch} to="/">
             <img
-              src="/brecho_logo.png"
+              src="/logo_brecho_do_futuro.png"
               alt="Brechó do Futuro"
-              className="h-12 w-auto"
+              className="h-20 translate-y-[4px]"
             />
           </Link>
           {/* Search */}
@@ -52,7 +52,7 @@ export function Header() {
             <form onSubmit={handleSearch} className="flex gap-2">
               <Input
                 placeholder="Buscar produtos..."
-                className="hover:bg-muted focus:bg-muted h-11 w-full rounded border shadow-sm focus:ring-0"
+                className="hover:bg-muted w-full focus:ring-0"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -65,17 +65,19 @@ export function Header() {
           </div>
         </div>
         {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Link to="/cart">
-            <Button size="icon" variant="ghost" className="relative">
-              <IconShoppingCart className="relative h-5 w-5" />
-              {cartItems.length > 0 && (
-                <p className="bg-secondary text-primary absolute -top-1 -right-1 rounded-full px-1 text-xs">
-                  {cartItems.length}
-                </p>
-              )}
-            </Button>
-          </Link>
+        <div className="flex items-center">
+          <Button asChild variant="ghost" className="flex items-center">
+            <Link to="/cart" className="flex items-center">
+              <div className="relative flex items-center gap-1">
+                <IconShoppingCart className="h-6 w-6" />
+                {cartItems.length > 0 && (
+                  <p className="bg-secondary absolute -top-3 -right-3 rounded-full px-1 text-xs text-black">
+                    {cartItems.length}
+                  </p>
+                )}
+              </div>
+            </Link>
+          </Button>
 
           {!loading && (
             <>
@@ -97,7 +99,6 @@ export function Header() {
                     Olá, {user.name.split(" ")[0]}
                   </span>
                   <Button
-                    size="sm"
                     className="flex items-center gap-1"
                     variant="outline"
                     onClick={logout}
@@ -107,16 +108,12 @@ export function Header() {
                   </Button>
                 </div>
               ) : (
-                <Link to="/auth">
-                  <Button
-                    size="sm"
-                    className="flex items-center gap-1 shadow-sm"
-                    variant="outline"
-                  >
-                    <IconLogin className="h-4 w-4" />
+                <Button className="flex items-center gap-1" asChild>
+                  <Link to="/auth">
+                    <IconLogin />
                     Entrar
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               )}
             </>
           )}
@@ -124,20 +121,16 @@ export function Header() {
       </div>
       {/* Categorias */}
       <div className="mt-4 flex flex-col items-center">
-        <h2 className="text-center font-serif text-lg font-semibold text-zinc-800">
-          Um presente do passado para o futuro 🎁
-        </h2>
-
         <nav>
           <Tabs
             defaultValue="Todas"
-            className="mx-auto mt-2 mb-4 w-full max-w-[600px]"
+            className="mx-auto mb-4 w-full max-w-[600px]"
           >
             <TabsList className="justify-center">
               {categories.map((cat) => (
                 <TabsTrigger key={cat} value={cat} asChild>
                   <Button
-                    variant="ghost"
+                    variant="link"
                     onClick={
                       cat === "Todas"
                         ? () => handleCategoryChange("")
@@ -152,6 +145,9 @@ export function Header() {
             </TabsList>
           </Tabs>
         </nav>
+        {/* <h2 className="mb-6 text-center font-serif text-lg font-semibold text-zinc-800">
+          Um presente do passado para o futuro 🎁
+        </h2> */}
       </div>
     </header>
   );

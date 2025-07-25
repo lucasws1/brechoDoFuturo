@@ -109,7 +109,6 @@ const AuthPage = () => {
                     required
                   />
                 </div>
-                {/* {error && <p className="text-sm text-red-500">{error}</p>} // Removido */}
                 <Button
                   type="submit"
                   className="w-full cursor-pointer"
