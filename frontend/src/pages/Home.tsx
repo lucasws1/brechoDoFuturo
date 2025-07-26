@@ -1,7 +1,9 @@
+import { CarouselDoFuturo } from "@/components/CarouselDoFuturo";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
+import { Loader } from "lucide-react";
 
 const Home = () => {
   const {
@@ -16,7 +18,7 @@ const Home = () => {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-7xl p-4">
+      <div className="mx-auto max-w-7xl px-4 py-2">
         <div className="flex flex-col items-center gap-4 py-8 text-center">
           <h2 className="text-2xl font-bold text-red-600">
             Erro ao carregar produtos
@@ -32,31 +34,23 @@ const Home = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-2">
         {/* Loading */}
         {loading && (
-          <div className="flex justify-center py-8">
-            <div className="text-lg">Carregando produtos...</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <Loader className="h-12 w-12 animate-spin" />
           </div>
         )}
-        <div className="h-48 w-full overflow-hidden rounded-md">
-          <img
-            src="/banner_brecho.png"
-            alt="Banner do Brechó"
-            className="h-full w-full object-cover"
-          />
-        </div>
+        <CarouselDoFuturo />
 
         {/* Grade de Produtos */}
         {!loading && products.length > 0 && (
           <>
-            <div className="grid w-full grid-cols-1 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            <div className="grid w-full grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-
-            {/* <ProductPage /> */}
 
             {/* Botão "Ver mais" - só aparece se há mais páginas */}
             {pagination &&
