@@ -1,82 +1,52 @@
-import { Link } from "react-router-dom";
 import type { Product } from "@/types/Product";
-import { useCart } from "@/contexts/CartContext";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
+interface ProductCardProps {
+  product: Product;
+}
 
-  // Usar a primeira imagem do array ou fallback
+export function ProductCard({ product }: ProductCardProps) {
   const imageUrl =
-    product.images?.[0] || product.image || "/placeholder-image.jpg";
+    product.images?.[0] ||
+    product.image ||
+    "https://placehold.co/300x300/e0e0e0/ffffff?text=Sem+Imagem";
 
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Impede que o link seja acionado ao clicar no botão
-    e.stopPropagation(); // Impede a propagação do evento para o Link pai
-    addToCart(product);
-    // Toast será exibido automaticamente pelo CartContext
-  };
+  const formattedPrice = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(product.price);
 
   return (
-    <Link to={`/product/${product.id}`} className="group block">
-      <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 group-hover:shadow-xl">
-        <CardHeader className="p-4">
-          <CardTitle className="truncate font-serif">{product.name}</CardTitle>
-          <CardDescription className="h-10 truncate font-sans">
-            {product.description}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
+    <Link to={`/product/${product.id}`}>
+      <div className="max-w-[240px] overflow-hidden -tracking-[0.015em] hover:opacity-80">
+        <div className="relative overflow-hidden rounded-[8px]">
           <img
             src={imageUrl}
             alt={product.name}
-            className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="aspect-square h-auto w-full object-cover"
           />
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2 p-4">
-          <div className="flex w-full items-center justify-between">
-            <p className="font-sans text-lg font-semibold">
-              {product.price.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </p>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleAddToCart}
-              disabled={(product.stock || 0) === 0}
-              aria-label="Adicionar ao carrinho"
-            >
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
-          </div>
-          <div className="text-muted-foreground flex w-full justify-between text-xs">
-            <span
-              className={`${
-                (product.stock || 0) > 5
-                  ? "text-green-600"
-                  : (product.stock || 0) > 0
-                    ? "text-yellow-600"
-                    : "text-red-600"
-              }`}
-            >
-              {(product.stock || 0) === 0
-                ? "Fora de estoque"
-                : `${product.stock} em estoque`}
+        </div>
+        <div className="space-y-1 pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-[700] text-[#61005d]">
+              {formattedPrice}
             </span>
+
+            {/* Categoria */}
+            {product.categories && product.categories.length > 0 && (
+              <span className="text-primary bg-primary/5 rounded-md px-2 py-1 text-xs font-[600]">
+                {product.categories[0]?.name}
+              </span>
+            )}
           </div>
-        </CardFooter>
-      </Card>
+          <h3 className="truncate text-sm font-[500] text-black">
+            {product.name}
+          </h3>
+          <p className="truncate text-xs font-[400] text-zinc-800">
+            {product.description}
+          </p>
+        </div>
+      </div>
     </Link>
   );
 }

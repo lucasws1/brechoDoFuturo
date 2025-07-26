@@ -59,9 +59,7 @@ export function CheckoutPage() {
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="font-serif text-2xl font-bold">
-          Seu carrinho está vazio.
-        </h1>
+        <h1 className="text-2xl font-bold">Seu carrinho está vazio.</h1>
         <p className="text-muted-foreground mt-2 font-sans">
           Adicione itens para finalizar a compra.
         </p>
@@ -71,9 +69,7 @@ export function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="mb-8 text-center font-serif text-3xl font-bold">
-        Finalizar Compra
-      </h1>
+      <h1 className="mb-8 text-center text-3xl font-bold">Finalizar Compra</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid gap-8 lg:grid-cols-3"

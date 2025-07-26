@@ -1,81 +1,60 @@
+# Copilot Instructions for brechoDoFuturo (Fullstack)
+
 ## Project Overview
 
-- **Stack:** React + TypeScript + Vite, TailwindCSS, shadcn/ui, Zod, React Router DOM, React Hook Form, clsx, pnpm
-- **Architecture:**
-  - `src/components/ui/`: Design system (atomic, accessible, Radix-based components)
-  - `src/components/`: App-specific components (e.g., `ProductCard`, `Header`, `Footer`)
-  - `src/pages/`: Route-level pages (e.g., `Home.tsx`)
-  - `src/layouts/`: Layout wrappers (e.g., `MainLayout.tsx`)
-  - `src/lib/`: Utilities and mock data (e.g., `mockProducts.ts`, `utils.ts`)
-  - `src/assets/`, `src/styles/`, `src/types/`: Static assets, global styles, and TypeScript types
+- **Monorepo:** `frontend/` (React + Vite + TypeScript), `backend/` (Node.js + Express + TypeScript + Prisma)
+- **Frontend:**
+  - Uses atomic design system (`src/components/ui/`), TailwindCSS, shadcn/ui, React Router DOM, React Context for state, and localStorage for cart.
+  - Product/catalog data is mocked; no direct backend integration yet.
+  - Key files: `src/pages/Home.tsx`, `src/components/ProductCard.tsx`, `src/layouts/MainLayout.tsx`, `src/lib/mockProducts.ts`.
+- **Backend:**
+  - Follows strict MVC (see `.cursor/rules/padrao-mvc.mdc`): controllers (HTTP/validation), services (business logic), models (Prisma DB access), optional repositories.
+  - Uses Prisma ORM (MongoDB), JWT auth, and returns consistent response objects (`{ data, error, message }`).
+  - Key files: `src/controllers/`, `src/services/`, `src/models/`, `prisma/schema.prisma`.
 
 ## Key Patterns & Conventions
 
-- **UI Components:**
-  - All UI primitives are in `src/components/ui/` and follow shadcn/ui conventions (Radix, `cn` for class merging, data-slot attributes for styling).
-  - Use atomic components to compose higher-level features (see `ProductCard`, `Header`, `Footer`).
-- **Styling:**
-  - TailwindCSS is the primary styling method. Custom theme variables are defined in `src/index.css`.
-  - Use the `cn` utility from `src/lib/utils.ts` for merging class names.
-- **Mock Data:**
-  - Product data for development is in `src/lib/mockProducts.ts`.
-- **Page Layout:**
-  - Pages are composed using global layout (`MainLayout.tsx`), header, footer, and grid containers.
-  - Home page (`src/pages/Home.tsx`) demonstrates the product grid and "Ver mais" button pattern.
-- **State Management:**
-  - State for cart, categories, and pagination is intended to be managed via React Context or similar (see `fluxo_frontend.txt`).
-  - Cart is frontend-only (localStorage), not persisted to backend.
-- **Routing:**
-  - React Router DOM is used for client-side routing. Each file in `src/pages/` is a route.
+- **Frontend:**
+  - UI primitives in `src/components/ui/` (Radix, shadcn/ui conventions, `cn` for class merging).
+  - TailwindCSS for styling; theme tokens in `src/index.css`.
+  - State via React Context; see `AuthProvider`, `CartProvider`, `ProductsProvider` in `src/contexts/`.
+  - Routing: All routes defined in `src/App.tsx` using React Router DOM.
+- **Backend:**
+  - Controllers validate input, call services, return HTTP responses.
+  - Services handle business rules, call models, centralize validation.
+  - Models are pure functions for DB access (no business logic, no classes).
+  - Types are shared via `src/types/`.
+  - RESTful routes grouped by resource (e.g., `/api/products`, `/api/users`).
 
 ## Developer Workflows
 
-- **Install dependencies:** `pnpm install`
-- **Start dev server:** `pnpm dev`
-- **Build for production:** `pnpm build`
-- **Lint:** ESLint config in `eslint.config.js` (see `frontend/README.md` for type-aware setup)
-- **Type checking:** Uses TypeScript (`tsconfig.json`, `tsconfig.app.json`)
+- **Install dependencies:** `pnpm install` (run in root, `frontend/`, or `backend/` as needed)
+- **Frontend:**
+  - Dev: `pnpm dev` | Build: `pnpm build` | Lint: `pnpm lint` | Type check: `pnpm tsc`
+- **Backend:**
+  - Dev: `pnpm dev` | Build: `pnpm build` | Start: `pnpm start`
+  - Prisma: `pnpm prisma:generate`, `pnpm prisma:push`, `pnpm prisma:studio`
+  - Env: Copy `.env.example` to `.env` and edit as needed
 
 ## Integration Points
 
-- **Design System:** All new UI elements should be built in `src/components/ui/` and reused across the app.
-- **External APIs:** No direct backend integration in frontend yet; product/catalog data is mocked.
-- **Theming:** Theme tokens and dark mode are managed via CSS custom properties in `src/index.css`.
+- **Frontend ↔ Backend:** No direct integration yet; see `src/lib/mockProducts.ts` for mock data. API contract in `docs/api_routes_brechoDoFuturo.json`.
+- **Design System:** All new UI elements go in `src/components/ui/`.
+- **Entities:** Defined in `docs/entidades.json` and `backend/prisma/schema.prisma`.
 
 ## Examples
 
-- **Composing a product grid:** See `src/pages/Home.tsx` and `ProductCard` usage.
-- **Adding a new UI primitive:** Follow the pattern in `src/components/ui/button.tsx` or `dialog.tsx`.
-- **Global layout:** See `src/layouts/MainLayout.tsx` and `Header`/`Footer` components.
+- **Frontend:**
+  - Product grid: `src/pages/Home.tsx` + `ProductCard`
+  - New UI primitive: `src/components/ui/button.tsx`
+  - Layout: `src/layouts/MainLayout.tsx`, `Header`, `Footer`
+- **Backend:**
+  - Product creation: see `.cursor/rules/padrao-mvc.mdc` for controller/service/model flow
+  - Consistent response: `{ data, error, message }` from controllers
 
 ## References
 
-- `fluxo_frontend.txt` and `projeto_v1.md` for architectural rationale and wireframes.
-- `frontend/README.md` for ESLint and TypeScript config details.
-
----
-
-## Development Log & Next Steps
-
-**Objective:** Build a full-featured e-commerce frontend for "Brechó do Futuro".
-
-**Progress So Far:**
-
-1.  **Home Page (`/`):** Completed. Displays a paginated catalog of products fetched from a mock API. Uses `ProductsContext` to manage state.
-2.  **Product Page (`/product/:id`):** Completed. Displays detailed information for a single product. Uses a dedicated `useProductById` hook.
-3.  **Shopping Cart (`/cart`):** Completed. Manages cart state using `CartContext` and persists data to `localStorage`. Allows users to view, update quantities, and remove items.
-4.  **Checkout Page (`/checkout`):** Completed (UI & Mock Logic). Provides a complete, validated checkout form using `react-hook-form` and `zod`. Simulates the order placement process.
-
-**Current Status & Next Step:**
-
-The frontend currently operates in a mocked environment. The user has confirmed that a backend with JWT authentication is ready for integration.
-
--   **Next Major Task:** Implement **User Authentication (Login/Register)** by connecting the frontend to the existing backend API.
-    -   **Plan:**
-        1.  Switch to a project view that includes both `frontend` and `backend` directories.
-        2.  Analyze backend authentication routes (`/login`, `/register`, `/refresh`) to understand API contracts.
-        3.  Create a real `AuthContext` to manage user state and tokens.
-        4.  Build an `AuthPage` with Login and Register forms that call the backend.
-        5.  Implement protected routes for user-specific pages.
-
-If any section is unclear or missing, please provide feedback for further refinement.
+- `.cursor/rules/padrao-mvc.mdc` for backend architecture
+- `frontend/.github/copilot-instructions.md` for UI conventions
+- `docs/README.md` for project docs and planning
+- `backend/README.md`, `frontend/README.md` for setup and scripts

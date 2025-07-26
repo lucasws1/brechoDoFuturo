@@ -154,7 +154,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const addToCart = async (product: Product, quantity: number = 1) => {
     if (!isAuthenticated || !user) {
-      setError("Você precisa estar logado para adicionar itens ao carrinho.");
+      setError("Faça login para adicionar itens ao carrinho.");
       return;
     }
     setLoading(true);
@@ -222,7 +222,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateQuantity = async (productId: string, quantity: number) => {
     if (!isAuthenticated || !user) {
-      setError("Você precisa estar logado para atualizar o carrinho.");
+      setError("Faça login para atualizar o carrinho.");
       return;
     }
     setLoading(true);
@@ -265,7 +265,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const clearCart = async () => {
     if (!isAuthenticated || !user) {
-      setError("Você precisa estar logado para limpar o carrinho.");
+      setError("Faça login para limpar o carrinho.");
       return;
     }
     setLoading(true);

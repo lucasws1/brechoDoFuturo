@@ -1,4 +1,4 @@
-import type { Product } from "../types/Product"; // Importando o tipo Product
+import type { Product } from "@/types/Product"; // Importando o tipo Product
 import { useState, useEffect } from "react";
 
 interface PaginationInfo {
@@ -45,7 +45,7 @@ export function useProducts(
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { limit = 8 } = options;
+  const { limit = 15 } = options;
 
   const fetchProducts = async () => {
     try {

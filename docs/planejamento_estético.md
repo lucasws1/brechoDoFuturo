@@ -1,6 +1,6 @@
 ## Planejamento Estético - Brechó do Futuro
 
-### 1. Identidade Visual
+### 1. Identidade Visual - ok
 
 - **Paleta de Cores:** Combinação de tons neutros (cinza, bege) com cores vibrantes de acento (verde-água, laranja queimado, azul-petróleo) que remetem tanto a vintage quanto futurismo.
 - **Tipografia:**
@@ -8,7 +8,7 @@
     - Corpo: Fonte legível e clean (como Inter, Roboto ou Open Sans)
 - **Logo:** Unir elementos retrô com futuristas - como uma máquina de costura vintage com elementos de tecnologia ou um cabide clássico com elementos neon/holográficos.
 
-### 2. Design System com shadcn/ui
+### 2. Design System com shadcn/ui - ok
 
 - **Customização de componentes:** Modificar o tema padrão do shadcn para refletir sua paleta de cores personalizada.
 - **Adaptação dos componentes:** Dar um toque retrô-futurista aos botões, cards e formulários.

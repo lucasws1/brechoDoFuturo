@@ -263,7 +263,7 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
-        <h1 className="font-serif text-3xl font-bold">Painel Administrativo</h1>
+        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
         <p className="font-sans text-gray-600">Bem-vindo, {user?.name}</p>
       </div>
 
@@ -460,9 +460,7 @@ export default function AdminPage() {
         {/* Products Tab */}
         <TabsContent value="products" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">
-              Gerenciar Produtos
-            </h2>
+            <h2 className="text-2xl font-bold">Gerenciar Produtos</h2>
             <Button
               className="flex items-center gap-2"
               onClick={handleNewProduct}
@@ -581,9 +579,7 @@ export default function AdminPage() {
         {/* Users Tab */}
         <TabsContent value="users" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">
-              Gerenciar Usuários
-            </h2>
+            <h2 className="text-2xl font-bold">Gerenciar Usuários</h2>
           </div>
 
           <Card>
@@ -652,7 +648,7 @@ export default function AdminPage() {
         {/* Orders Tab */}
         <TabsContent value="orders" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">Gerenciar Pedidos</h2>
+            <h2 className="text-2xl font-bold">Gerenciar Pedidos</h2>
           </div>
 
           <Card>
@@ -750,9 +746,7 @@ export default function AdminPage() {
         {/* Categories Tab */}
         <TabsContent value="categories" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-bold">
-              Gerenciar Categorias
-            </h2>
+            <h2 className="text-2xl font-bold">Gerenciar Categorias</h2>
             <Button
               className="flex items-center gap-2"
               onClick={handleNewCategory}

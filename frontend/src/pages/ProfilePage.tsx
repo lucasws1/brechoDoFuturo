@@ -20,7 +20,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   User,
@@ -189,6 +189,11 @@ const ProfilePage = () => {
     );
   }
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const initialTab = params.get("tab") || "profile";
+  const [currentTab, setCurrentTab] = useState(initialTab);
+
   const onSubmit = async (values: ProfileFormValues) => {
     try {
       await api.put(`/users/me`, values);
@@ -225,7 +230,11 @@ const ProfilePage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="profile" className="w-full">
+            <Tabs
+              defaultValue={initialTab}
+              className="w-full"
+              onValueChange={setCurrentTab}
+            >
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger
                   value="profile"

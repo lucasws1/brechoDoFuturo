@@ -6,7 +6,7 @@ import AuthPage from "./pages/AuthPage";
 import { CartPage } from "./pages/CartPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import Home from "./pages/Home";
-import { ProductPage } from "./pages/ProductPage";
+import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import ContactPage from "./pages/ContactPage";
@@ -28,18 +28,14 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path="/cart" element={<CartPage />} />
-                {/* Rota de checkout protegida */}
+
                 <Route path="/checkout" element={<ProtectedRoute />}>
                   <Route index element={<CheckoutPage />} />
                 </Route>
                 <Route path="/profile" element={<ProtectedRoute />}>
-                  {" "}
-                  {/* Rota de perfil protegida */}
                   <Route index element={<ProfilePage />} />
                 </Route>
                 <Route path="/admin" element={<ProtectedRoute />}>
-                  {" "}
-                  {/* Rota de admin protegida */}
                   <Route index element={<AdminPage />} />
                 </Route>
                 <Route path="/contact" element={<ContactPage />} />
@@ -48,9 +44,8 @@ function App() {
           </ProductsProvider>
         </CartProvider>
         <Toaster
-          position="top-right"
+          position="top-center"
           expand={true}
-          richColors={true}
           closeButton={true}
           toastOptions={{
             duration: 4000,

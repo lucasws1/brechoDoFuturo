@@ -23,7 +23,7 @@ export function CartItemCard({ item }: { item: CartItem }) {
           className="h-24 w-24 rounded-md object-cover"
         />
         <div className="flex-grow">
-          <h3 className="font-serif font-semibold">{item.name}</h3>
+          <h3 className="font-semibold">{item.name}</h3>
           <p className="text-muted-foreground font-sans text-sm">
             {item.category || "Sem categoria"}
           </p>

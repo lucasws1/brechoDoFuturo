@@ -2,7 +2,6 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
-import { Gift } from "lucide-react";
 
 const Home = () => {
   const {
@@ -33,47 +32,58 @@ const Home = () => {
 
   return (
     <>
-      {/* <TestPage /> */}
-      <div className="mx-auto max-w-7xl space-y-8 p-4">
+      <div className="mx-auto max-w-7xl space-y-8">
         {/* Loading */}
         {loading && (
           <div className="flex justify-center py-8">
             <div className="text-lg">Carregando produtos...</div>
           </div>
         )}
+        <div className="h-48 w-full overflow-hidden rounded-md">
+          <img
+            src="/banner_brecho.png"
+            alt="Banner do Brechó"
+            className="h-full w-full object-cover"
+          />
+        </div>
 
         {/* Grade de Produtos */}
         {!loading && products.length > 0 && (
           <>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid w-full grid-cols-1 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
-            {/* Paginação */}
-            {pagination && pagination.totalPages > 1 && (
-              <div className="mt-12">
-                <ProductPagination
-                  currentPage={pagination.page}
-                  totalPages={pagination.totalPages}
-                  onPageChange={setCurrentPage}
-                />
-              </div>
-            )}
+            {/* <ProductPage /> */}
 
             {/* Botão "Ver mais" - só aparece se há mais páginas */}
-            {pagination && pagination.page < pagination.totalPages && (
-              <div className="mt-8 flex justify-center">
-                <Button
-                  variant="outline"
-                  className="w-full max-w-xs"
-                  onClick={() => setCurrentPage(pagination.page + 1)}
-                >
-                  Ver mais
-                </Button>
-              </div>
-            )}
+            {pagination &&
+              pagination.page < pagination.totalPages &&
+              pagination.page === 1 && (
+                <div className="mt-8 flex justify-center">
+                  <Button
+                    className="w-full max-w-xs"
+                    onClick={() => setCurrentPage(pagination.page + 1)}
+                  >
+                    Ver mais...
+                  </Button>
+                </div>
+              )}
+
+            {/* Paginação */}
+            {pagination &&
+              pagination.page !== 1 &&
+              pagination.totalPages > 1 && (
+                <div className="mt-12">
+                  <ProductPagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              )}
           </>
         )}
 
