@@ -11,17 +11,12 @@ import { useEffect, useState } from "react";
 const banners = [
   {
     id: 1,
-    image: "/banner_brecho.png",
+    image: "/carrossel2.png",
     alt: "Banner do Brechó",
   },
   {
     id: 2,
-    image: "/banner_brecho_2.png",
-    alt: "Banner do Brechó",
-  },
-  {
-    id: 3,
-    image: "/logo_brecho_2.png",
+    image: "/carrossel1.png",
     alt: "Banner do Brechó",
   },
 ];
@@ -72,8 +67,8 @@ export function CarouselDoFuturo() {
             onClick={() => api?.scrollTo(index)}
             className={`h-2 w-2 cursor-pointer rounded-full transition-all ${
               current === index + 1
-                ? "scale-125 bg-purple-600"
-                : "bg-purple-600/50 hover:bg-purple-600/75"
+                ? "scale-125 bg-neutral-500"
+                : "bg-neutral-500/50 hover:bg-neutral-500/75"
             }`}
             aria-label={`Ir para slide ${index + 1}`}
           />
