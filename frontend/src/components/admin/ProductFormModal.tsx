@@ -31,7 +31,7 @@ interface ProductFormData {
   price: number;
   stock: number;
   images: string[];
-  categoryIds: string[];
+  categoryId: string;
 }
 
 interface ProductFormModalProps {
@@ -55,7 +55,7 @@ export function ProductFormModal({
     price: product?.price || 0,
     stock: product?.stock || 0,
     images: product?.images || [""],
-    categoryIds: product?.categories?.map((cat: any) => cat.id) || [],
+    categoryId: product?.categoryId || "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -175,9 +175,9 @@ export function ProductFormModal({
           <div>
             <Label>Categorias</Label>
             <Select
-              value={formData.categoryIds[0] || ""}
+              value={formData.categoryId || ""}
               onValueChange={(value) =>
-                setFormData({ ...formData, categoryIds: [value] })
+                setFormData({ ...formData, categoryId: value })
               }
             >
               <SelectTrigger>

@@ -15,14 +15,14 @@ async function testCategoryFilter() {
   // Vamos ver um produto com suas categorias
   const productWithCategories = await prisma.product.findFirst({
     include: {
-      categories: true,
+      category: true,
     },
   });
   console.log("Produto exemplo:", {
     id: productWithCategories?.id,
     name: productWithCategories?.name,
-    categoryIds: productWithCategories?.categoryIds,
-    categories: productWithCategories?.categories.map((c) => c.name),
+    categoryId: productWithCategories?.categoryId,
+    category: productWithCategories?.category?.name,
   });
 
   // Agora vamos testar o filtro usando categoryIds (nova lógica)
@@ -34,10 +34,10 @@ async function testCategoryFilter() {
 
   const filteredProductsByIds = await prisma.product.findMany({
     where: {
-      categoryIds: { has: femininoCategory?.id },
+      categoryId: femininoCategory?.id,
     },
     include: {
-      categories: true,
+      category: true,
     },
   });
 

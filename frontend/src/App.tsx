@@ -44,11 +44,12 @@ function App() {
           </ProductsProvider>
         </CartProvider>
         <Toaster
-          position="top-center"
+          position="top-right"
           expand={true}
+          richColors={true}
           closeButton={true}
           toastOptions={{
-            duration: 4000,
+            duration: 2000,
           }}
         />
       </AuthProvider>

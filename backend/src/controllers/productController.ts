@@ -32,7 +32,7 @@ interface CreateProductInput {
   price: number;
   images: string[];
   sellerId: string;
-  categoryIds: string[];
+  categoryId: string;
   stock: number;
 }
 
@@ -43,7 +43,7 @@ interface UpdateProductInput {
   stock?: number;
   images?: string[];
   status?: any;
-  categoryIds?: string[];
+  categoryId?: string;
 }
 
 /**
@@ -127,7 +127,7 @@ export const createProduct = async (
       return;
     }
 
-    const { name, description, price, stock, categoryIds } = req.body;
+    const { name, description, price, stock, categoryId } = req.body;
 
     // Basic validation
     if (!name || !description || !price || stock === undefined) {
@@ -149,9 +149,7 @@ export const createProduct = async (
       stock: Number(stock),
       images,
       sellerId: req.user.id,
-      categoryIds: Array.isArray(categoryIds)
-        ? categoryIds
-        : [categoryIds].filter(Boolean),
+      categoryId: categoryId,
     };
 
     const product = await productService.createProduct(
@@ -190,17 +188,15 @@ export const updateProduct = async (
     }
 
     const { id } = req.params;
-    const { name, description, price, stock, categoryIds, status } = req.body;
+    const { name, description, price, stock, categoryId, status } = req.body;
 
     const updateData: UpdateProductInput = {};
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (price) updateData.price = Number(price);
     if (stock !== undefined) updateData.stock = Number(stock);
-    if (categoryIds) {
-      updateData.categoryIds = Array.isArray(categoryIds)
-        ? categoryIds
-        : [categoryIds].filter(Boolean);
+    if (categoryId) {
+      updateData.categoryId = categoryId;
     }
     if (status) updateData.status = status;
 

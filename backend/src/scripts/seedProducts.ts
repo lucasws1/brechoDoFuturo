@@ -33,9 +33,7 @@ async function main() {
       ],
       stock: faker.number.int({ min: 1, max: 10 }),
       status: ProductStatus.Available,
-      categoryIds: [
-        categoryIds[Math.floor(Math.random() * categoryIds.length)],
-      ],
+      categoryId: categoryIds[Math.floor(Math.random() * categoryIds.length)],
       createdAt: new Date(),
       updatedAt: new Date(),
     });

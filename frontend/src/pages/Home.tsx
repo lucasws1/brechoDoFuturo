@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
-import { Loader } from "lucide-react";
+import { SpinnerGapIcon } from "@phosphor-icons/react";
 
 const Home = () => {
   const {
@@ -34,11 +34,15 @@ const Home = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-2">
+      <div className="mx-auto mt-8 max-w-7xl space-y-8 px-4">
         {/* Loading */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <Loader className="h-12 w-12 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <SpinnerGapIcon
+              color="black"
+              size={48}
+              className="animate-spin text-white"
+            />
           </div>
         )}
         <CarouselDoFuturo />
@@ -46,7 +50,7 @@ const Home = () => {
         {/* Grade de Produtos */}
         {!loading && products.length > 0 && (
           <>
-            <div className="grid w-full grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="mt-12 grid w-full grid-cols-1 gap-8 space-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

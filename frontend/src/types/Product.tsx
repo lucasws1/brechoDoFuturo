@@ -1,21 +1,22 @@
+import type { Category } from "./Category";
+
 export interface Product {
   id: string;
   name: string;
   price: number;
-  image?: string; // Campo opcional para compatibilidade
+  // image?: string; // Campo opcional para compatibilidade
   images?: string[]; // Array de imagens do backend
-  category?: string; // Campo opcional pois o backend não retorna
   description: string;
   stock?: number;
   status?: string; // Status do produto
-  sellerId?: string; // ID do vendedor
+  // sellerId?: string; // ID do vendedor
   seller?: {
     id: string;
     name: string;
     email: string;
   };
-  categoryIds?: string[]; // IDs das categorias
-  categories?: any[]; // Categorias do produto
+  categoryId?: string; // IDs das categorias
+  category?: Category; // Categorias do produto
   reviews?: any[]; // Reviews do produto
   createdAt?: string;
   updatedAt?: string;

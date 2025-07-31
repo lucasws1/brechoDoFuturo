@@ -10,7 +10,7 @@ interface CreateProductData {
   stock: number;
   images: string[];
   sellerId: string;
-  categoryIds: string[];
+  categoryId?: string;
 }
 
 interface UpdateProductData {
@@ -20,12 +20,12 @@ interface UpdateProductData {
   stock?: number;
   images?: string[];
   status?: ProductStatus;
-  categoryIds?: string[];
+  categoryId?: string;
 }
 
 interface ProductFilters {
   search?: string;
-  categoryIds?: string[];
+  categoryId?: string;
   category?: string; // Nome da categoria
   status?: ProductStatus;
   sellerId?: string;
@@ -53,8 +53,8 @@ export const getProducts = async (filters: ProductFilters = {}) => {
     ];
   }
 
-  if (filters?.categoryIds && filters.categoryIds.length > 0) {
-    where.categoryIds = { hasSome: filters.categoryIds };
+  if (filters?.categoryId && filters.categoryId.length > 0) {
+    where.categoryId = filters.categoryId;
   }
 
   // Filtrar por nome da categoria
@@ -65,7 +65,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
     });
 
     if (category) {
-      where.categoryIds = { has: category.id };
+      where.categoryId = category.id;
     } else {
       // Se categoria não encontrada, retornar vazio
       where.id = "non-existent";
@@ -91,7 +91,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
             email: true,
           },
         },
-        categories: true,
+        category: true,
         reviews: {
           include: {
             user: {
@@ -133,7 +133,7 @@ export const getProductById = async (id: string) => {
           email: true,
         },
       },
-      categories: true,
+      category: true,
       reviews: {
         include: {
           user: {
@@ -194,7 +194,7 @@ export const createProduct = async (
           email: true,
         },
       },
-      categories: true,
+      category: true,
     },
   });
 };
@@ -238,7 +238,7 @@ export const updateProduct = async (
           email: true,
         },
       },
-      categories: true,
+      category: true,
     },
   });
 };
@@ -319,7 +319,7 @@ export const updateProductStatus = async (
           email: true,
         },
       },
-      categories: true,
+      category: true,
     },
   });
 };
@@ -338,7 +338,7 @@ export const populateMockProducts = async (sellerId: string) => {
           images: [mockProduct.image], // Converter string para array
           status: ProductStatus.Available,
           sellerId,
-          categoryIds: [], // Por enquanto sem categorias
+          categoryId: "", // Por enquanto sem categorias
         },
         include: {
           seller: {

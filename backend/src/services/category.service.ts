@@ -62,7 +62,7 @@ export const getCategories = async (filters: CategoryFilters = {}) => {
     prisma.category.findMany({
       where,
       include: {
-        products: {
+        Product: {
           select: {
             id: true,
             name: true,
@@ -93,7 +93,7 @@ export const getCategoryById = async (id: string) => {
   const category = await prisma.category.findUnique({
     where: { id },
     include: {
-      products: {
+      Product: {
         select: {
           id: true,
           name: true,
@@ -170,9 +170,7 @@ export const deleteCategory = async (id: string, isAdmin: boolean = false) => {
   // Verificar se há produtos associados
   const productsCount = await prisma.product.count({
     where: {
-      categories: {
-        some: { id },
-      },
+      categoryId: id,
     },
   });
 
@@ -192,9 +190,7 @@ export const getCategoryStats = async (id: string) => {
   const stats = await prisma.product.groupBy({
     by: ["status"],
     where: {
-      categories: {
-        some: { id },
-      },
+      categoryId: id,
     },
     _count: { status: true },
   });

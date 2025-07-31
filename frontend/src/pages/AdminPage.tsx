@@ -46,7 +46,7 @@ interface Product {
   status: "Available" | "Sold" | "Hidden";
   images: string[];
   stock: number;
-  categories: { id: string; name: string }[];
+  category: { id: string; name: string };
 }
 
 interface User {
@@ -500,9 +500,7 @@ export default function AdminPage() {
                               <div>
                                 <p className="font-medium">{product.name}</p>
                                 <p className="text-sm text-gray-600">
-                                  {product.categories
-                                    ?.map((cat) => cat.name)
-                                    .join(", ") || "Sem categoria"}
+                                  {product.category?.name || "Sem categoria"}
                                 </p>
                               </div>
                             </div>

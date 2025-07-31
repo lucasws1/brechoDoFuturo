@@ -6,10 +6,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const imageUrl =
-    product.images?.[0] ||
-    product.image ||
-    "https://placehold.co/300x300/e0e0e0/ffffff?text=Sem+Imagem";
+  const imageUrl = product.images?.[0] || "https://placehold.co/300x300";
 
   const formattedPrice = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -33,9 +30,9 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
 
             {/* Categoria */}
-            {product.categories && product.categories.length > 0 && (
-              <span className="text-primary bg-primary/10 rounded-md px-2 py-1 text-xs font-[600]">
-                {product.categories[0]?.name}
+            {product.category && (
+              <span className="bg-primary/10 text-primary rounded-md px-2 py-1 text-xs font-[600]">
+                {product.category?.name}
               </span>
             )}
           </div>

@@ -5,17 +5,22 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@/components/ui/carousel";
+} from "@/components/ui/carouselCustom";
 import { useEffect, useState } from "react";
 
 const banners = [
   {
     id: 1,
-    image: "/carrossel2.png",
+    image: "/carrossel3.png",
     alt: "Banner do Brechó",
   },
   {
     id: 2,
+    image: "/carrossel2.png",
+    alt: "Banner do Brechó",
+  },
+  {
+    id: 3,
     image: "/carrossel1.png",
     alt: "Banner do Brechó",
   },
@@ -45,7 +50,7 @@ export function CarouselDoFuturo() {
         <CarouselContent>
           {banners.map((banner, index) => (
             <CarouselItem key={index}>
-              <div className="h-48 w-full overflow-hidden rounded-md object-cover">
+              <div className="h-48 w-full overflow-hidden rounded-xl object-cover">
                 <img
                   src={banner.image}
                   alt={banner.alt}
@@ -55,20 +60,20 @@ export function CarouselDoFuturo() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="top-1/2 left-2 cursor-pointer bg-white/50 text-black hover:bg-purple-600/50" />
-        <CarouselNext className="top-1/2 right-2 cursor-pointer bg-white/50 text-black hover:bg-purple-600/50" />
+        <CarouselPrevious className="top-1/2 left-2 cursor-pointer bg-white/60" />
+        <CarouselNext className="top-1/2 right-2 cursor-pointer bg-white/60" />
       </Carousel>
 
       {/* Pontinhos de paginação */}
-      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+      <div className="mt-2 flex justify-center gap-2">
         {Array.from({ length: count }).map((_, index) => (
           <button
             key={index}
             onClick={() => api?.scrollTo(index)}
-            className={`h-2 w-2 cursor-pointer rounded-full transition-all ${
+            className={`h-2 w-2 cursor-pointer rounded-full border border-purple-900 transition-all ${
               current === index + 1
-                ? "scale-125 bg-neutral-500"
-                : "bg-neutral-500/50 hover:bg-neutral-500/75"
+                ? "scale-125 bg-purple-800"
+                : "bg-none hover:bg-purple-600"
             }`}
             aria-label={`Ir para slide ${index + 1}`}
           />

@@ -74,12 +74,12 @@ model Product {
   status      ProductStatus @default(Available)
 
   // Relacionamentos
-  seller      User            @relation("ProductSeller", fields: [sellerId], references: [id])
-  categories  Category[]      @relation(fields: [categoryIds], references: [id])
-  categoryIds String[]        @db.ObjectId
-  reviews     ProductReview[]
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+  seller     User            @relation("ProductSeller", fields: [sellerId], references: [id])
+  categoryId String?         @db.ObjectId
+  category   Category?       @relation(fields: [categoryId], references: [id])
+  reviews    ProductReview[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -131,16 +131,16 @@ model Payment {
 }
 
 model Category {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  name        String @unique
-  description String
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  name          String     @unique
+  description   String?
+  parentId      String?    @db.ObjectId
+  parent        Category?  @relation("CategoryToSubcategories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories Category[] @relation("CategoryToSubcategories")
 
-  // Relacionamentos
-  products   Product[] @relation(fields: [productIds], references: [id])
-  productIds String[]  @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 }
 
 model ProductReview {
