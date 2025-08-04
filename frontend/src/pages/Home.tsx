@@ -1,3 +1,4 @@
+// import HeaderTeste from "@/components/HeaderTeste";
 import { CarouselDoFuturo } from "@/components/CarouselDoFuturo";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductPagination } from "@/components/ProductPagination";

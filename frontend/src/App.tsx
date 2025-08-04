@@ -1,19 +1,19 @@
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Toaster } from "sonner"; // Importa o Toaster
+import { AuthCartSync } from "./components/AuthCartSync"; // Importa o componente de sincronização
+import ProtectedRoute from "./components/ProtectedRoute"; // Importa o ProtectedRoute
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ProductsProvider } from "./contexts/ProductsContext";
 import { MainLayout } from "./layouts/MainLayout";
+import AdminPage from "./pages/AdminPage";
 import AuthPage from "./pages/AuthPage";
 import { CartPage } from "./pages/CartPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
+import ContactPage from "./pages/ContactPage";
 import Home from "./pages/Home";
 import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
-import AdminPage from "./pages/AdminPage";
-import ContactPage from "./pages/ContactPage";
-import ProtectedRoute from "./components/ProtectedRoute"; // Importa o ProtectedRoute
-import { AuthCartSync } from "./components/AuthCartSync"; // Importa o componente de sincronização
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "sonner"; // Importa o Toaster
 
 function App() {
   return (

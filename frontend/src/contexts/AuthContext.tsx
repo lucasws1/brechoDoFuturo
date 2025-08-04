@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import api from "../services/api";
+import api, { clearAuthState } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -57,9 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    delete api.defaults.headers.common["Authorization"];
+    clearAuthState(); // Usa a função centralizada para limpar estado
     toast.success("Logout realizado com sucesso!"); // Notificação de sucesso
     navigate("/auth");
   };
