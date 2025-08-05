@@ -62,10 +62,22 @@ export const getProducts = async (filters: ProductFilters = {}) => {
     // Primeiro, encontrar a categoria pelo nome
     const category = await prisma.category.findFirst({
       where: { name: { equals: filters.category, mode: "insensitive" } },
+      include: {
+        subcategories: true, // Incluir subcategorias
+      },
     });
 
     if (category) {
-      where.categoryId = category.id;
+      // Se a categoria tem subcategorias, incluir produtos de todas elas
+      if (category.subcategories && category.subcategories.length > 0) {
+        const subcategoryIds = category.subcategories.map((sub) => sub.id);
+        where.categoryId = {
+          in: [category.id, ...subcategoryIds],
+        };
+      } else {
+        // Se não tem subcategorias, buscar apenas produtos da categoria pai
+        where.categoryId = category.id;
+      }
     } else {
       // Se categoria não encontrada, retornar vazio
       where.id = "non-existent";

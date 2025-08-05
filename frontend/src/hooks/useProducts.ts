@@ -98,7 +98,11 @@ export function useProducts(
   };
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category === selectedCategory ? "" : category);
+    // Se a categoria selecionada for a mesma, desmarcar
+    // Se for diferente, selecionar a nova categoria
+    setSelectedCategory(
+      category === selectedCategory || category === "Explorar" ? "" : category,
+    );
     setCurrentPage(1); // Reset para primeira página
   };
 

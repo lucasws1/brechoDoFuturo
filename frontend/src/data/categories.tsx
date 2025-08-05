@@ -1,5 +1,5 @@
 export const categories = [
-  { nome: "Todas" },
+  { nome: "Explorar" },
   { nome: "Novidades" },
   { nome: "Ofertas" },
   {

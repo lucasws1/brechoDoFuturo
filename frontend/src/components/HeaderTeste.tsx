@@ -30,15 +30,16 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "./ui/navigation-menu";
+import { categories } from "@/data/categories";
 
 const HeaderTeste: React.FC = () => {
-  const { refetch } = useProductsContext();
+  const { refetch, handleCategoryChange } = useProductsContext();
   const { searchTerm, setSearchTerm, handleSearch } = useProductsContext();
   const { cartItems } = useCart();
   const { isAuthenticated, user, logout, loading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] bg-[#FAFAFA] px-6 py-3">
+    <header className="sticky top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] px-6 py-3">
       <div className="flex items-center justify-center gap-8">
         <Link onClick={refetch} to="/" className="group">
           <div className="flex items-center justify-center gap-3">
@@ -51,184 +52,43 @@ const HeaderTeste: React.FC = () => {
         <div>
           <NavigationMenu viewport={false}>
             <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink
-                  asChild
-                  className="text-sm leading-normal font-medium text-[#181113]"
-                >
-                  <Link to="/">Novidades</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink
-                  asChild
-                  className="text-sm leading-normal font-medium text-[#181113]"
-                >
-                  <Link to="/">Ofertas</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm leading-normal font-medium text-[#181113]">
-                  Roupas
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="border-none">
-                  <ul className="grid w-[200px] gap-4">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Masculino</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Feminino</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Infantil</div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm leading-normal font-medium text-[#181113]">
-                  Acessórios
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="border-none">
-                  <ul className="grid w-[200px] gap-4">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Anéis</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Bolsas</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Brincos</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Calçados</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Pulseiras</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Colares</div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm leading-normal font-medium text-[#181113]">
-                  Casa
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="border-none">
-                  <ul className="grid w-[200px] gap-4">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Móveis</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Decoração</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Utensílios</div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm leading-normal font-medium text-[#181113]">
-                  Diversos
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="border-none">
-                  <ul className="grid w-[200px] gap-4">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Brinquedos</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Esportes</div>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild>
-                        <Link to="/">
-                          <div className="font-medium">Eletrônicos</div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+              {categories.map((cat) => (
+                <NavigationMenuItem key={cat.nome}>
+                  {!cat.subcategorias || cat.subcategorias.length === 0 ? (
+                    <NavigationMenuLink
+                      onClick={() => handleCategoryChange(cat.nome)}
+                      className="cursor-pointer text-sm leading-normal font-medium text-[#181113]"
+                    >
+                      <div className="font-medium">{cat.nome}</div>
+                    </NavigationMenuLink>
+                  ) : (
+                    <>
+                      <NavigationMenuTrigger
+                        className="cursor-pointer text-sm leading-normal font-medium text-[#181113]"
+                        onClick={() => handleCategoryChange(cat.nome)}
+                      >
+                        {cat.nome}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent className="border-none">
+                        <ul className="grid w-[200px] gap-4">
+                          {cat.subcategorias.map((sub) => (
+                            <li key={sub}>
+                              <NavigationMenuLink
+                                onClick={() => handleCategoryChange(sub)}
+                                className="cursor-pointer"
+                              >
+                                <div className="font-medium">{sub}</div>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  )}
+                </NavigationMenuItem>
+              ))}
             </NavigationMenuList>
           </NavigationMenu>
-        </div>
-
-        <div className="hidden">
-          <nav className="hidden items-center gap-9 lg:flex">
-            <a
-              className="text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.007em]"
-              href="#"
-            >
-              Novidades
-            </a>
-            <a
-              className="text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.010em]"
-              href="#"
-            >
-              Ofertas
-            </a>
-            <a
-              className="flex items-center gap-1 text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.007em]"
-              href="#"
-            >
-              Roupas <ChevronDown size={12} className="mt-[2px]" />
-            </a>
-            <a
-              className="flex items-center gap-1 text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.007em]"
-              href="#"
-            >
-              Acessórios <ChevronDown size={12} className="mt-[2px]" />
-            </a>
-            <a
-              className="flex items-center gap-1 text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.007em]"
-              href="#"
-            >
-              Casa <ChevronDown size={12} className="mt-[2px]" />
-            </a>
-            <a
-              className="flex items-center gap-1 text-sm leading-normal font-medium text-[#181113] transition-all duration-200 hover:font-bold hover:tracking-[-0.007em]"
-              href="#"
-            >
-              Diversos <ChevronDown size={12} className="mt-[2px]" />
-            </a>
-          </nav>
         </div>
       </div>
       <div className="flex items-center justify-end gap-4">
@@ -240,14 +100,14 @@ const HeaderTeste: React.FC = () => {
             <div className="flex h-full w-full items-stretch rounded-lg">
               <button
                 type="submit"
-                className="flex items-center justify-center rounded-l-lg border-r-0 border-none bg-[#fafafa] pl-4 text-[#89616f]"
+                className="flex items-center justify-center rounded-l-lg border-r-0 border-none pl-4 text-[#89616f]"
               >
                 <Search size={18} />
               </button>
 
               <input
                 placeholder="Buscar"
-                className="form-input flex h-full max-w-[160px] min-w-16 resize-none overflow-hidden rounded-lg rounded-l-none border-l-0 border-none bg-[#fafafa] px-4 pl-2 text-sm leading-normal font-normal text-[#181113] placeholder:text-sm placeholder:text-[#89616f] focus:border-none focus:ring-0 focus:outline-0"
+                className="form-input flex h-full max-w-[160px] min-w-16 resize-none overflow-hidden rounded-lg rounded-l-none border-l-0 border-none px-4 pl-2 text-sm leading-normal font-normal text-[#181113] placeholder:text-sm placeholder:text-[#89616f] focus:border-none focus:ring-0 focus:outline-0"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
