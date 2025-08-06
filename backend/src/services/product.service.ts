@@ -57,11 +57,16 @@ export const getProducts = async (filters: ProductFilters = {}) => {
     where.categoryId = filters.categoryId;
   }
 
-  // Filtrar por nome da categoria
+  // Filtrar por nome ou ID da categoria
   if (filters?.category) {
-    // Primeiro, encontrar a categoria pelo nome
+    // Verifica se é um ObjectId válido (24 caracteres hexadecimais) ou um nome
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(filters.category);
+
+    // Buscar a categoria pelo ID ou nome
     const category = await prisma.category.findFirst({
-      where: { name: { equals: filters.category, mode: "insensitive" } },
+      where: isObjectId
+        ? { id: filters.category }
+        : { name: { equals: filters.category, mode: "insensitive" } },
       include: {
         subcategories: true, // Incluir subcategorias
       },

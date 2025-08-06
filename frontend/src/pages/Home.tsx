@@ -5,6 +5,7 @@ import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
+import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 
 const Home = () => {
   const {
@@ -36,9 +37,10 @@ const Home = () => {
   return (
     <>
       <div className="mx-auto mt-8 max-w-7xl space-y-8 px-4">
+        <BreadcrumbCustom />
         {/* Loading */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <div className="absolute inset-0 z-60 flex items-center justify-center bg-black/20">
             <SpinnerGapIcon
               color="black"
               size={48}

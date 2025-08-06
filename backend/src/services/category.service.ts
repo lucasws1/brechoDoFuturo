@@ -200,3 +200,50 @@ export const getCategoryStats = async (id: string) => {
     productStats: stats,
   };
 };
+
+// Buscar hierarquia completa de uma categoria
+export const getCategoryHierarchy = async (categoryIdentifier: string) => {
+  // Verifica se é um ObjectId válido (24 caracteres hexadecimais) ou um nome
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(categoryIdentifier);
+
+  const category = await prisma.category.findUnique({
+    where: isObjectId
+      ? { id: categoryIdentifier }
+      : { name: categoryIdentifier },
+    include: {
+      parent: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
+      },
+    },
+  });
+
+  if (!category) {
+    throw new Error("Categoria não encontrada");
+  }
+
+  const hierarchy: any[] = [];
+  let currentCategory = category;
+
+  // Adiciona a categoria atual
+  hierarchy.unshift({
+    id: currentCategory.id,
+    name: currentCategory.name,
+    description: currentCategory.description,
+  });
+
+  // Busca todos os pais recursivamente
+  while (currentCategory.parent) {
+    currentCategory = currentCategory.parent as any;
+    hierarchy.unshift({
+      id: currentCategory.id,
+      name: currentCategory.name,
+      description: currentCategory.description,
+    });
+  }
+
+  return hierarchy;
+};

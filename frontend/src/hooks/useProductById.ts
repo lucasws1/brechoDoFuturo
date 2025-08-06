@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "@/services/api";
 
 interface Product {
   id: string;
@@ -38,15 +39,8 @@ export function useProductById(productId?: string): UseProductByIdReturn {
       setLoading(true);
       setError(null);
 
-      const apiUrl = `http://localhost:3001/api/products/${productId}`;
-      const response = await fetch(apiUrl);
-      console.log("Fetching product from:", apiUrl);
-
-      if (!response.ok) {
-        throw new Error(`Produto não encontrado: ${response.status}`);
-      }
-
-      const data: ApiResponse = await response.json();
+      const response = await api.get(`/products/${productId}`);
+      const data: ApiResponse = response.data;
 
       if (data.success) {
         setProduct(data.data);
@@ -77,3 +71,47 @@ export function useProductById(productId?: string): UseProductByIdReturn {
     refetch,
   };
 }
+
+interface CategoryHierarchy {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export const useCategoryHierarchy = (categoryId: string | null) => {
+  const [hierarchy, setHierarchy] = useState<CategoryHierarchy[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!categoryId) {
+      setHierarchy([]);
+      return;
+    }
+
+    const fetchHierarchy = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await api.get(`/categories/${categoryId}/hierarchy`);
+
+        if (response.data.success) {
+          setHierarchy(response.data.data);
+        } else {
+          setError("Erro ao buscar hierarquia da categoria");
+        }
+      } catch (err: any) {
+        setError(
+          err.response?.data?.error?.message || "Erro ao buscar hierarquia",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHierarchy();
+  }, [categoryId]);
+
+  return { hierarchy, loading, error };
+};

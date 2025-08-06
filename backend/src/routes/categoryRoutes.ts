@@ -6,6 +6,7 @@ import {
   updateCategory,
   deleteCategory,
   getCategoryStats,
+  getCategoryHierarchy,
 } from "../controllers/categoryController";
 import { authenticate } from "../middleware/auth";
 
@@ -14,6 +15,7 @@ const router: Router = Router();
 // Rotas públicas
 router.get("/", getCategories);
 router.get("/:id", getCategoryById);
+router.get("/:id/hierarchy", getCategoryHierarchy);
 
 // Rotas privadas (requerem autenticação)
 router.post("/", authenticate, createCategory);

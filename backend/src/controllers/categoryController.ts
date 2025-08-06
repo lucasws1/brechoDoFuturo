@@ -256,3 +256,22 @@ export const getCategoryStats = async (
     handleError(res, error, "Erro ao buscar estatísticas da categoria");
   }
 };
+
+/**
+ * @desc    Get category hierarchy (breadcrumb)
+ * @route   GET /api/categories/:id/hierarchy
+ * @access  Public
+ */
+export const getCategoryHierarchy = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const hierarchy = await categoryService.getCategoryHierarchy(id);
+
+    res.status(200).json({
+      success: true,
+      data: hierarchy,
+    } as ApiResponse);
+  } catch (error) {
+    handleError(res, error, "Erro ao buscar hierarquia da categoria");
+  }
+};
