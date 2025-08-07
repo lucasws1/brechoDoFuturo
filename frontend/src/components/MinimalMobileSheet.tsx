@@ -13,13 +13,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useProductsContext } from "@/contexts/ProductsContext";
-import { categories } from "@/data/categories";
-import { IconHanger } from "@tabler/icons-react";
+import { CoatHangerIcon } from "@phosphor-icons/react";
 import {
   AlignJustify,
   ChevronRight,
-  Handbag,
   Home,
   Package,
   Shirt,
@@ -28,18 +25,32 @@ import {
   Watch,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useProductsContext } from "@/contexts/ProductsContext";
+import { categories } from "@/data/categories";
 import { Button } from "./ui/button";
-import { CoatHangerIcon } from "@phosphor-icons/react";
+import { useCategoryHierarchy } from "@/hooks/useProductById";
+import { useRef, useState } from "react";
 
 const MinimalMobileSheet = () => {
   const { handleCategoryChange, selectedCategory } = useProductsContext();
-  const [parentCategory, setParentCategory] = useState<string | null>(null);
+  const { hierarchy } = useCategoryHierarchy(selectedCategory || null);
+  const categoryNames = (hierarchy || []).map((category) => category.name);
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
+
+  const handleCategoryClick = (cat: any) => {
+    if (openCategory === cat.name) {
+      handleCategoryChange(cat.name);
+      sheetCloseRef.current?.click();
+    } else {
+      setOpenCategory(cat.name);
+    }
+  };
 
   // Função para mapear ícones para categorias
   const getCategoryIcon = (categoryName: string) => {
     const iconMap = {
-      Todas: <Package className="h-5 w-5" />,
+      Explorar: <Package className="h-5 w-5" />,
       Novidades: <Sparkles className="h-5 w-5" />,
       Ofertas: <Tag className="h-5 w-5" />,
       Roupas: <Shirt className="h-5 w-5" />,
@@ -56,74 +67,70 @@ const MinimalMobileSheet = () => {
 
   return (
     <Sheet aria-describedby={undefined}>
-      <SheetTrigger className="inline-flex cursor-pointer items-center justify-center rounded-md p-2 transition-colors">
+      <SheetTrigger className="inline-flex cursor-pointer items-center justify-center p-2">
         <AlignJustify className="cursor-pointer" color="black" size={20} />
       </SheetTrigger>
       <SheetContent className="flex w-[320px] flex-col">
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-start gap-3 pl-2">
-            {/* <div className="flex h-12 w-12 items-center justify-center">
-              <img
-                src="/logo_brecho_3_peq.png"
-                alt="logo"
-                className="h-8 w-auto object-contain"
-              />
-            </div> */}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-start gap-4">
-                <Handbag size={24} color="black" />
-                <span className="text-xl font-bold">Categorias</span>
-              </div>
-              <span className="pl-10 text-sm">Encontre o que procura</span>
-            </div>
+          <SheetTitle className="flex items-center justify-start gap-2">
+            <CoatHangerIcon size={20} color="black" />
+            <span className="text-lg font-bold">Categorias</span>
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-1 flex-col py-4">
-          <Accordion type="multiple" className="flex w-full flex-col space-y-2">
+          <Accordion type="single" className="flex w-full flex-col space-y-2">
             {categories.map((cat) =>
-              cat.subcategorias && cat.subcategorias.length > 0 ? (
-                <AccordionItem key={cat.nome} value={cat.nome}>
+              cat.subcategories && cat.subcategories.length > 0 ? (
+                <AccordionItem
+                  key={cat.name}
+                  value={cat.name}
+                  className="border-none"
+                >
                   <AccordionTrigger
-                    className={`group flex w-full items-center rounded-t-lg px-4 py-3 text-base font-semibold transition-all duration-200 hover:bg-violet-50 ${
-                      parentCategory === cat.nome
-                        ? "text-bold underline"
-                        : "text-medium hover:underline"
-                    }`}
+                    onClick={() => handleCategoryClick(cat)}
+                    className={`group flex w-full items-center px-4 py-3`}
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`transition-colors duration-200 ${
-                          parentCategory === cat.nome
-                            ? "text-bold"
-                            : "text-medium"
+                      {getCategoryIcon(cat.name)}
+
+                      <span
+                        className={`${
+                          categoryNames.some(
+                            (name) =>
+                              name.trim().toLowerCase() ===
+                              cat.name.trim().toLowerCase(),
+                          ) ||
+                          (cat.name === "Explorar" && selectedCategory === "")
+                            ? "font-bold"
+                            : "font-medium"
                         }`}
                       >
-                        {getCategoryIcon(cat.nome)}
-                      </div>
-                      <span>{cat.nome}</span>
+                        {cat.name}
+                      </span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-3">
-                    <div className="mt-2 ml-2 space-y-1 border-l-2 border-violet-200 pl-4">
-                      {cat.subcategorias.map((sub, index) => (
+                    <div className="mt-2 ml-2 space-y-1 pl-4">
+                      {cat.subcategories.map((sub, index) => (
                         <div
                           key={sub}
-                          className="animate-in slide-in-from-left-2 duration-200"
+                          className="animate-in slide-in-from-left-2"
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <SheetClose
-                            onClick={() => {
-                              handleCategoryChange(sub);
-                              setParentCategory(cat.nome);
-                            }}
-                            className={`group flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-violet-50 hover:shadow-sm ${
-                              selectedCategory === sub
-                                ? "bg-violet-100 font-semibold text-violet-700 shadow-sm"
-                                : "text-gray-600 hover:text-violet-700"
+                            onClick={() => handleCategoryChange(sub)}
+                            className={`group flex w-full items-center gap-2 px-3 py-2 ${
+                              categoryNames.some(
+                                (name) =>
+                                  name.trim().toLowerCase() ===
+                                  sub.trim().toLowerCase(),
+                              )
+                                ? "font-bold"
+                                : ""
                             }`}
                           >
-                            <ChevronRight className="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" />
-                            <span className="capitalize">{sub}</span>
+                            <ChevronRight className="h-3 w-3" />
+                            <span>{sub}</span>
                           </SheetClose>
                         </div>
                       ))}
@@ -132,55 +139,39 @@ const MinimalMobileSheet = () => {
                 </AccordionItem>
               ) : (
                 <AccordionItem
-                  key={cat.nome}
-                  value={cat.nome}
+                  key={cat.name}
+                  value={cat.name}
                   className="border-none"
                 >
                   <SheetClose
-                    className={`group flex w-full items-center justify-start gap-3 rounded-lg border border-violet-100 bg-white px-4 py-3 text-base font-semibold shadow-sm transition-all duration-200 hover:bg-violet-50 hover:shadow-md ${
-                      parentCategory === cat.nome
-                        ? "bg-violet-100 text-violet-700 shadow-md"
-                        : "text-violet-900 hover:text-violet-700"
+                    className={`group flex w-full items-center justify-start gap-3 px-4 py-3 ${
+                      selectedCategory === cat.name ? "font-bold" : ""
                     }`}
-                    onClick={
-                      cat.nome === "Todas"
-                        ? () => {
-                            handleCategoryChange("");
-                            setParentCategory(null);
-                          }
-                        : () => {
-                            handleCategoryChange(cat.nome);
-                            setParentCategory(cat.nome);
-                          }
-                    }
+                    onClick={() => handleCategoryChange(cat.name)}
                   >
                     <div
-                      className={`transition-colors duration-200 ${
-                        parentCategory === cat.nome
-                          ? "text-violet-600"
-                          : "text-violet-500 group-hover:text-violet-600"
+                      className={`${
+                        selectedCategory === cat.name ? "font-bold" : ""
                       }`}
                     >
-                      {getCategoryIcon(cat.nome)}
+                      {getCategoryIcon(cat.name)}
                     </div>
-                    <span>{cat.nome}</span>
+                    <span>{cat.name}</span>
                   </SheetClose>
                 </AccordionItem>
               ),
             )}
           </Accordion>
         </div>
-        <SheetFooter className="border-t border-violet-100 pt-4">
+        <SheetFooter className="pt-4">
           <SheetClose asChild>
-            <Button
-              className="w-full bg-gradient-to-r from-violet-500 to-purple-600 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
-              size="lg"
-            >
+            <Button className="w-full py-3 font-semibold" size="lg">
               Fechar Menu
             </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
+      <SheetClose ref={sheetCloseRef} className="hidden" />
     </Sheet>
   );
 };

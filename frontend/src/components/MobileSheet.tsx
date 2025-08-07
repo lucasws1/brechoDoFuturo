@@ -79,15 +79,15 @@ const MobileSheet = () => {
         <div className="flex flex-1 flex-col py-4">
           <Accordion type="multiple" className="flex w-full flex-col space-y-2">
             {categories.map((cat) =>
-              cat.subcategorias && cat.subcategorias.length > 0 ? (
+              cat.subcategories && cat.subcategories.length > 0 ? (
                 <AccordionItem
-                  key={cat.nome}
-                  value={cat.nome}
+                  key={cat.name}
+                  value={cat.name}
                   className="rounded-lg border border-violet-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
                 >
                   <AccordionTrigger
                     className={`group flex w-full items-center rounded-t-lg px-4 py-3 text-base font-semibold transition-all duration-200 hover:bg-violet-50 ${
-                      parentCategory === cat.nome
+                      parentCategory === cat.name
                         ? "bg-violet-100 text-violet-700"
                         : "text-violet-900 hover:text-violet-700"
                     }`}
@@ -95,19 +95,19 @@ const MobileSheet = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className={`transition-colors duration-200 ${
-                          parentCategory === cat.nome
+                          parentCategory === cat.name
                             ? "text-violet-600"
                             : "text-violet-500"
                         }`}
                       >
-                        {getCategoryIcon(cat.nome)}
+                        {getCategoryIcon(cat.name)}
                       </div>
-                      <span>{cat.nome}</span>
+                      <span>{cat.name}</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-3">
                     <div className="mt-2 ml-2 space-y-1 border-l-2 border-violet-200 pl-4">
-                      {cat.subcategorias.map((sub, index) => (
+                      {cat.subcategories.map((sub, index) => (
                         <div
                           key={sub}
                           className="animate-in slide-in-from-left-2 duration-200"
@@ -116,7 +116,7 @@ const MobileSheet = () => {
                           <SheetClose
                             onClick={() => {
                               handleCategoryChange(sub);
-                              setParentCategory(cat.nome);
+                              setParentCategory(cat.name);
                             }}
                             className={`group flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200 hover:bg-violet-50 hover:shadow-sm ${
                               selectedCategory === sub
@@ -134,38 +134,38 @@ const MobileSheet = () => {
                 </AccordionItem>
               ) : (
                 <AccordionItem
-                  key={cat.nome}
-                  value={cat.nome}
+                  key={cat.name}
+                  value={cat.name}
                   className="border-none"
                 >
                   <SheetClose
                     className={`group flex w-full items-center justify-start gap-3 rounded-lg border border-violet-100 bg-white px-4 py-3 text-base font-semibold shadow-sm transition-all duration-200 hover:bg-violet-50 hover:shadow-md ${
-                      parentCategory === cat.nome
+                      parentCategory === cat.name
                         ? "bg-violet-100 text-violet-700 shadow-md"
                         : "text-violet-900 hover:text-violet-700"
                     }`}
                     onClick={
-                      cat.nome === "Todas"
+                      cat.name === "Todas"
                         ? () => {
                             handleCategoryChange("");
                             setParentCategory(null);
                           }
                         : () => {
-                            handleCategoryChange(cat.nome);
-                            setParentCategory(cat.nome);
+                            handleCategoryChange(cat.name);
+                            setParentCategory(cat.name);
                           }
                     }
                   >
                     <div
                       className={`transition-colors duration-200 ${
-                        parentCategory === cat.nome
+                        parentCategory === cat.name
                           ? "text-violet-600"
                           : "text-violet-500 group-hover:text-violet-600"
                       }`}
                     >
-                      {getCategoryIcon(cat.nome)}
+                      {getCategoryIcon(cat.name)}
                     </div>
-                    <span>{cat.nome}</span>
+                    <span>{cat.name}</span>
                   </SheetClose>
                 </AccordionItem>
               ),

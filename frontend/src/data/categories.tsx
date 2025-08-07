@@ -1,14 +1,14 @@
 export const categories = [
-  { nome: "Explorar" },
-  { nome: "Novidades" },
-  { nome: "Ofertas" },
+  { name: "Explorar" },
+  { name: "Novidades" },
+  { name: "Ofertas" },
   {
-    nome: "Roupas",
-    subcategorias: ["Masculino", "Feminino", "Infantil"],
+    name: "Roupas",
+    subcategories: ["Masculino", "Feminino", "Infantil"],
   },
   {
-    nome: "Acessórios",
-    subcategorias: [
+    name: "Acessórios",
+    subcategories: [
       "Anéis",
       "Bolsas",
       "Brincos",
@@ -18,11 +18,11 @@ export const categories = [
     ],
   },
   {
-    nome: "Casa",
-    subcategorias: ["Móveis", "Decoração", "Utensílios"],
+    name: "Casa",
+    subcategories: ["Móveis", "Decoração", "Utensílios"],
   },
   {
-    nome: "Diversos",
-    subcategorias: ["Brinquedos", "Esportes", "Eletrônicos"],
+    name: "Diversos",
+    subcategories: ["Brinquedos", "Esportes", "Eletrônicos"],
   },
 ];

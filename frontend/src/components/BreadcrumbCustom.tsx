@@ -1,7 +1,3 @@
-import { useProductsContext } from "@/contexts/ProductsContext";
-import { useCategoryHierarchy } from "@/hooks/useProductById";
-import { XIcon } from "@phosphor-icons/react";
-import { Link } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,6 +6,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useProductsContext } from "@/contexts/ProductsContext";
+import { useCategoryHierarchy } from "@/hooks/useProductById";
 
 const BreadcrumbCustom = () => {
   const { selectedCategory, setSelectedCategory } = useProductsContext();
@@ -34,7 +32,7 @@ const BreadcrumbCustom = () => {
             {hierarchy.length > 0 && (
               <>
                 {hierarchy.map((category, index) => (
-                  <>
+                  <div key={category.name} className="flex items-center gap-2">
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                       {index === hierarchy.length - 1 ? (
@@ -48,7 +46,7 @@ const BreadcrumbCustom = () => {
                         </BreadcrumbLink>
                       )}
                     </BreadcrumbItem>
-                  </>
+                  </div>
                 ))}
               </>
             )}

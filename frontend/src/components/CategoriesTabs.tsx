@@ -18,21 +18,21 @@ export function CategoriesTabs() {
   return (
     <div className="flex gap-4">
       {categories.map((cat) =>
-        cat.subcategorias && cat.subcategorias.length > 0 ? (
-          <DropdownMenu key={cat.nome}>
+        cat.subcategories && cat.subcategories.length > 0 ? (
+          <DropdownMenu key={cat.name}>
             <DropdownMenuTrigger
-              className={`text-md flex cursor-pointer items-center tracking-tighter text-black lowercase hover:text-purple-700 ${parentCategory === cat.nome && "font-semibold text-purple-800"}`}
+              className={`text-md flex cursor-pointer items-center tracking-tighter text-black lowercase hover:text-purple-700 ${parentCategory === cat.name && "font-semibold text-purple-800"}`}
             >
-              {cat.nome} <ChevronDown size={14} className="mt-[4px] ml-1" />
+              {cat.name} <ChevronDown size={14} className="mt-[4px] ml-1" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="rounded-xl bg-white text-black">
               <DropdownMenuGroup>
-                {cat.subcategorias.map((sub) => (
+                {cat.subcategories.map((sub) => (
                   <DropdownMenuItem
                     key={sub}
                     onClick={() => {
                       handleCategoryChange(sub);
-                      setParentCategory(cat.nome);
+                      setParentCategory(cat.name);
                     }}
                     className={`text-md tracking-tighter text-black lowercase focus:bg-purple-300 focus:text-black ${selectedCategory === sub && "font-semibold text-purple-800"}`}
                   >
@@ -44,22 +44,22 @@ export function CategoriesTabs() {
           </DropdownMenu>
         ) : (
           <button
-            key={cat.nome}
+            key={cat.name}
             onClick={() => {
-              cat.nome === "Todas"
+              cat.name === "Todas"
                 ? handleCategoryChange("")
-                : handleCategoryChange(cat.nome);
+                : handleCategoryChange(cat.name);
               setParentCategory("");
             }}
             className={cn(
               "text-md cursor-pointer tracking-tighter text-black lowercase hover:text-purple-700",
               selectedCategory === "" &&
-                cat.nome === "Todas" &&
+                cat.name === "Todas" &&
                 "font-semibold text-purple-800",
-              cat.nome === selectedCategory && "font-semibold text-purple-800",
+              cat.name === selectedCategory && "font-semibold text-purple-800",
             )}
           >
-            {cat.nome}
+            {cat.name}
           </button>
         ),
       )}

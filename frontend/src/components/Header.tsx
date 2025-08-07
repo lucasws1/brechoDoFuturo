@@ -32,12 +32,21 @@ import {
 } from "./ui/navigation-menu";
 import { categories } from "@/data/categories";
 import MinimalMobileSheet from "./MinimalMobileSheet";
+import { useCategoryHierarchy } from "@/hooks/useProductById";
 
 const Header: React.FC = () => {
-  const { refetch, handleCategoryChange } = useProductsContext();
-  const { searchTerm, setSearchTerm, handleSearch } = useProductsContext();
+  const {
+    searchTerm,
+    setSearchTerm,
+    handleSearch,
+    selectedCategory,
+    refetch,
+    handleCategoryChange,
+  } = useProductsContext();
+  const { hierarchy } = useCategoryHierarchy(selectedCategory || null);
   const { cartItems } = useCart();
   const { isAuthenticated, user, logout, loading } = useAuth();
+  const categoryNames = (hierarchy || []).map((category) => category.name);
 
   return (
     <header className="sticky top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] px-6 py-3">
@@ -54,31 +63,68 @@ const Header: React.FC = () => {
           <NavigationMenu viewport={false} className="hidden xl:flex">
             <NavigationMenuList>
               {categories.map((cat) => (
-                <NavigationMenuItem key={cat.nome}>
-                  {!cat.subcategorias || cat.subcategorias.length === 0 ? (
+                <NavigationMenuItem key={cat.name}>
+                  {!cat.subcategories || cat.subcategories.length === 0 ? (
                     <NavigationMenuLink
-                      onClick={() => handleCategoryChange(cat.nome)}
-                      className="cursor-pointer text-sm leading-normal font-medium"
+                      onClick={() => handleCategoryChange(cat.name)}
+                      className="cursor-pointer rounded-md text-sm leading-normal font-medium"
                     >
-                      <div className="font-medium">{cat.nome}</div>
+                      <div
+                        className={`${
+                          categoryNames.some(
+                            (name) =>
+                              name.trim().toLowerCase() ===
+                              cat.name.trim().toLowerCase(),
+                          ) ||
+                          (cat.name === "Explorar" && selectedCategory === "")
+                            ? "font-bold"
+                            : "font-medium"
+                        }`}
+                      >
+                        {cat.name}
+                      </div>
                     </NavigationMenuLink>
                   ) : (
                     <>
                       <NavigationMenuTrigger
                         className="cursor-pointer text-sm leading-normal font-medium"
-                        onClick={() => handleCategoryChange(cat.nome)}
+                        onClick={() => handleCategoryChange(cat.name)}
                       >
-                        {cat.nome}
+                        <div
+                          className={`${
+                            categoryNames.some(
+                              (name) =>
+                                name.trim().toLowerCase() ===
+                                cat.name.trim().toLowerCase(),
+                            )
+                              ? "font-bold"
+                              : "font-medium"
+                          }`}
+                        >
+                          {cat.name}
+                        </div>
                       </NavigationMenuTrigger>
                       <NavigationMenuContent className="border-none">
                         <ul className="grid w-[200px] gap-4">
-                          {cat.subcategorias.map((sub) => (
+                          {(cat.subcategories || []).map((sub) => (
                             <li key={sub}>
                               <NavigationMenuLink
                                 onClick={() => handleCategoryChange(sub)}
                                 className="cursor-pointer"
                               >
-                                <div className="font-medium">{sub}</div>
+                                <div
+                                  className={`${
+                                    categoryNames.some(
+                                      (name) =>
+                                        name.trim().toLowerCase() ===
+                                        sub.trim().toLowerCase(),
+                                    )
+                                      ? "font-bold"
+                                      : "font-medium"
+                                  }`}
+                                >
+                                  {sub}
+                                </div>
                               </NavigationMenuLink>
                             </li>
                           ))}
