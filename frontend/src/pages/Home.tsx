@@ -1,22 +1,16 @@
-// import HeaderTeste from "@/components/HeaderTeste";
+import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 import { CarouselDoFuturo } from "@/components/CarouselDoFuturo";
-import { ProductCard } from "@/components/ProductCard";
+import MaisVendidos from "@/components/MaisVendidos";
+import NewProductsSection from "@/components/NewProductsSection";
+import OfertaEspecial from "@/components/OfertaEspecial";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
 import { useProductsContext } from "@/contexts/ProductsContext";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
-import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 
 const Home = () => {
-  const {
-    products,
-    pagination,
-    loading,
-    error,
-    //currentPage,
-    setCurrentPage,
-    refetch,
-  } = useProductsContext();
+  const { products, pagination, loading, error, setCurrentPage, refetch } =
+    useProductsContext();
 
   if (error) {
     return (
@@ -36,8 +30,10 @@ const Home = () => {
 
   return (
     <>
-      <div className="mx-auto mt-8 max-w-7xl space-y-8 px-4">
+      <div className="mx-auto max-w-7xl px-4 pt-4 pb-2">
         <BreadcrumbCustom />
+      </div>
+      <div className="mx-auto mt-8 max-w-7xl space-y-8 px-4">
         {/* Loading */}
         {loading && (
           <div className="absolute inset-0 z-60 flex items-center justify-center bg-black/20">
@@ -52,12 +48,15 @@ const Home = () => {
 
         {/* Grade de Produtos */}
         {!loading && products.length > 0 && (
-          <>
-            <div className="mt-12 grid w-full grid-cols-1 gap-8 space-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="mt-12">
+            <NewProductsSection />
+            <OfertaEspecial />
+            <MaisVendidos />
+            {/* <div className="mt-12 grid w-full grid-cols-1 gap-8 space-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </div>
+            </div> */}
 
             {/* Botão "Ver mais" - só aparece se há mais páginas */}
             {pagination &&
@@ -85,7 +84,7 @@ const Home = () => {
                   />
                 </div>
               )}
-          </>
+          </div>
         )}
 
         {/* Estado vazio */}

@@ -31,6 +31,24 @@ import { Button } from "./ui/button";
 import { useCategoryHierarchy } from "@/hooks/useProductById";
 import { useRef, useState } from "react";
 
+// Função para mapear ícones para categorias
+const getCategoryIcon = (categoryName: string) => {
+  const iconMap = {
+    Explorar: <Package className="h-5 w-5" />,
+    Novidades: <Sparkles className="h-5 w-5" />,
+    Ofertas: <Tag className="h-5 w-5" />,
+    Roupas: <Shirt className="h-5 w-5" />,
+    Acessórios: <Watch className="h-5 w-5" />,
+    Casa: <Home className="h-5 w-5" />,
+    Diversos: <Zap className="h-5 w-5" />,
+  };
+  return (
+    iconMap[categoryName as keyof typeof iconMap] || (
+      <Package className="h-5 w-5" />
+    )
+  );
+};
+
 const MinimalMobileSheet = () => {
   const { handleCategoryChange, selectedCategory } = useProductsContext();
   const { hierarchy } = useCategoryHierarchy(selectedCategory || null);
@@ -42,27 +60,10 @@ const MinimalMobileSheet = () => {
     if (openCategory === cat.name) {
       handleCategoryChange(cat.name);
       sheetCloseRef.current?.click();
+      setOpenCategory(null);
     } else {
       setOpenCategory(cat.name);
     }
-  };
-
-  // Função para mapear ícones para categorias
-  const getCategoryIcon = (categoryName: string) => {
-    const iconMap = {
-      Explorar: <Package className="h-5 w-5" />,
-      Novidades: <Sparkles className="h-5 w-5" />,
-      Ofertas: <Tag className="h-5 w-5" />,
-      Roupas: <Shirt className="h-5 w-5" />,
-      Acessórios: <Watch className="h-5 w-5" />,
-      Casa: <Home className="h-5 w-5" />,
-      Diversos: <Zap className="h-5 w-5" />,
-    };
-    return (
-      iconMap[categoryName as keyof typeof iconMap] || (
-        <Package className="h-5 w-5" />
-      )
-    );
   };
 
   return (
@@ -72,7 +73,7 @@ const MinimalMobileSheet = () => {
       </SheetTrigger>
       <SheetContent className="flex w-[320px] flex-col">
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-start gap-2">
+          <SheetTitle className="flex items-center justify-start gap-3">
             <CoatHangerIcon size={20} color="black" />
             <span className="text-lg font-bold">Categorias</span>
           </SheetTitle>
@@ -90,20 +91,21 @@ const MinimalMobileSheet = () => {
                     onClick={() => handleCategoryClick(cat)}
                     className={`group flex w-full items-center px-4 py-3`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 text-base font-normal">
                       {getCategoryIcon(cat.name)}
 
                       <span
-                        className={`${
+                        className={
+                          (selectedCategory === "" &&
+                            cat.name === "Explorar") ||
                           categoryNames.some(
                             (name) =>
                               name.trim().toLowerCase() ===
                               cat.name.trim().toLowerCase(),
-                          ) ||
-                          (cat.name === "Explorar" && selectedCategory === "")
+                          )
                             ? "font-bold"
-                            : "font-medium"
-                        }`}
+                            : ""
+                        }
                       >
                         {cat.name}
                       </span>
@@ -118,7 +120,10 @@ const MinimalMobileSheet = () => {
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <SheetClose
-                            onClick={() => handleCategoryChange(sub)}
+                            onClick={() => {
+                              handleCategoryChange(sub);
+                              handleCategoryClick(sub);
+                            }}
                             className={`group flex w-full items-center gap-2 px-3 py-2 ${
                               categoryNames.some(
                                 (name) =>
@@ -145,18 +150,15 @@ const MinimalMobileSheet = () => {
                 >
                   <SheetClose
                     className={`group flex w-full items-center justify-start gap-3 px-4 py-3 ${
-                      selectedCategory === cat.name ? "font-bold" : ""
+                      selectedCategory === cat.name ||
+                      (selectedCategory === "" && cat.name === "Explorar")
+                        ? "font-bold"
+                        : ""
                     }`}
                     onClick={() => handleCategoryChange(cat.name)}
                   >
-                    <div
-                      className={`${
-                        selectedCategory === cat.name ? "font-bold" : ""
-                      }`}
-                    >
-                      {getCategoryIcon(cat.name)}
-                    </div>
-                    <span>{cat.name}</span>
+                    <div>{getCategoryIcon(cat.name)}</div>
+                    <span className="text-base">{cat.name}</span>
                   </SheetClose>
                 </AccordionItem>
               ),

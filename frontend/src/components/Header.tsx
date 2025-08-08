@@ -49,7 +49,7 @@ const Header: React.FC = () => {
   const categoryNames = (hierarchy || []).map((category) => category.name);
 
   return (
-    <header className="sticky top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] px-6 py-3">
+    <header className="top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] px-6 py-3">
       <div className="flex items-center justify-center gap-8">
         <Link onClick={refetch} to="/" className="group">
           <div className="flex items-center justify-center gap-2">

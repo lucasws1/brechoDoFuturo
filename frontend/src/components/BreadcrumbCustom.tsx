@@ -24,19 +24,29 @@ const BreadcrumbCustom = () => {
   return (
     <>
       <div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        <Breadcrumb className="flex items-end justify-start">
+          <BreadcrumbList className="flex items-end">
+            <BreadcrumbItem className="flex items-end">
+              {hierarchy.length === 0 ? (
+                <BreadcrumbPage className="text-foreground text-lg leading-tight font-bold">
+                  Explorar
+                </BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink href="/">Explorar</BreadcrumbLink>
+              )}
             </BreadcrumbItem>
             {hierarchy.length > 0 && (
               <>
                 {hierarchy.map((category, index) => (
-                  <div key={category.name} className="flex items-center gap-2">
-                    <BreadcrumbSeparator />
+                  <div key={category.name} className="flex items-end gap-2">
+                    <BreadcrumbSeparator className="translate-y-[-2px]" />
                     <BreadcrumbItem>
                       {index === hierarchy.length - 1 ? (
-                        <BreadcrumbPage>{category.name}</BreadcrumbPage>
+                        <BreadcrumbPage>
+                          <span className="text-foreground leading-tight font-bold">
+                            {category.name}
+                          </span>
+                        </BreadcrumbPage>
                       ) : (
                         <BreadcrumbLink
                           onClick={() => setSelectedCategory(category.name)}

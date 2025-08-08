@@ -1,3 +1,4 @@
+import api from "@/services/api";
 import type { Product } from "@/types/Product"; // Importando o tipo Product
 import { useState, useEffect } from "react";
 
@@ -32,6 +33,9 @@ interface UseProductsReturn {
   handleSearch: (e: React.FormEvent) => void;
   handleCategoryChange: (category: string) => void;
   refetch: () => void;
+  fetchNewProducts: () => Promise<Product[]>;
+  fetchOfertaEspecial: () => Promise<Product[]>;
+  fetchMaisVendidos: () => Promise<Product[]>;
 }
 
 export function useProducts(
@@ -45,7 +49,40 @@ export function useProducts(
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { limit = 15 } = options;
+  const { limit = 12 } = options;
+
+  const fetchNewProducts = async (): Promise<Product[]> => {
+    const params = new URLSearchParams({
+      limit: "4",
+      category: "Novidades",
+    });
+
+    const response = await api.get(`/products?${params.toString()}`);
+    const data: ApiResponse = response.data;
+    return data.data;
+  };
+
+  const fetchOfertaEspecial = async (): Promise<Product[]> => {
+    const params = new URLSearchParams({
+      limit: "4",
+      category: "Ofertas",
+    });
+
+    const response = await api.get(`/products?${params.toString()}`);
+    const data: ApiResponse = response.data;
+    return data.data;
+  };
+
+  const fetchMaisVendidos = async (): Promise<Product[]> => {
+    const params = new URLSearchParams({
+      limit: "4",
+      category: "MaisVendidos",
+    });
+
+    const response = await api.get(`/products?${params.toString()}`);
+    const data: ApiResponse = response.data;
+    return data.data;
+  };
 
   const fetchProducts = async () => {
     try {
@@ -61,18 +98,9 @@ export function useProducts(
       if (searchTerm) params.append("search", searchTerm);
       if (selectedCategory) params.append("category", selectedCategory);
 
-      // URL da API
-      const apiUrl = `http://localhost:3001/api/products?${params.toString()}`;
+      const response = await api.get(`/products?${params.toString()}`);
 
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) {
-        throw new Error(
-          `Erro na requisição: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      const data: ApiResponse = await response.json();
+      const data: ApiResponse = response.data;
 
       if (data.success) {
         setProducts(data.data);
@@ -133,5 +161,8 @@ export function useProducts(
     handleSearch,
     handleCategoryChange,
     refetch,
+    fetchNewProducts,
+    fetchOfertaEspecial,
+    fetchMaisVendidos,
   };
 }

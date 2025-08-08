@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 import { useProducts } from "@/hooks/useProducts";
+import type { Product } from "@/types/Product";
 
 interface ProductsContextType {
   products: any[];
@@ -16,6 +17,9 @@ interface ProductsContextType {
   handleSearch: (e: React.FormEvent) => void;
   handleCategoryChange: (category: string) => void;
   refetch: () => void;
+  fetchNewProducts: () => Promise<Product[]>;
+  fetchOfertaEspecial: () => Promise<Product[]>;
+  fetchMaisVendidos: () => Promise<Product[]>;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(
