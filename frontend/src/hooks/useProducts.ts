@@ -33,9 +33,11 @@ interface UseProductsReturn {
   handleSearch: (e: React.FormEvent) => void;
   handleCategoryChange: (category: string) => void;
   refetch: () => void;
-  fetchNewProducts: () => Promise<Product[]>;
+  fetchProductsByCategory: (
+    category: string,
+    limit: number,
+  ) => Promise<Product[]>;
   fetchOfertaEspecial: () => Promise<Product[]>;
-  fetchMaisVendidos: () => Promise<Product[]>;
 }
 
 export function useProducts(
@@ -51,10 +53,13 @@ export function useProducts(
 
   const { limit = 12 } = options;
 
-  const fetchNewProducts = async (): Promise<Product[]> => {
+  const fetchProductsByCategory = async (
+    categoryName: string,
+    limit: number = 5,
+  ): Promise<Product[]> => {
     const params = new URLSearchParams({
-      limit: "4",
-      category: "Novidades",
+      limit: limit.toString(),
+      category: categoryName,
     });
 
     const response = await api.get(`/products?${params.toString()}`);
@@ -66,17 +71,6 @@ export function useProducts(
     const params = new URLSearchParams({
       limit: "4",
       category: "Ofertas",
-    });
-
-    const response = await api.get(`/products?${params.toString()}`);
-    const data: ApiResponse = response.data;
-    return data.data;
-  };
-
-  const fetchMaisVendidos = async (): Promise<Product[]> => {
-    const params = new URLSearchParams({
-      limit: "4",
-      category: "MaisVendidos",
     });
 
     const response = await api.get(`/products?${params.toString()}`);
@@ -161,8 +155,7 @@ export function useProducts(
     handleSearch,
     handleCategoryChange,
     refetch,
-    fetchNewProducts,
+    fetchProductsByCategory,
     fetchOfertaEspecial,
-    fetchMaisVendidos,
   };
 }

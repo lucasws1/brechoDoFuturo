@@ -15,21 +15,28 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link to={`/product/${product.id}`}>
-      <div className="h-full w-full overflow-hidden hover:opacity-80">
-        <div className="mb-2 flex aspect-square h-[280px] w-auto flex-col overflow-hidden rounded-xl">
-          <img
-            src={imageUrl}
-            alt={product.name}
-            className="h-full w-auto object-cover"
-          />
+      <div className="group h-full w-full overflow-hidden transition hover:opacity-80">
+        <div className="relative w-full overflow-hidden rounded-xl">
+          <div className="aspect-square md:aspect-[4/5]">
+            <img
+              src={imageUrl}
+              alt={product.name}
+              className="h-full w-auto object-cover"
+            />
+          </div>
+          {product.category && (
+            <span className="absolute top-1 right-1 rounded bg-black/30 px-1 py-0.5 text-[10px] font-medium text-white">
+              {product.category.name}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="mt-1 flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <h3 className="truncate text-sm leading-tight font-medium text-black">
+            <h3 className="text-sm font-medium tracking-tight md:text-[15px]">
               {product.name}
             </h3>
           </div>
-          <span className="text-muted-foreground text-xs leading-tight">
+          <span className="text-[13px] font-medium tracking-normal md:text-sm">
             {formattedPrice}
           </span>
         </div>

@@ -17,9 +17,11 @@ interface ProductsContextType {
   handleSearch: (e: React.FormEvent) => void;
   handleCategoryChange: (category: string) => void;
   refetch: () => void;
-  fetchNewProducts: () => Promise<Product[]>;
+  fetchProductsByCategory: (
+    category: string,
+    limit: number,
+  ) => Promise<Product[]>;
   fetchOfertaEspecial: () => Promise<Product[]>;
-  fetchMaisVendidos: () => Promise<Product[]>;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(

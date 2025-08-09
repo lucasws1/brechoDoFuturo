@@ -67,7 +67,7 @@ export function CarouselDoFuturo() {
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 flex bg-gradient-to-b from-white/50 via-transparent">
-                  <span className="text-md mt-2 ml-2 tracking-wide">
+                  <span className="mt-2 ml-2 text-sm tracking-wide">
                     brechó do futuro
                   </span>
                 </div>

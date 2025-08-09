@@ -24,11 +24,11 @@ const BreadcrumbCustom = () => {
   return (
     <>
       <div>
-        <Breadcrumb className="flex items-end justify-start">
+        <Breadcrumb className="flex items-end justify-start text-base">
           <BreadcrumbList className="flex items-end">
             <BreadcrumbItem className="flex items-end">
               {hierarchy.length === 0 ? (
-                <BreadcrumbPage className="text-foreground text-lg leading-tight font-bold">
+                <BreadcrumbPage className="leading-tight tracking-wide">
                   Explorar
                 </BreadcrumbPage>
               ) : (
@@ -43,7 +43,7 @@ const BreadcrumbCustom = () => {
                     <BreadcrumbItem>
                       {index === hierarchy.length - 1 ? (
                         <BreadcrumbPage>
-                          <span className="text-foreground leading-tight font-bold">
+                          <span className="leading-tight font-medium tracking-wide">
                             {category.name}
                           </span>
                         </BreadcrumbPage>

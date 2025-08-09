@@ -1,7 +1,9 @@
 import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 import { CarouselDoFuturo } from "@/components/CarouselDoFuturo";
-import MaisVendidos from "@/components/MaisVendidos";
-import NewProductsSection from "@/components/NewProductsSection";
+import CategoriaProducts from "@/components/CategoriaProducts";
+import DestaquesSection from "@/components/DestaquesSection";
+import MaisVendidosSection from "@/components/MaisVendidosSection";
+import NovidadesSection from "@/components/NovidadesSection";
 import OfertaEspecial from "@/components/OfertaEspecial";
 import { ProductPagination } from "@/components/ProductPagination";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { SpinnerGapIcon } from "@phosphor-icons/react";
 const Home = () => {
   const { products, pagination, loading, error, setCurrentPage, refetch } =
     useProductsContext();
+  const { selectedCategory } = useProductsContext();
 
   if (error) {
     return (
@@ -30,10 +33,8 @@ const Home = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl px-4 pt-4 pb-2">
+      <div className="mx-auto mt-6 max-w-7xl px-6">
         <BreadcrumbCustom />
-      </div>
-      <div className="mx-auto mt-8 max-w-7xl space-y-8 px-4">
         {/* Loading */}
         {loading && (
           <div className="absolute inset-0 z-60 flex items-center justify-center bg-black/20">
@@ -44,46 +45,34 @@ const Home = () => {
             />
           </div>
         )}
-        <CarouselDoFuturo />
+        <div className="mt-6">
+          <CarouselDoFuturo />
+        </div>
 
         {/* Grade de Produtos */}
         {!loading && products.length > 0 && (
-          <div className="mt-12">
-            <NewProductsSection />
-            <OfertaEspecial />
-            <MaisVendidos />
-            {/* <div className="mt-12 grid w-full grid-cols-1 gap-8 space-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div> */}
-
-            {/* Botão "Ver mais" - só aparece se há mais páginas */}
-            {pagination &&
-              pagination.page < pagination.totalPages &&
-              pagination.page === 1 && (
-                <div className="mt-8 flex justify-center">
-                  <Button
-                    className="w-full max-w-xs"
-                    onClick={() => setCurrentPage(pagination.page + 1)}
-                  >
-                    Ver mais...
-                  </Button>
-                </div>
-              )}
+          <div className="mt-14 space-y-12">
+            {!selectedCategory ? (
+              <>
+                <NovidadesSection />
+                <MaisVendidosSection />
+                <OfertaEspecial />
+                <DestaquesSection />
+              </>
+            ) : (
+              <CategoriaProducts category={selectedCategory} />
+            )}
 
             {/* Paginação */}
-            {pagination &&
-              pagination.page !== 1 &&
-              pagination.totalPages > 1 && (
-                <div className="mt-12">
-                  <ProductPagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                    onPageChange={setCurrentPage}
-                  />
-                </div>
-              )}
+            {selectedCategory && pagination && pagination.totalPages > 1 && (
+              <div className="mt-12">
+                <ProductPagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -98,8 +87,8 @@ const Home = () => {
         )}
 
         {/* Informações de paginação */}
-        {pagination && (
-          <div className="text-muted-foreground mt-4 text-center text-sm">
+        {selectedCategory && pagination && (
+          <div className="text-muted-foreground mt-12 text-center text-sm">
             Mostrando {products.length} de {pagination.total} produtos
             {pagination.totalPages > 1 && (
               <span>
