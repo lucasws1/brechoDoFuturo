@@ -6,12 +6,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useProductsContext } from "@/contexts/ProductsContext";
 import { useCategoryHierarchy } from "@/hooks/useProductById";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 const BreadcrumbCustom = () => {
-  const { selectedCategory, setSelectedCategory } = useProductsContext();
-  const { hierarchy, loading } = useCategoryHierarchy(selectedCategory || null);
+  const location = useLocation();
+  const getCurrentSlug = () => {
+    const match = location.pathname.match(/^\/category\/([^/?]+)/);
+    return match ? match[1] : "Explorar";
+  };
+
+  const [searchParams] = useSearchParams();
+  const currentSlug = getCurrentSlug();
+
+  const sub = searchParams.get("sub");
+  const { hierarchy, loading } = useCategoryHierarchy(sub ? sub : currentSlug);
 
   if (loading) {
     return (
@@ -27,10 +36,8 @@ const BreadcrumbCustom = () => {
         <Breadcrumb className="flex items-end justify-start text-base">
           <BreadcrumbList className="flex items-end">
             <BreadcrumbItem className="flex items-end">
-              {hierarchy.length === 0 ? (
-                <BreadcrumbPage className="leading-tight tracking-wide">
-                  Explorar
-                </BreadcrumbPage>
+              {currentSlug === "Explorar" ? (
+                <BreadcrumbPage>Explorar</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink href="/">Explorar</BreadcrumbLink>
               )}
@@ -43,13 +50,11 @@ const BreadcrumbCustom = () => {
                     <BreadcrumbItem>
                       {index === hierarchy.length - 1 ? (
                         <BreadcrumbPage>
-                          <span className="leading-tight font-medium tracking-wide">
-                            {category.name}
-                          </span>
+                          <span>{category.name}</span>
                         </BreadcrumbPage>
                       ) : (
                         <BreadcrumbLink
-                          onClick={() => setSelectedCategory(category.name)}
+                          href={`/category/${currentSlug}`}
                           className="cursor-pointer"
                         >
                           {category.name}

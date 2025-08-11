@@ -15,7 +15,7 @@ const router: Router = Router();
 // Rotas públicas
 router.get("/", getCategories);
 router.get("/:id", getCategoryById);
-router.get("/:id/hierarchy", getCategoryHierarchy);
+router.get("/:slug/hierarchy", getCategoryHierarchy);
 
 // Rotas privadas (requerem autenticação)
 router.post("/", authenticate, createCategory);

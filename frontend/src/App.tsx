@@ -14,6 +14,7 @@ import ContactPage from "./pages/ContactPage";
 import Home from "./pages/Home";
 import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
+import CategoryPage from "./pages/CategoryPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <MainLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/category/:slug" element={<CategoryPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path="/cart" element={<CartPage />} />

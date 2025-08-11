@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as categoryService from "../services/category.service";
 import { AuthenticatedRequest } from "../middleware/auth";
+import { toSlug } from "../services/category.service";
 
 // Tipos para responses
 interface ApiResponse {
@@ -29,11 +30,13 @@ const handleError = (res: Response, error: any, message: string) => {
 interface CreateCategoryInput {
   name: string;
   description: string;
+  slug: string;
 }
 
 interface UpdateCategoryInput {
   name?: string;
   description?: string;
+  slug?: string;
 }
 
 /**
@@ -127,6 +130,7 @@ export const createCategory = async (
     const categoryData: CreateCategoryInput = {
       name,
       description,
+      slug: toSlug(name),
     };
 
     const category = await categoryService.createCategory(categoryData);
@@ -264,8 +268,8 @@ export const getCategoryStats = async (
  */
 export const getCategoryHierarchy = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const hierarchy = await categoryService.getCategoryHierarchy(id);
+    const { slug } = req.params;
+    const hierarchy = await categoryService.getCategoryHierarchy(slug);
 
     res.status(200).json({
       success: true,

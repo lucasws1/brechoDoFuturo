@@ -9,13 +9,13 @@ const NovidadesSection = () => {
 
   useEffect(() => {
     let mounted = true;
-    const fetchData = async (category: string, limit: number) => {
-      const products = await fetchProductsByCategory(category, limit);
+    const fetchData = async (category: string, limit: number, sort: string) => {
+      const products = await fetchProductsByCategory(category, limit, sort);
       if (mounted) {
         setNewProducts(products);
       }
     };
-    fetchData("Novidades", 5);
+    fetchData("Novidades", 5, "");
     return () => {
       mounted = false;
     };

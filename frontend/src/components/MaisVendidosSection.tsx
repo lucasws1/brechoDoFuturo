@@ -9,13 +9,17 @@ const MaisVendidosSection = () => {
 
   useEffect(() => {
     let mounted = true;
-    const fetchData = async (categoryName: string, limit: number) => {
-      const items = await fetchProductsByCategory(categoryName, limit);
+    const fetchData = async (
+      categoryName: string,
+      limit: number,
+      sort: string,
+    ) => {
+      const items = await fetchProductsByCategory(categoryName, limit, sort);
       if (mounted) {
         setMaisVendidos(items);
       }
     };
-    fetchData("MaisVendidos", 5);
+    fetchData("MaisVendidos", 5, "");
     return () => {
       mounted = false;
     };

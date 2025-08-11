@@ -20,8 +20,8 @@ interface ProductsContextType {
   fetchProductsByCategory: (
     category: string,
     limit: number,
+    sort: string,
   ) => Promise<Product[]>;
-  fetchOfertaEspecial: () => Promise<Product[]>;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(

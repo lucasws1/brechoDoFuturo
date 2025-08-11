@@ -31,6 +31,7 @@ interface ProductFilters {
   sellerId?: string;
   page?: number;
   limit?: number;
+  sort?: string;
 }
 
 // Listar produtos
@@ -41,7 +42,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
   }
 
   const page = filters?.page || 1;
-  const limit = filters?.limit || 20;
+  const limit = filters?.limit || 12;
   const skip = (page - 1) * limit;
 
   const where: any = {};
@@ -59,16 +60,12 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 
   // Filtrar por nome ou ID da categoria
   if (filters?.category) {
-    // Verifica se é um ObjectId válido (24 caracteres hexadecimais) ou um nome
-    const isObjectId = /^[0-9a-fA-F]{24}$/.test(filters.category);
+    const categorySlug = filters.category;
 
-    // Buscar a categoria pelo ID ou nome
     const category = await prisma.category.findFirst({
-      where: isObjectId
-        ? { id: filters.category }
-        : { name: { equals: filters.category, mode: "insensitive" } },
+      where: { slug: { equals: categorySlug, mode: "insensitive" } },
       include: {
-        subcategories: true, // Incluir subcategorias
+        subcategories: true,
       },
     });
 
@@ -84,8 +81,8 @@ export const getProducts = async (filters: ProductFilters = {}) => {
         where.categoryId = category.id;
       }
     } else {
-      // Se categoria não encontrada, retornar vazio
-      where.id = "non-existent";
+      // Se categoria não encontrada, retornar vazio usando um filtro que não encontra nada
+      where.categoryId = "000000000000000000000000"; // ObjectID inválido mas válido em formato
     }
   }
 
@@ -95,6 +92,21 @@ export const getProducts = async (filters: ProductFilters = {}) => {
 
   if (filters?.sellerId) {
     where.sellerId = filters.sellerId;
+  }
+
+  // Determinar ordenação baseada no filtro sort
+  let orderBy: any = { createdAt: "desc" }; // Padrão: mais recentes primeiro
+
+  if (filters?.sort) {
+    if (filters.sort === "newest") {
+      orderBy = { createdAt: "desc" };
+    } else if (filters.sort === "oldest") {
+      orderBy = { createdAt: "asc" };
+    } else if (filters.sort === "price-asc") {
+      orderBy = { price: "asc" };
+    } else if (filters.sort === "price-desc") {
+      orderBy = { price: "desc" };
+    }
   }
 
   const [products, total] = await Promise.all([
@@ -122,7 +134,7 @@ export const getProducts = async (filters: ProductFilters = {}) => {
       },
       skip,
       take: limit,
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
     prisma.product.count({ where }),
   ]);

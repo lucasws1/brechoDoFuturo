@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 interface CreateCategoryData {
   name: string;
   description: string;
+  slug: string;
 }
 
 interface UpdateCategoryData {
@@ -16,6 +17,23 @@ interface CategoryFilters {
   search?: string;
   page?: number;
   limit?: number;
+}
+
+const RESERVED = new Set(["c", "explorar", "admin", "api", "novo", "ofertas"]);
+
+export function toSlug(input: string): string {
+  if (RESERVED.has(input)) {
+    throw new Error("Nome de categoria reservado");
+  }
+
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " e ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 60);
 }
 
 // Criar categoria
@@ -39,7 +57,10 @@ export const createCategory = async (data: CreateCategoryData) => {
   }
 
   return await prisma.category.create({
-    data,
+    data: {
+      ...data,
+      slug: toSlug(data.name),
+    },
   });
 };
 
@@ -136,7 +157,7 @@ export const updateCategory = async (
   // Verificar se o novo nome já está em uso por outra categoria
   if (data.name && data.name !== category.name) {
     const existingCategory = await prisma.category.findUnique({
-      where: { name: data.name },
+      where: { name: toSlug(data.name) },
     });
 
     if (existingCategory) {
@@ -202,20 +223,16 @@ export const getCategoryStats = async (id: string) => {
 };
 
 // Buscar hierarquia completa de uma categoria
-export const getCategoryHierarchy = async (categoryIdentifier: string) => {
-  // Verifica se é um ObjectId válido (24 caracteres hexadecimais) ou um nome
-  const isObjectId = /^[0-9a-fA-F]{24}$/.test(categoryIdentifier);
-
+export const getCategoryHierarchy = async (categorySlug: string) => {
   const category = await prisma.category.findUnique({
-    where: isObjectId
-      ? { id: categoryIdentifier }
-      : { name: categoryIdentifier },
+    where: { slug: categorySlug },
     include: {
       parent: {
         select: {
           id: true,
           name: true,
           description: true,
+          slug: true,
         },
       },
     },
@@ -233,6 +250,7 @@ export const getCategoryHierarchy = async (categoryIdentifier: string) => {
     id: currentCategory.id,
     name: currentCategory.name,
     description: currentCategory.description,
+    slug: currentCategory.slug,
   });
 
   // Busca todos os pais recursivamente
@@ -242,6 +260,7 @@ export const getCategoryHierarchy = async (categoryIdentifier: string) => {
       id: currentCategory.id,
       name: currentCategory.name,
       description: currentCategory.description,
+      slug: currentCategory.slug,
     });
   }
 

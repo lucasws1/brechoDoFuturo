@@ -36,8 +36,8 @@ interface UseProductsReturn {
   fetchProductsByCategory: (
     category: string,
     limit: number,
+    sort: string,
   ) => Promise<Product[]>;
-  fetchOfertaEspecial: () => Promise<Product[]>;
 }
 
 export function useProducts(
@@ -56,26 +56,24 @@ export function useProducts(
   const fetchProductsByCategory = async (
     categoryName: string,
     limit: number = 5,
+    sort: string = "newest",
   ): Promise<Product[]> => {
     const params = new URLSearchParams({
       limit: limit.toString(),
       category: categoryName,
+      sort,
     });
+    if (searchTerm) params.append("search", searchTerm);
 
-    const response = await api.get(`/products?${params.toString()}`);
-    const data: ApiResponse = response.data;
-    return data.data;
-  };
-
-  const fetchOfertaEspecial = async (): Promise<Product[]> => {
-    const params = new URLSearchParams({
-      limit: "4",
-      category: "Ofertas",
-    });
-
-    const response = await api.get(`/products?${params.toString()}`);
-    const data: ApiResponse = response.data;
-    return data.data;
+    try {
+      const response = await api.get(`/products?${params.toString()}`);
+      const data: ApiResponse = response.data;
+      return data.data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      console.error("Erro ao buscar produtos:", err);
+      return [];
+    }
   };
 
   const fetchProducts = async () => {
@@ -93,7 +91,6 @@ export function useProducts(
       if (selectedCategory) params.append("category", selectedCategory);
 
       const response = await api.get(`/products?${params.toString()}`);
-
       const data: ApiResponse = response.data;
 
       if (data.success) {
@@ -156,6 +153,5 @@ export function useProducts(
     handleCategoryChange,
     refetch,
     fetchProductsByCategory,
-    fetchOfertaEspecial,
   };
 }

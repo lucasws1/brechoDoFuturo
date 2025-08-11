@@ -78,13 +78,13 @@ interface CategoryHierarchy {
   description?: string;
 }
 
-export const useCategoryHierarchy = (categoryId: string | null) => {
+export const useCategoryHierarchy = (categorySlug: string | null) => {
   const [hierarchy, setHierarchy] = useState<CategoryHierarchy[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!categoryId) {
+    if (!categorySlug || categorySlug === "Explorar") {
       setHierarchy([]);
       return;
     }
@@ -94,7 +94,7 @@ export const useCategoryHierarchy = (categoryId: string | null) => {
       setError(null);
 
       try {
-        const response = await api.get(`/categories/${categoryId}/hierarchy`);
+        const response = await api.get(`/categories/${categorySlug}/hierarchy`);
 
         if (response.data.success) {
           setHierarchy(response.data.data);
@@ -111,7 +111,7 @@ export const useCategoryHierarchy = (categoryId: string | null) => {
     };
 
     fetchHierarchy();
-  }, [categoryId]);
+  }, [categorySlug]);
 
   return { hierarchy, loading, error };
 };

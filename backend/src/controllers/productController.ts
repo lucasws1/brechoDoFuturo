@@ -53,13 +53,14 @@ interface UpdateProductInput {
  */
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 20, search, category } = req.query;
+    const { page = 1, limit = 12, search, category, sort } = req.query;
 
     const filters = {
       page: Number(page),
       limit: Number(limit),
       search: search as string | undefined,
       category: category as string | undefined,
+      sort: sort as string | undefined,
     };
 
     const result = await productService.getProducts(filters);

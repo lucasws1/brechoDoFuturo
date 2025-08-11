@@ -10,7 +10,7 @@ const DestaquesSection = () => {
   useEffect(() => {
     let mounted = true;
     const fetchData = async (category: string, limit: number) => {
-      const products = await fetchProductsByCategory(category, limit);
+      const products = await fetchProductsByCategory(category, limit, "newest");
       if (mounted) {
         setDestaques(products);
       }

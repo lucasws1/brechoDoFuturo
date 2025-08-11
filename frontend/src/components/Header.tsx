@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useProductsContext } from "@/contexts/ProductsContext";
+import { categories } from "@/data/categories";
 import { CoatHangerIcon } from "@phosphor-icons/react";
 import { IconSettings } from "@tabler/icons-react";
 import {
@@ -13,8 +13,9 @@ import {
   User,
   UserPen,
 } from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import MinimalMobileSheet from "./MinimalMobileSheet";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -30,30 +31,43 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "./ui/navigation-menu";
-import { categories } from "@/data/categories";
-import MinimalMobileSheet from "./MinimalMobileSheet";
-import { useCategoryHierarchy } from "@/hooks/useProductById";
 
 const Header: React.FC = () => {
-  const {
-    searchTerm,
-    setSearchTerm,
-    handleSearch,
-    selectedCategory,
-    refetch,
-    handleCategoryChange,
-  } = useProductsContext();
-  const { hierarchy } = useCategoryHierarchy(selectedCategory || null);
   const { cartItems } = useCart();
   const { isAuthenticated, user, logout, loading } = useAuth();
-  const categoryNames = (hierarchy || []).map((category) => category.name);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Estado local para busca global
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Função para lidar com a busca global
+  const handleGlobalSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Redirecionar para página de busca global ou home com termo de busca
+      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  // Função para gerar slug (mesmo formato do backend)
+  const toSlug = (input: string): string => {
+    return input
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
+  const active = "font-bold";
+  const idle = "font-medium cursor-pointer";
 
   return (
     <header className="top-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between border-b border-solid border-b-[#f4f0f2] px-6 py-3">
       <div className="flex items-center justify-center gap-8">
-        <Link onClick={refetch} to="/" className="group">
+        <Link to="/" className="group">
           <div className="flex items-center justify-center gap-2">
-            <CoatHangerIcon size={24} className="-translate-x-[7px]" />
+            <CoatHangerIcon size={24} />
             <h2 className="truncate text-lg leading-tight font-bold tracking-[-0.015em] text-[#181113]">
               Brechó <span className="hidden md:inline">do Futuro</span>
             </h2>
@@ -66,65 +80,60 @@ const Header: React.FC = () => {
                 <NavigationMenuItem key={cat.name}>
                   {!cat.subcategories || cat.subcategories.length === 0 ? (
                     <NavigationMenuLink
-                      onClick={() => handleCategoryChange(cat.name)}
-                      className="cursor-pointer rounded-md text-sm leading-normal font-medium"
+                      className={`cursor-pointer rounded-md text-sm leading-normal font-medium ${
+                        (cat.name === "Explorar" &&
+                          location.pathname === "/") ||
+                        (cat.name !== "Explorar" &&
+                          location.pathname === `/category/${toSlug(cat.name)}`)
+                          ? active
+                          : idle
+                      }`}
+                      asChild
                     >
-                      <div
-                        className={`${
-                          categoryNames.some(
-                            (name) =>
-                              name.trim().toLowerCase() ===
-                              cat.name.trim().toLowerCase(),
-                          ) ||
-                          (cat.name === "Explorar" && selectedCategory === "")
-                            ? "font-bold"
-                            : "font-medium"
-                        }`}
+                      <Link
+                        to={
+                          cat.name === "Explorar"
+                            ? "/"
+                            : `/category/${toSlug(cat.name)}`
+                        }
                       >
                         {cat.name}
-                      </div>
+                      </Link>
                     </NavigationMenuLink>
                   ) : (
                     <>
                       <NavigationMenuTrigger
-                        className="cursor-pointer text-sm leading-normal font-medium"
-                        onClick={() => handleCategoryChange(cat.name)}
+                        className={`text-sm leading-normal font-medium ${
+                          cat.name !== "Explorar" &&
+                          location.pathname === `/category/${toSlug(cat.name)}`
+                            ? active
+                            : idle
+                        }`}
                       >
-                        <div
-                          className={`${
-                            categoryNames.some(
-                              (name) =>
-                                name.trim().toLowerCase() ===
-                                cat.name.trim().toLowerCase(),
-                            )
-                              ? "font-bold"
-                              : "font-medium"
-                          }`}
-                        >
+                        <Link to={`/category/${toSlug(cat.name)}`}>
                           {cat.name}
-                        </div>
+                        </Link>
                       </NavigationMenuTrigger>
+
                       <NavigationMenuContent className="border-none">
                         <ul className="grid w-[200px] gap-4">
                           {(cat.subcategories || []).map((sub) => (
                             <li key={sub}>
                               <NavigationMenuLink
-                                onClick={() => handleCategoryChange(sub)}
-                                className="cursor-pointer"
+                                asChild
+                                className={`text-sm leading-normal font-medium ${
+                                  location.pathname ===
+                                    `/category/${toSlug(cat.name)}` &&
+                                  location.search.includes(`sub=${toSlug(sub)}`)
+                                    ? active
+                                    : idle
+                                }`}
                               >
-                                <div
-                                  className={`${
-                                    categoryNames.some(
-                                      (name) =>
-                                        name.trim().toLowerCase() ===
-                                        sub.trim().toLowerCase(),
-                                    )
-                                      ? "font-bold"
-                                      : "font-medium"
-                                  }`}
+                                <Link
+                                  to={`/category/${toSlug(cat.name)}?sub=${toSlug(sub)}`}
                                 >
                                   {sub}
-                                </div>
+                                </Link>
                               </NavigationMenuLink>
                             </li>
                           ))}
@@ -141,7 +150,7 @@ const Header: React.FC = () => {
       <div className="flex items-center justify-end gap-4">
         <div className="hidden flex-col md:flex">
           <form
-            onSubmit={handleSearch}
+            onSubmit={handleGlobalSearch}
             className="ml-2 flex h-10 w-full max-w-2xs min-w-32 items-center justify-center"
           >
             <div className="flex h-full w-full items-stretch rounded-lg">

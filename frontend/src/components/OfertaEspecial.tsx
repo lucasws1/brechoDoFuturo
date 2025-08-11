@@ -12,11 +12,15 @@ const OfertaEspecial = () => {
 
   useEffect(() => {
     const randomProduct = Math.floor(Math.random() * 4) + 1;
-    const fetchData = async (categoryName: string, limit: number) => {
-      const items = await fetchProductsByCategory(categoryName, limit);
+    const fetchData = async (
+      categoryName: string,
+      limit: number,
+      sort: string,
+    ) => {
+      const items = await fetchProductsByCategory(categoryName, limit, sort);
       setOfertaEspecial(items[randomProduct]);
     };
-    fetchData("Ofertas", 5);
+    fetchData("Ofertas", 5, "");
   }, []);
 
   if (!ofertaEspecial) {
@@ -65,45 +69,6 @@ const OfertaEspecial = () => {
       </div>
     </section>
   );
-
-  // return (
-  //   <section>
-  //     <div className="rounded-2xl bg-neutral-100 p-6 md:p-8">
-  //       <div className="grid items-center gap-2 md:grid-cols-2">
-  //         {/* Texto */}
-  //         <div className="order-2 space-y-2 md:order-1 md:pr-6">
-  //           <p className="text-muted-foreground text-sm font-normal">
-  //             Oferta Especial
-  //           </p>
-  //           <h2 className="text-xl font-bold tracking-tight text-black md:text-2xl">
-  //             {ofertaEspecial.name}
-  //           </h2>
-  //           <p className="text-muted-foreground text-md max-w-md leading-relaxed">
-  //             Elegância e qualidade com preço baixo.
-  //           </p>
-  //           <div className="pt-2">
-  //             <Button asChild>
-  //               <Link to={`/product/${ofertaEspecial.id}`}>Ver produto</Link>
-  //             </Button>
-  //           </div>
-  //         </div>
-
-  //         {/* Imagem */}
-  //         <div className="order-1 md:order-2">
-  //           <Link to={`/product/${ofertaEspecial.id}`}>
-  //             <div className="h-[280px] w-auto overflow-hidden rounded-xl">
-  //               <img
-  //                 src={ofertaEspecial.images?.[0] || placeholder}
-  //                 alt={ofertaEspecial.name}
-  //                 className="h-full w-full object-cover"
-  //               />
-  //             </div>
-  //           </Link>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </section>
-  // );
 };
 
 export default OfertaEspecial;
