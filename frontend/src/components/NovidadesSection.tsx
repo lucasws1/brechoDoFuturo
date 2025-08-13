@@ -1,27 +1,21 @@
-import { useProductsContext } from "@/contexts/ProductsContext";
-import type { Product } from "@/types/Product";
-import { useEffect, useState } from "react";
 import ProductsGrid from "./ProductsGrid";
+import type { CategoryProductsProps } from "./CategoryProducts";
+import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 
-const NovidadesSection = () => {
-  const { fetchProductsByCategory } = useProductsContext();
-  const [newProducts, setNewProducts] = useState<Product[]>([]);
+export default function NovidadesSection({
+  categorySlug,
+  sort = "newest",
+  subcategory,
+  page = 1,
+  limit = 5,
+}: CategoryProductsProps) {
+  const { products } = useCategoryProducts({
+    categorySlug,
+    subcategory,
+    sort,
+    page,
+    limit,
+  });
 
-  useEffect(() => {
-    let mounted = true;
-    const fetchData = async (category: string, limit: number, sort: string) => {
-      const products = await fetchProductsByCategory(category, limit, sort);
-      if (mounted) {
-        setNewProducts(products);
-      }
-    };
-    fetchData("Novidades", 5, "");
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return <ProductsGrid products={newProducts} title="Novidades" />;
-};
-
-export default NovidadesSection;
+  return <ProductsGrid products={products} title="Novidades" />;
+}

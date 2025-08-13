@@ -1,29 +1,12 @@
-import { useProductsContext } from "@/contexts/ProductsContext";
-import type { Product } from "@/types/Product";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 
 const placeholder = "https://placehold.co/600x800";
+export default function OfertaEspecial() {
+  const { products } = useCategoryProducts();
 
-const OfertaEspecial = () => {
-  const { fetchProductsByCategory } = useProductsContext();
-  const [ofertaEspecial, setOfertaEspecial] = useState<Product>();
-
-  useEffect(() => {
-    const randomProduct = Math.floor(Math.random() * 4) + 1;
-    const fetchData = async (
-      categoryName: string,
-      limit: number,
-      sort: string,
-    ) => {
-      const items = await fetchProductsByCategory(categoryName, limit, sort);
-      setOfertaEspecial(items[randomProduct]);
-    };
-    fetchData("Ofertas", 5, "");
-  }, []);
-
-  if (!ofertaEspecial) {
+  if (!products.length) {
     return (
       <section className="mt-8">
         <div className="rounded-2xl bg-neutral-100 p-4 md:p-6">
@@ -42,15 +25,15 @@ const OfertaEspecial = () => {
     );
   }
   return (
-    <section className="rounded-2xl bg-neutral-200 p-6 md:p-8">
+    <section className="rounded-2xl bg-neutral-400 p-6 md:p-8">
       <div className="grid items-center gap-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-5">
           <p className="text-sm text-neutral-500">Oferta Especial</p>
           <h3 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
-            {ofertaEspecial.name}
+            {products[0].name}
           </h3>
-          <p className="mt-3 text-neutral-700">{ofertaEspecial.description}</p>
-          <Link to={`/product/${ofertaEspecial.id}`}>
+          <p className="mt-3 text-neutral-700">{products[0].description}</p>
+          <Link to={`/product/${products[0].id}`}>
             <Button className="mt-5 cursor-pointer rounded-lg bg-neutral-900 px-4 py-2 text-white">
               Ver produto
             </Button>
@@ -60,7 +43,7 @@ const OfertaEspecial = () => {
         <div className="md:col-span-7">
           <div className="aspect-[16/9] max-h-[360px] overflow-hidden rounded-xl md:aspect-[21/9] md:max-h-[420px]">
             <img
-              src={ofertaEspecial.images?.[0] || placeholder}
+              src={products[0].images?.[0] || placeholder}
               className="h-full w-full object-cover"
               alt=""
             />
@@ -69,6 +52,4 @@ const OfertaEspecial = () => {
       </div>
     </section>
   );
-};
-
-export default OfertaEspecial;
+}

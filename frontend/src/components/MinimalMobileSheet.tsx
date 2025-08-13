@@ -8,6 +8,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -25,11 +26,10 @@ import {
   Watch,
   Zap,
 } from "lucide-react";
-import { useProductsContext } from "@/contexts/ProductsContext";
 import { categories } from "@/data/categories";
 import { Button } from "./ui/button";
-import { useCategoryHierarchy } from "@/hooks/useProductById";
 import { useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // Função para mapear ícones para categorias
 const getCategoryIcon = (categoryName: string) => {
@@ -50,15 +50,18 @@ const getCategoryIcon = (categoryName: string) => {
 };
 
 const MinimalMobileSheet = () => {
-  const { handleCategoryChange, selectedCategory } = useProductsContext();
-  const { hierarchy } = useCategoryHierarchy(selectedCategory || null);
-  const categoryNames = (hierarchy || []).map((category) => category.name);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleCategoryClick = (cat: any) => {
+  const handleCategoryClick = (cat: any, sub?: string) => {
     if (openCategory === cat.name) {
-      handleCategoryChange(cat.name);
+      navigate(
+        sub
+          ? `/category/${toSlug(cat.name)}?sub=${toSlug(sub)}`
+          : `/category/${toSlug(cat.name)}`,
+      );
       sheetCloseRef.current?.click();
       setOpenCategory(null);
     } else {
@@ -66,9 +69,24 @@ const MinimalMobileSheet = () => {
     }
   };
 
+  const toSlug = (input: string): string => {
+    return input
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
+
+  const active = "font-bold";
+  const idle = "cursor-pointer";
+
   return (
-    <Sheet aria-describedby={undefined}>
-      <SheetTrigger className="inline-flex cursor-pointer items-center justify-center p-2">
+    <Sheet>
+      <SheetTrigger
+        onClick={() => setOpenCategory(null)}
+        className="inline-flex cursor-pointer items-center justify-center p-2"
+      >
         <AlignJustify className="cursor-pointer" color="black" size={20} />
       </SheetTrigger>
       <SheetContent className="flex w-[320px] flex-col">
@@ -77,6 +95,7 @@ const MinimalMobileSheet = () => {
             <CoatHangerIcon size={20} color="black" />
             <span className="text-lg font-bold">Categorias</span>
           </SheetTitle>
+          <SheetDescription>Selecione a categoria desejada</SheetDescription>
         </SheetHeader>
         <div className="flex flex-1 flex-col py-4">
           <Accordion type="single" className="flex w-full flex-col space-y-2">
@@ -89,26 +108,16 @@ const MinimalMobileSheet = () => {
                 >
                   <AccordionTrigger
                     onClick={() => handleCategoryClick(cat)}
-                    className={`group flex w-full items-center px-4 py-3`}
+                    className={`group flex w-full items-center px-4 py-3 text-base font-normal ${
+                      cat.name !== "Explorar" &&
+                      location.pathname === `/category/${toSlug(cat.name)}`
+                        ? active
+                        : idle
+                    }`}
                   >
-                    <div className="flex items-center gap-3 text-base font-normal">
+                    <div className="flex items-center gap-3">
                       {getCategoryIcon(cat.name)}
-
-                      <span
-                        className={
-                          (selectedCategory === "" &&
-                            cat.name === "Explorar") ||
-                          categoryNames.some(
-                            (name) =>
-                              name.trim().toLowerCase() ===
-                              cat.name.trim().toLowerCase(),
-                          )
-                            ? "font-bold"
-                            : ""
-                        }
-                      >
-                        {cat.name}
-                      </span>
+                      {cat.name}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-3">
@@ -120,19 +129,8 @@ const MinimalMobileSheet = () => {
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <SheetClose
-                            onClick={() => {
-                              handleCategoryChange(sub);
-                              handleCategoryClick(sub);
-                            }}
-                            className={`group flex w-full items-center gap-2 px-3 py-2 ${
-                              categoryNames.some(
-                                (name) =>
-                                  name.trim().toLowerCase() ===
-                                  sub.trim().toLowerCase(),
-                              )
-                                ? "font-bold"
-                                : ""
-                            }`}
+                            onClick={() => handleCategoryClick(cat, sub)}
+                            className="group flex w-full items-center gap-2 px-3 py-2"
                           >
                             <ChevronRight className="h-3 w-3" />
                             <span>{sub}</span>
@@ -148,18 +146,27 @@ const MinimalMobileSheet = () => {
                   value={cat.name}
                   className="border-none"
                 >
-                  <SheetClose
-                    className={`group flex w-full items-center justify-start gap-3 px-4 py-3 ${
-                      selectedCategory === cat.name ||
-                      (selectedCategory === "" && cat.name === "Explorar")
-                        ? "font-bold"
-                        : ""
-                    }`}
-                    onClick={() => handleCategoryChange(cat.name)}
+                  <Link
+                    to={
+                      cat.name === "Explorar"
+                        ? "/"
+                        : `/category/${toSlug(cat.name)}`
+                    }
                   >
-                    <div>{getCategoryIcon(cat.name)}</div>
-                    <span className="text-base">{cat.name}</span>
-                  </SheetClose>
+                    <SheetClose
+                      className={`group flex w-full items-center justify-start gap-3 px-4 py-3 ${
+                        (cat.name === "Explorar" &&
+                          location.pathname === "/") ||
+                        location.pathname === `/category/${toSlug(cat.name)}`
+                          ? active
+                          : idle
+                      }`}
+                    >
+                      <div>{getCategoryIcon(cat.name)}</div>
+
+                      {cat.name}
+                    </SheetClose>
+                  </Link>
                 </AccordionItem>
               ),
             )}

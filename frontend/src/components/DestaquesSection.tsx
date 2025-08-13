@@ -1,27 +1,20 @@
-import { useProductsContext } from "@/contexts/ProductsContext";
-import type { Product } from "@/types/Product";
-import { useEffect, useState } from "react";
 import ProductsGrid from "./ProductsGrid";
+import type { CategoryProductsProps } from "./CategoryProducts";
+import { useCategoryProducts } from "@/hooks/useCategoryProducts";
+export default function DestaquesSection({
+  categorySlug,
+  sort = "newest",
+  subcategory,
+  page = 1,
+  limit = 5,
+}: CategoryProductsProps) {
+  const { products } = useCategoryProducts({
+    categorySlug,
+    subcategory,
+    sort,
+    page,
+    limit,
+  });
 
-const DestaquesSection = () => {
-  const { fetchProductsByCategory } = useProductsContext();
-  const [destaques, setDestaques] = useState<Product[]>([]);
-
-  useEffect(() => {
-    let mounted = true;
-    const fetchData = async (category: string, limit: number) => {
-      const products = await fetchProductsByCategory(category, limit, "newest");
-      if (mounted) {
-        setDestaques(products);
-      }
-    };
-    fetchData("Destaques", 5);
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return <ProductsGrid products={destaques} title="Destaques" />;
-};
-
-export default DestaquesSection;
+  return <ProductsGrid products={products} title="Destaques" />;
+}

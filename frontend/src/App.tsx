@@ -1,10 +1,10 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { Toaster } from "sonner"; // Importa o Toaster
-import { AuthCartSync } from "./components/AuthCartSync"; // Importa o componente de sincronização
-import ProtectedRoute from "./components/ProtectedRoute"; // Importa o ProtectedRoute
+import { Toaster } from "sonner";
+import { AuthCartSync } from "./components/AuthCartSync";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
-import { ProductsProvider } from "./contexts/ProductsContext";
+// import { ProductsProvider } from "./contexts/ProductsContext";
 import { MainLayout } from "./layouts/MainLayout";
 import AdminPage from "./pages/AdminPage";
 import AuthPage from "./pages/AuthPage";
@@ -15,35 +15,37 @@ import Home from "./pages/Home";
 import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
 import CategoryPage from "./pages/CategoryPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <CartProvider>
-          <AuthCartSync /> {/* Componente que sincroniza os contextos */}
-          <ProductsProvider>
-            <MainLayout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/category/:slug" element={<CategoryPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/product/:id" element={<ProductPage />} />
-                <Route path="/cart" element={<CartPage />} />
+          <AuthCartSync />
+          {/* <ProductsProvider> */}
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/category/:slug" element={<CategoryPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/search" element={<SearchPage />} />
 
-                <Route path="/checkout" element={<ProtectedRoute />}>
-                  <Route index element={<CheckoutPage />} />
-                </Route>
-                <Route path="/profile" element={<ProtectedRoute />}>
-                  <Route index element={<ProfilePage />} />
-                </Route>
-                <Route path="/admin" element={<ProtectedRoute />}>
-                  <Route index element={<AdminPage />} />
-                </Route>
-                <Route path="/contact" element={<ContactPage />} />
-              </Routes>
-            </MainLayout>
-          </ProductsProvider>
+              <Route path="/checkout" element={<ProtectedRoute />}>
+                <Route index element={<CheckoutPage />} />
+              </Route>
+              <Route path="/profile" element={<ProtectedRoute />}>
+                <Route index element={<ProfilePage />} />
+              </Route>
+              <Route path="/admin" element={<ProtectedRoute />}>
+                <Route index element={<AdminPage />} />
+              </Route>
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </MainLayout>
+          {/* </ProductsProvider> */}
         </CartProvider>
         <Toaster
           position="top-right"

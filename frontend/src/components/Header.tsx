@@ -13,7 +13,7 @@ import {
   User,
   UserPen,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MinimalMobileSheet from "./MinimalMobileSheet";
 import { Button } from "./ui/button";
@@ -38,19 +38,23 @@ const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Estado local para busca global
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Função para lidar com a busca global
-  const handleGlobalSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      // Redirecionar para página de busca global ou home com termo de busca
-      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+    if (searchTerm.trim().length) {
+      navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
-  // Função para gerar slug (mesmo formato do backend)
+  useEffect(() => {
+    if (searchTerm.trim() === "") return;
+    const handler = setTimeout(() => {
+      navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
+    }, 1000);
+    return () => clearTimeout(handler);
+  }, [searchTerm, navigate]);
+
   const toSlug = (input: string): string => {
     return input
       .normalize("NFD")
@@ -150,7 +154,7 @@ const Header: React.FC = () => {
       <div className="flex items-center justify-end gap-4">
         <div className="hidden flex-col md:flex">
           <form
-            onSubmit={handleGlobalSearch}
+            onSubmit={handleSearch}
             className="ml-2 flex h-10 w-full max-w-2xs min-w-32 items-center justify-center"
           >
             <div className="flex h-full w-full items-stretch rounded-lg">

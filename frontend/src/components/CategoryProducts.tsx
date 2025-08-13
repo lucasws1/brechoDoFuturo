@@ -4,32 +4,9 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
 
-export type CategoryProductsProps = {
-  categorySlug: string;
-  sort?: "newest" | "oldest" | "price-asc" | "price-desc";
-  subcategory?: string;
-  page?: number;
-  limit?: number;
-  onPageChange?: (page: number) => void;
-};
-
-export default function CategoryProducts({
-  categorySlug,
-  sort = "newest",
-  subcategory,
-  page = 1,
-  limit = 12,
-  onPageChange,
-}: CategoryProductsProps) {
-  const { products, pagination, loading, error, refetch } = useCategoryProducts(
-    {
-      categorySlug,
-      subcategory,
-      sort,
-      page,
-      limit,
-    },
-  );
+export default function CategoryProducts() {
+  const { products, pagination, loading, error, refetch } =
+    useCategoryProducts();
 
   if (error) {
     return (
@@ -92,7 +69,7 @@ export default function CategoryProducts({
           <ProductPagination
             currentPage={pagination.page}
             totalPages={pagination.totalPages}
-            onPageChange={onPageChange || (() => {})}
+            onPageChange={() => {}}
           />
         </div>
       )}

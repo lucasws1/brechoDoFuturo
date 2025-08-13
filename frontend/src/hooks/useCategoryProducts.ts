@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import type { Product } from "@/types/Product";
+import { useProductsSearchParams } from "./useProductsSearchParams";
 
 interface PaginationInfo {
   page: number;
@@ -15,14 +16,6 @@ interface ApiResponse {
   pagination: PaginationInfo;
 }
 
-interface UseCategoryProductsOptions {
-  categorySlug: string;
-  subcategory?: string;
-  sort?: string;
-  page?: number;
-  limit?: number;
-}
-
 interface UseCategoryProductsReturn {
   products: Product[];
   pagination: PaginationInfo | null;
@@ -31,33 +24,30 @@ interface UseCategoryProductsReturn {
   refetch: () => void;
 }
 
-export function useCategoryProducts({
-  categorySlug,
-  subcategory,
-  sort = "newest",
-  page = 1,
-  limit = 12,
-}: UseCategoryProductsOptions): UseCategoryProductsReturn {
+export function useCategoryProducts(): UseCategoryProductsReturn {
   const [products, setProducts] = useState<Product[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { params, sub, page, limit, sort, search, slug } =
+    useProductsSearchParams();
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Construir query params
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
         sort,
       });
 
-      // Usar subcategoria se fornecida, senão usar categoria principal
-      const categoryParam = subcategory || categorySlug;
+      const categoryParam = sub || slug;
       params.append("category", categoryParam);
+
+      if (search) params.append("search", search);
 
       const response = await api.get(`/products?${params.toString()}`);
       const data: ApiResponse = response.data;
@@ -79,10 +69,8 @@ export function useCategoryProducts({
   };
 
   useEffect(() => {
-    if (categorySlug) {
-      fetchProducts();
-    }
-  }, [categorySlug, subcategory, sort, page, limit]);
+    fetchProducts();
+  }, [params, slug, sub, page, limit, sort, search]);
 
   const refetch = () => {
     fetchProducts();

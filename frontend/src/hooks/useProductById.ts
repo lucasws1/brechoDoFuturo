@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images: string[]; // Array de imagens do backend
-  category: string;
-  description: string;
-  stock?: number;
-}
+import type { Product } from "@/types/Product";
 
 interface ApiResponse {
   success: boolean;
@@ -47,7 +38,7 @@ export function useProductById(productId?: string): UseProductByIdReturn {
       } else {
         throw new Error("Erro ao buscar dados do produto");
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
       setProduct(null);
       console.error("Erro ao buscar produto:", err);
