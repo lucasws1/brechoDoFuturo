@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
 import { ProductCard } from "@/components/ProductCard";
+import PaginationInformation from "@/components/PaginationInformation";
 
 const CategoryPage: React.FC = () => {
-  const { slug, setSortValue, sort, setPage } = useProductsSearchParams();
+  const { slug, setSortValue, sort, setPage, page } = useProductsSearchParams();
   const { products, pagination, loading, error, refetch } =
     useCategoryProducts();
 
@@ -76,8 +77,14 @@ const CategoryPage: React.FC = () => {
           ))}
         </div>
 
+        <PaginationInformation
+          pagination={pagination}
+          page={page}
+          products={products}
+        />
+
         {/* Informações de paginação */}
-        {pagination && (
+        {/* {pagination && (
           <div className="text-muted-foreground text-center text-sm">
             Mostrando {products.length} de {pagination.total} produtos
             {pagination.totalPages > 1 && (
@@ -87,7 +94,7 @@ const CategoryPage: React.FC = () => {
               </span>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Paginação */}
         {pagination && pagination.totalPages > 1 && (

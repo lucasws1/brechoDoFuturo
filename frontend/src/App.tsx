@@ -4,7 +4,6 @@ import { AuthCartSync } from "./components/AuthCartSync";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
-// import { ProductsProvider } from "./contexts/ProductsContext";
 import { MainLayout } from "./layouts/MainLayout";
 import AdminPage from "./pages/AdminPage";
 import AuthPage from "./pages/AuthPage";
@@ -23,7 +22,6 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <AuthCartSync />
-          {/* <ProductsProvider> */}
           <MainLayout>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -45,7 +43,6 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
             </Routes>
           </MainLayout>
-          {/* </ProductsProvider> */}
         </CartProvider>
         <Toaster
           position="top-right"

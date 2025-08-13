@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useCategoryHierarchy } from "@/hooks/useProductById";
+import { useCategoryHierarchy } from "@/hooks/useCategoryHierarchy";
 import { useLocation, useSearchParams } from "react-router-dom";
 
 const BreadcrumbCustom = () => {

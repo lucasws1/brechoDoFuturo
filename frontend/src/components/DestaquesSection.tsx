@@ -1,20 +1,17 @@
 import ProductsGrid from "./ProductsGrid";
-import type { CategoryProductsProps } from "./CategoryProducts";
-import { useCategoryProducts } from "@/hooks/useCategoryProducts";
-export default function DestaquesSection({
-  categorySlug,
-  sort = "newest",
-  subcategory,
-  page = 1,
-  limit = 5,
-}: CategoryProductsProps) {
-  const { products } = useCategoryProducts({
-    categorySlug,
-    subcategory,
-    sort,
-    page,
-    limit,
+import { useProductsFetch } from "@/hooks/useProductFetch";
+
+export default function DestaquesSection() {
+  const { products, loading, error } = useProductsFetch({
+    category: "destaques",
+    sort: "newest",
+    limit: 5,
   });
 
-  return <ProductsGrid products={products} title="Destaques" />;
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro ao carregar produtos: {error}</div>;
+
+  return (
+    <ProductsGrid products={products} title="Destaques" aplicarLimite={true} />
+  );
 }

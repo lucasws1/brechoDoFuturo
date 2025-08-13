@@ -1,21 +1,21 @@
 import ProductsGrid from "./ProductsGrid";
-import type { CategoryProductsProps } from "./CategoryProducts";
-import { useCategoryProducts } from "@/hooks/useCategoryProducts";
+import { useProductsFetch } from "@/hooks/useProductFetch";
 
-export default function MaisVendidosSection({
-  categorySlug,
-  sort = "newest",
-  subcategory,
-  page = 1,
-  limit = 5,
-}: CategoryProductsProps) {
-  const { products } = useCategoryProducts({
-    categorySlug,
-    subcategory,
-    sort,
-    page,
-    limit,
+export default function MaisVendidosSection() {
+  const { products, loading, error } = useProductsFetch({
+    category: "maisvendidos",
+    sort: "newest",
+    limit: 5,
   });
 
-  return <ProductsGrid products={products} title="Mais vendidos" />;
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>Erro ao carregar produtos: {error}</div>;
+
+  return (
+    <ProductsGrid
+      products={products}
+      title="Mais vendidos"
+      aplicarLimite={true}
+    />
+  );
 }

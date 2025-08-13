@@ -32,9 +32,11 @@ function useBreakpoint() {
 const ProductsGrid = ({
   products,
   title = "",
+  aplicarLimite = false,
 }: {
   products: Product[];
   title?: string;
+  aplicarLimite?: boolean;
 }) => {
   const bp = useBreakpoint();
   const limit = bp === "xl" ? 5 : bp === "lg" ? 4 : bp === "md" ? 3 : 2;
@@ -42,10 +44,16 @@ const ProductsGrid = ({
   return (
     <div className="flex max-w-7xl flex-col gap-4">
       {title && <h2 className="text-2xl font-bold">{title}</h2>}
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {products.slice(0, limit).map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {aplicarLimite
+          ? products
+              .slice(0, limit)
+              .map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+          : products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
       </div>
     </div>
   );

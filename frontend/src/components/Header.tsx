@@ -55,6 +55,10 @@ const Header: React.FC = () => {
     return () => clearTimeout(handler);
   }, [searchTerm, navigate]);
 
+  useEffect(() => {
+    setSearchTerm("");
+  }, [location.pathname]);
+
   const toSlug = (input: string): string => {
     return input
       .normalize("NFD")
