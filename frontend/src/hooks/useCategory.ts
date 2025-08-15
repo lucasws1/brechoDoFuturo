@@ -1,55 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "@/services/api";
-import type { Category } from "@/types/Category";
 
-interface CategoryHierarchy {
-  id: string;
-  name: string;
-  description?: string;
-}
-
-export const useCategory = (categorySlug: string | null) => {
-  const [hierarchy, setHierarchy] = useState<CategoryHierarchy[]>([]);
+export const useCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCategoryBySlug = async (slug: string) => {
+    setLoading(true);
+    setError(null);
     const response = await api.get(`/categories/slug/${slug}`);
-    if (response.data.success) {
-      return response.data.data;
+    const data = response.data;
+
+    if (data.success) {
+      setLoading(false);
+      return data.data;
+    } else {
+      setLoading(false);
+      setError(data.error);
+      throw new Error(data.error);
     }
-    return response.data.error;
   };
 
-  useEffect(() => {
-    if (!categorySlug || categorySlug === "Explorar") {
-      setHierarchy([]);
-      return;
-    }
-
-    const fetchHierarchy = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await api.get(`/categories/hierarchy/${categorySlug}`);
-
-        if (response.data.success) {
-          setHierarchy(response.data.data);
-        } else {
-          setError("Erro ao buscar hierarquia da categoria");
-        }
-      } catch (err: any) {
-        setError(
-          err.response?.data?.error?.message || "Erro ao buscar hierarquia",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHierarchy();
-  }, [categorySlug]);
-
-  return { hierarchy, loading, error, fetchCategoryBySlug };
+  return { loading, fetchCategoryBySlug, error };
 };

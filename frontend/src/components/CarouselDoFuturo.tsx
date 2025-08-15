@@ -28,7 +28,7 @@ export function CarouselDoFuturo() {
   }, [api]);
 
   return (
-    <div className="relative">
+    <div>
       <Carousel className="w-full" opts={{ loop: true }} setApi={setApi}>
         <CarouselContent>
           {banners.map((banner, index) => (

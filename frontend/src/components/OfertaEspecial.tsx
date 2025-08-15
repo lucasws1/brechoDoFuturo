@@ -13,7 +13,7 @@ export default function OfertaEspecial() {
   if (error) return <div>Erro ao carregar produtos: {error}</div>;
 
   return (
-    <section className="rounded-2xl bg-neutral-400 p-6 md:p-8">
+    <section className="rounded-2xl bg-neutral-300 p-6 md:p-8">
       <div className="grid items-center gap-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-5">
           <p className="text-sm text-neutral-600">Oferta Especial</p>

@@ -6,68 +6,61 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useCategory } from "@/hooks/useCategory";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useProductsSearchParams } from "@/hooks/useProductsSearchParams";
+
+import { Gift } from "lucide-react";
 
 const BreadcrumbCustom = () => {
-  const location = useLocation();
-  const getCurrentSlug = () => {
-    const match = location.pathname.match(/^\/category\/([^/?]+)/);
-    return match ? match[1] : "Explorar";
+  const { slug, sub, isSearchPage } = useProductsSearchParams();
+
+  const slugToName = (name: string) => {
+    if (name === "maisvendidos") return "Mais vendidos";
+    return name.charAt(0).toUpperCase() + name.slice(1);
   };
-
-  const [searchParams] = useSearchParams();
-  const currentSlug = getCurrentSlug();
-
-  const sub = searchParams.get("sub");
-  const { hierarchy, loading } = useCategory(sub ? sub : currentSlug);
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-sm">
-        <div className="h-4 w-20 animate-pulse rounded bg-gray-200"></div>
-      </div>
-    );
-  }
 
   return (
     <>
-      <div>
-        <Breadcrumb className="flex items-end justify-start text-base">
-          <BreadcrumbList className="flex items-end">
-            <BreadcrumbItem className="flex items-end">
-              {currentSlug === "Explorar" ? (
-                <BreadcrumbPage>Explorar</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink href="/">Explorar</BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
-            {hierarchy.length > 0 && (
+      {!slug && !isSearchPage ? (
+        <div className="mt-6 flex w-full items-center justify-center gap-3">
+          <Gift size={28} />
+          <span className="flex items-center text-2xl text-black">
+            um presente do passado
+          </span>
+        </div>
+      ) : (
+        <div>
+          <Breadcrumb className="flex items-center justify-start text-base">
+            <BreadcrumbList className="flex items-center">
               <>
-                {hierarchy.map((category, index) => (
-                  <div key={category.name} className="flex items-end gap-2">
+                <BreadcrumbItem className="flex items-center">
+                  <BreadcrumbLink href="/">Explorar</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="translate-y-[1.5px]" />
+
+                {!sub ? (
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>
+                      {isSearchPage ? "Pesquisar" : slugToName(slug)}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                ) : (
+                  <>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href={`/category/${slug}`}>
+                        <span>{slugToName(slug)}</span>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
                     <BreadcrumbSeparator className="translate-y-[-2px]" />
                     <BreadcrumbItem>
-                      {index === hierarchy.length - 1 ? (
-                        <BreadcrumbPage>
-                          <span>{category.name}</span>
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink
-                          href={`/category/${currentSlug}`}
-                          className="cursor-pointer"
-                        >
-                          {category.name}
-                        </BreadcrumbLink>
-                      )}
+                      <BreadcrumbPage>{slugToName(sub)}</BreadcrumbPage>
                     </BreadcrumbItem>
-                  </div>
-                ))}
+                  </>
+                )}
               </>
-            )}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      )}
     </>
   );
 };

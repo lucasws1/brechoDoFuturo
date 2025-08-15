@@ -11,19 +11,20 @@ import { ProductCard } from "@/components/ProductCard";
 import PaginationInformation from "@/components/PaginationInformation";
 import { useCategory } from "@/hooks/useCategory";
 import { useEffect, useState } from "react";
+import type { Category } from "@/types/Category";
 
 const CategoryPage: React.FC = () => {
   const { slug, setSortValue, sort, setPage, sub } = useProductsSearchParams();
-  const [cat, setCat] = useState(null);
+  const [cat, setCat] = useState<Category | null>(null);
   const { products, pagination, loading, error, refetch } =
     useCategoryProducts();
 
-  const { fetchCategoryBySlug, loading: loadingCategory } = useCategory(slug);
+  const { fetchCategoryBySlug, loading: loadingCategory } = useCategory();
 
   useEffect(() => {
     const fetchCategory = async () => {
       const catBySlug = await fetchCategoryBySlug(slug);
-      setCat(catBySlug);
+      setCat(catBySlug as Category);
     };
     fetchCategory();
   }, [slug]);
@@ -64,7 +65,7 @@ const CategoryPage: React.FC = () => {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-8">
+    <section className="mx-auto max-w-7xl px-6 py-0">
       <Helmet>
         <title>{`${
           slug.charAt(0).toUpperCase() + slug.slice(1)
@@ -75,19 +76,30 @@ const CategoryPage: React.FC = () => {
       <div className="flex">
         <BreadcrumbCustom />
       </div>
-      <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="mt-4 flex w-full gap-4">
-          <SubCategoryChips
-            parentSlug={slug}
-            children={(cat as any)?.subcategories ?? []}
-            activeChildSlug={sub}
-            showAllChip={false}
-          />
-          <SortSelect sort={sort} setSort={setSortValue} />
+      <div className="mt-6 text-4xl leading-none font-semibold tracking-tight">
+        {cat?.name}
+      </div>
+      <header className="mt-4 flex w-full">
+        <div className="flex w-full justify-between gap-4">
+          {cat?.subcategories && cat?.subcategories.length > 0 ? (
+            <div>
+              <SubCategoryChips
+                parentSlug={slug}
+                children={cat?.subcategories ?? []}
+                activeChildSlug={sub}
+                showAllChip={true}
+              />
+            </div>
+          ) : (
+            <div></div>
+          )}
+          <div className="w-fit">
+            <SortSelect sort={sort} setSort={setSortValue} />
+          </div>
         </div>
       </header>
 
-      <div className="space-y-8">
+      <div className="mt-4 space-y-8">
         <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

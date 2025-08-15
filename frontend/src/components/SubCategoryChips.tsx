@@ -1,6 +1,3 @@
-import { useMemo, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge"; // shadcn
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -9,7 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export type CatLite = { name: string; slug: string; count?: number };
 
@@ -33,21 +31,11 @@ export default function SubcategoryChips({
   showAllChip = true,
 }: Props) {
   const navigate = useNavigate();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const items = useMemo(
     () => children.filter((c) => c.slug !== activeChildSlug),
     [children, activeChildSlug],
   );
-
-  const hasMany = items.length > 6;
-
-  const scrollBy = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const delta = dir === "left" ? -el.clientWidth : el.clientWidth;
-    el.scrollBy({ left: delta, behavior: "smooth" });
-  };
 
   const mobile = (
     <div className="w-full md:hidden">
@@ -57,11 +45,16 @@ export default function SubcategoryChips({
           else navigate(categoryUrl(parentSlug, value));
         }}
       >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Filtrar por subcategoria" />
+        <SelectTrigger
+          className="w-fit max-w-[200px] cursor-pointer justify-start border-none px-0 text-left shadow-none focus:ring-0"
+          size="sm"
+        >
+          <SelectValue placeholder="Subcategorias" />
         </SelectTrigger>
-        <SelectContent>
-          {showAllChip && <SelectItem value="__ALL__">Todas</SelectItem>}
+        <SelectContent className="rounded-xl">
+          {showAllChip && activeChildSlug !== undefined && (
+            <SelectItem value="__ALL__">Todas</SelectItem>
+          )}
           {children.map((c) => (
             <SelectItem
               key={c.slug}
@@ -80,65 +73,39 @@ export default function SubcategoryChips({
   const desktop = (
     <div className="hidden md:block">
       <div className="relative">
-        {hasMany && (
-          <div className="absolute top-1/2 left-0 z-10 -translate-y-1/2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => scrollBy("left")}
-              aria-label="Rolar para a esquerda"
-            >
-              <ChevronLeft className="size-5" />
-            </Button>
-          </div>
-        )}
-
-        <div
-          ref={scrollRef}
-          className="no-scrollbar flex items-center gap-2 overflow-x-auto px-1"
-        >
-          {showAllChip && (
+        <div className="flex items-center overflow-x-auto">
+          {showAllChip && activeChildSlug !== undefined && (
             <Link to={categoryUrl(parentSlug)}>
-              <Badge
-                variant="secondary"
-                className="cursor-pointer rounded-full px-3 py-1 text-sm whitespace-nowrap"
+              <Button
+                variant="ghost"
+                className="mr-6 cursor-pointer px-0 hover:bg-transparent hover:underline"
+                size="sm"
               >
-                Todas
-              </Badge>
+                Mostrar Tudo
+              </Button>
             </Link>
           )}
-
-          {items.map((c) => (
-            <Link key={c.slug} to={categoryUrl(parentSlug, c.slug)}>
-              <Badge
-                variant="outline"
-                className="hover:border-foreground/60 cursor-pointer rounded-full px-3 py-1 text-sm whitespace-nowrap"
-              >
-                {c.name}
-                {typeof c.count === "number" ? ` (${c.count})` : ""}
-              </Badge>
-            </Link>
-          ))}
-        </div>
-
-        {hasMany && (
-          <div className="absolute top-1/2 right-0 z-10 -translate-y-1/2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => scrollBy("right")}
-              aria-label="Rolar para a direita"
-            >
-              <ChevronRight className="size-5" />
-            </Button>
+          <div className="flex items-center gap-6">
+            {items.map((c) => (
+              <Link key={c.slug} to={categoryUrl(parentSlug, c.slug)}>
+                <Button
+                  variant="ghost"
+                  className="cursor-pointer px-0 hover:bg-transparent hover:underline"
+                  size="sm"
+                >
+                  {c.name}
+                  {typeof c.count === "number" ? ` (${c.count})` : ""}
+                </Button>
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="w-full">
+    <div>
       {mobile}
       {desktop}
     </div>

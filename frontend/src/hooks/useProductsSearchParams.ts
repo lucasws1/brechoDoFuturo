@@ -1,5 +1,5 @@
 import { useSearchParams, useMatch } from "react-router-dom";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export function useProductsSearchParams() {
   const [sp, setSp] = useSearchParams();
@@ -10,6 +10,7 @@ export function useProductsSearchParams() {
   const page = Number(sp.get("page") ?? 1);
   const limit = Number(sp.get("limit") ?? 12);
   const sort = sp.get("sort") ?? "newest";
+  const isSearchPage = useMatch("/search");
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -62,5 +63,6 @@ export function useProductsSearchParams() {
     setLimitValue,
     setSortValue,
     setSubcategoryValue,
+    isSearchPage,
   };
 }
