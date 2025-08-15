@@ -5,9 +5,6 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  getMockProducts,
-  getMockProductsById,
-  populateMockProducts,
 } from "../controllers/productController";
 import { authenticate } from "../middleware/auth";
 import { uploadProductImages } from "../middleware/upload";
@@ -20,21 +17,6 @@ const router: Router = Router();
  * @access Public
  */
 router.get("/", getProducts);
-
-/**
- * @route GET /api/products/mock
- * @desc Listar produtos mock para testes de paginação
- * @access Public
- */
-router.get("/mock", getMockProducts);
-router.get("/mock/:id", getMockProductsById);
-
-/**
- * @route POST /api/products/populate
- * @desc Popular banco com produtos mock (Admin only)
- * @access Private (Admin only)
- */
-router.post("/populate", authenticate, populateMockProducts);
 
 /**
  * @route GET /api/products/:id

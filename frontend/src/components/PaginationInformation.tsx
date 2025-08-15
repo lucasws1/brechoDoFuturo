@@ -1,30 +1,44 @@
 import type { Product } from "@/types/Product";
+import { ProductPagination } from "./ProductPagination";
 
 const PaginationInformation = ({
   pagination,
-  page,
   products,
+  setPage,
 }: {
   pagination: any;
-  page: number;
   products: Product[];
+  setPage: (page: number) => void;
 }) => {
+  const numeroDeProdutos = () => {
+    if (pagination.totalPages > 1) {
+      return Math.min(
+        pagination.total,
+        (pagination.page - 1) * pagination.limit + products.length,
+      );
+    }
+    return products.length;
+  };
+
   return (
-    <div>
-      {/* Informações de paginação */}
+    <>
       {pagination && (
-        <div className="text-muted-foreground text-center text-sm">
-          Mostrando{" "}
-          {pagination.totalPages > 1 ? page * products.length : products.length}
-          de {pagination.total} produtos
+        <div className="mt-4 flex flex-col items-center gap-4">
           {pagination.totalPages > 1 && (
-            <span>
-              • Página {pagination.page} de {pagination.totalPages}
-            </span>
+            <div className="flex justify-center">
+              <ProductPagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={setPage || (() => {})}
+              />
+            </div>
           )}
+          <div className="text-center text-sm">
+            Mostrando {numeroDeProdutos()} de {pagination.total} produtos
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

@@ -13,7 +13,7 @@ import {
   User,
   UserPen,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MinimalMobileSheet from "./MinimalMobileSheet";
 import { Button } from "./ui/button";
@@ -31,6 +31,17 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "./ui/navigation-menu";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
 
 const Header: React.FC = () => {
   const { cartItems } = useCart();
@@ -39,6 +50,8 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +64,7 @@ const Header: React.FC = () => {
     if (searchTerm.trim() === "") return;
     const handler = setTimeout(() => {
       navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
+      setOpen(false);
     }, 1000);
     return () => clearTimeout(handler);
   }, [searchTerm, navigate]);
@@ -67,6 +81,14 @@ const Header: React.FC = () => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
   };
+
+  useEffect(() => {
+    if (open) {
+      const id = requestAnimationFrame(() => inputRef.current?.focus());
+      return () => cancelAnimationFrame(id);
+    }
+  }, [open]);
+
   const active = "font-bold";
   const idle = "font-medium cursor-pointer";
 
@@ -177,6 +199,58 @@ const Header: React.FC = () => {
               />
             </div>
           </form>
+        </div>
+        <div className="flex md:hidden">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                className="md:hidden"
+                aria-label="Abrir busca"
+                onClick={() => setOpen(true)}
+              >
+                <Search size={18} />
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Buscar</DialogTitle>
+                <DialogDescription>O que você procura?</DialogDescription>
+              </DialogHeader>
+
+              <form
+                onSubmit={handleSearch}
+                role="search"
+                aria-label="Pesquisar produtos"
+              >
+                <div className="flex items-center gap-2">
+                  <Input
+                    ref={inputRef}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Digite para buscar..."
+                    className="flex-1"
+                    autoComplete="off"
+                  />
+                  <Button type="submit" aria-label="Pesquisar">
+                    <Search />
+                  </Button>
+                </div>
+              </form>
+              <DialogFooter className="flex items-center justify-center">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setOpen(false)}
+                    className="w-fit text-sm"
+                  >
+                    Fechar
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <Link

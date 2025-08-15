@@ -71,6 +71,28 @@ export const getCategories = async (req: Request, res: Response) => {
   }
 };
 
+export const getCategoryBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const category = await categoryService.getCategoryBySlug(slug);
+
+    if (!category) {
+      res.status(404).json({
+        success: false,
+        error: { message: "Categoria não encontrada" },
+      } as ApiResponse);
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: category,
+    } as ApiResponse);
+  } catch (error) {
+    handleError(res, error, "Erro ao buscar categoria");
+  }
+};
+
 /**
  * @desc    Get category by ID
  * @route   GET /api/categories/:id

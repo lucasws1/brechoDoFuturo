@@ -18,10 +18,10 @@ const Home = () => {
             <>
               <CarouselDoFuturo />
 
-              <NovidadesSection categorySlug="novidades" />
-              <MaisVendidosSection categorySlug="maisvendidos" />
-              <OfertaEspecial categorySlug="ofertas" />
-              <DestaquesSection categorySlug="destaques" />
+              <NovidadesSection />
+              <MaisVendidosSection />
+              <OfertaEspecial />
+              <DestaquesSection />
             </>
           ) : null}
         </div>

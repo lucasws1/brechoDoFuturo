@@ -1,5 +1,4 @@
 import { PrismaClient, ProductStatus } from "../../generated/prisma";
-import { mockProducts } from "../utils/mockProducts";
 
 const prisma = new PrismaClient();
 
@@ -354,36 +353,3 @@ export const updateProductStatus = async (
 };
 
 // Popular banco com produtos mock
-export const populateMockProducts = async (sellerId: string) => {
-  const createdProducts = [];
-
-  for (const mockProduct of mockProducts) {
-    try {
-      const product = await prisma.product.create({
-        data: {
-          name: mockProduct.name,
-          description: mockProduct.description,
-          price: mockProduct.price,
-          images: [mockProduct.image], // Converter string para array
-          status: ProductStatus.Available,
-          sellerId,
-          categoryId: "", // Por enquanto sem categorias
-        },
-        include: {
-          seller: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
-      createdProducts.push(product);
-    } catch (error) {
-      console.error(`Erro ao criar produto ${mockProduct.name}:`, error);
-    }
-  }
-
-  return createdProducts;
-};

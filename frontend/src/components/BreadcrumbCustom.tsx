@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useCategoryHierarchy } from "@/hooks/useCategoryHierarchy";
+import { useCategory } from "@/hooks/useCategory";
 import { useLocation, useSearchParams } from "react-router-dom";
 
 const BreadcrumbCustom = () => {
@@ -20,7 +20,7 @@ const BreadcrumbCustom = () => {
   const currentSlug = getCurrentSlug();
 
   const sub = searchParams.get("sub");
-  const { hierarchy, loading } = useCategoryHierarchy(sub ? sub : currentSlug);
+  const { hierarchy, loading } = useCategory(sub ? sub : currentSlug);
 
   if (loading) {
     return (

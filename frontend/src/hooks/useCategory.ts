@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
+import type { Category } from "@/types/Category";
 
 interface CategoryHierarchy {
   id: string;
@@ -7,10 +8,18 @@ interface CategoryHierarchy {
   description?: string;
 }
 
-export const useCategoryHierarchy = (categorySlug: string | null) => {
+export const useCategory = (categorySlug: string | null) => {
   const [hierarchy, setHierarchy] = useState<CategoryHierarchy[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchCategoryBySlug = async (slug: string) => {
+    const response = await api.get(`/categories/slug/${slug}`);
+    if (response.data.success) {
+      return response.data.data;
+    }
+    return response.data.error;
+  };
 
   useEffect(() => {
     if (!categorySlug || categorySlug === "Explorar") {
@@ -23,7 +32,7 @@ export const useCategoryHierarchy = (categorySlug: string | null) => {
       setError(null);
 
       try {
-        const response = await api.get(`/categories/${categorySlug}/hierarchy`);
+        const response = await api.get(`/categories/hierarchy/${categorySlug}`);
 
         if (response.data.success) {
           setHierarchy(response.data.data);
@@ -42,5 +51,5 @@ export const useCategoryHierarchy = (categorySlug: string | null) => {
     fetchHierarchy();
   }, [categorySlug]);
 
-  return { hierarchy, loading, error };
+  return { hierarchy, loading, error, fetchCategoryBySlug };
 };

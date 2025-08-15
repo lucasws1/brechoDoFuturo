@@ -44,7 +44,11 @@ const ProductsGrid = ({
   return (
     <div className="flex max-w-7xl flex-col gap-4">
       {title && <h2 className="text-2xl font-bold">{title}</h2>}
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+      <div
+        className={`grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 ${
+          aplicarLimite ? "xl:grid-cols-5" : ""
+        }`}
+      >
         {aplicarLimite
           ? products
               .slice(0, limit)

@@ -9,11 +9,24 @@ import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
 import { ProductCard } from "@/components/ProductCard";
 import PaginationInformation from "@/components/PaginationInformation";
+import { useCategory } from "@/hooks/useCategory";
+import { useEffect, useState } from "react";
 
 const CategoryPage: React.FC = () => {
-  const { slug, setSortValue, sort, setPage, page } = useProductsSearchParams();
+  const { slug, setSortValue, sort, setPage, sub } = useProductsSearchParams();
+  const [cat, setCat] = useState(null);
   const { products, pagination, loading, error, refetch } =
     useCategoryProducts();
+
+  const { fetchCategoryBySlug, loading: loadingCategory } = useCategory(slug);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const catBySlug = await fetchCategoryBySlug(slug);
+      setCat(catBySlug);
+    };
+    fetchCategory();
+  }, [slug]);
 
   if (!slug) return <div>Categoria não encontrada</div>;
 
@@ -31,7 +44,7 @@ const CategoryPage: React.FC = () => {
     );
   }
 
-  if (loading) {
+  if (loading || loadingCategory) {
     return (
       <div className="flex items-center justify-center py-8">
         <SpinnerGapIcon color="black" size={48} className="animate-spin" />
@@ -63,14 +76,18 @@ const CategoryPage: React.FC = () => {
         <BreadcrumbCustom />
       </div>
       <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="flex w-full justify-end gap-4">
-          <SubCategoryChips />
+        <div className="mt-4 flex w-full gap-4">
+          <SubCategoryChips
+            parentSlug={slug}
+            children={(cat as any)?.subcategories ?? []}
+            activeChildSlug={sub}
+            showAllChip={false}
+          />
           <SortSelect sort={sort} setSort={setSortValue} />
         </div>
       </header>
 
       <div className="space-y-8">
-        {/* Grid de produtos com todos os produtos (não limitado por breakpoint) */}
         <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -79,24 +96,10 @@ const CategoryPage: React.FC = () => {
 
         <PaginationInformation
           pagination={pagination}
-          page={page}
           products={products}
+          setPage={setPage}
         />
 
-        {/* Informações de paginação */}
-        {/* {pagination && (
-          <div className="text-muted-foreground text-center text-sm">
-            Mostrando {products.length} de {pagination.total} produtos
-            {pagination.totalPages > 1 && (
-              <span>
-                {" "}
-                • Página {pagination.page} de {pagination.totalPages}
-              </span>
-            )}
-          </div>
-        )} */}
-
-        {/* Paginação */}
         {pagination && pagination.totalPages > 1 && (
           <div className="mt-8">
             <ProductPagination

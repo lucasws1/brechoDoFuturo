@@ -133,6 +133,26 @@ export const getCategoryById = async (id: string) => {
   return category;
 };
 
+export const getCategoryBySlug = async (slug: string) => {
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    include: {
+      subcategories: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      },
+    },
+  });
+
+  return category;
+};
+
 // Atualizar categoria
 export const updateCategory = async (
   id: string,
