@@ -1,9 +1,9 @@
 import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 import SortSelect from "@/components/SortSelect";
 import SubCategoryChips from "@/components/SubCategoryChips";
-import { useProductsSearchParams } from "@/hooks/useProductsSearchParams";
+import { useCategorySearchParams } from "@/hooks/useCategorySearchParams";
 import { Helmet } from "react-helmet-async";
-import { ProductPagination } from "@/components/ProductPagination";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 import { SpinnerGapIcon } from "@phosphor-icons/react";
@@ -14,8 +14,9 @@ import { useEffect, useState } from "react";
 import type { Category } from "@/types/Category";
 
 const CategoryPage: React.FC = () => {
-  const { slug, setSortValue, sort, setPage, sub } = useProductsSearchParams();
+  const { slug, setSortValue, sort, setPage, sub } = useCategorySearchParams();
   const [cat, setCat] = useState<Category | null>(null);
+  const location = useLocation();
   const { products, pagination, loading, error, refetch } =
     useCategoryProducts();
 
@@ -71,7 +72,10 @@ const CategoryPage: React.FC = () => {
           slug.charAt(0).toUpperCase() + slug.slice(1)
         } | Brechó do Futuro`}</title>
         <meta name="description" content={`Produtos da categoria ${slug}.`} />
-        <link rel="canonical" href={`${location.origin}/category/${slug}`} />
+        <link
+          rel="canonical"
+          href={`${window.location.origin}/category/${slug}`}
+        />
       </Helmet>
       <div className="flex">
         <BreadcrumbCustom />
@@ -111,16 +115,6 @@ const CategoryPage: React.FC = () => {
           products={products}
           setPage={setPage}
         />
-
-        {pagination && pagination.totalPages > 1 && (
-          <div className="mt-8">
-            <ProductPagination
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              onPageChange={setPage || (() => {})}
-            />
-          </div>
-        )}
       </div>
     </section>
   );

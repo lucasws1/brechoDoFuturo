@@ -6,12 +6,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useProductsSearchParams } from "@/hooks/useProductsSearchParams";
-
-import { Gift } from "lucide-react";
+import { useCategorySearchParams } from "@/hooks/useCategorySearchParams";
+import { useMatch } from "react-router-dom";
+import { useProductById } from "@/hooks/useProductById";
 
 const BreadcrumbCustom = () => {
-  const { slug, sub, isSearchPage } = useProductsSearchParams();
+  const { slug, sub, isSearchPage, search } = useCategorySearchParams();
+  const isProductPage = useMatch("/product/:id")?.params.id;
+  const { product } = useProductById(isProductPage);
 
   const slugToName = (name: string) => {
     if (name === "maisvendidos") return "Mais vendidos";
@@ -20,29 +22,54 @@ const BreadcrumbCustom = () => {
 
   return (
     <>
-      {!slug && !isSearchPage ? (
+      {!slug && !isSearchPage && !isProductPage ? (
         <div className="mt-6 flex w-full items-center justify-center gap-3">
-          <Gift size={28} />
-          <span className="flex items-center text-2xl text-black">
-            um presente do passado
+          <span className="flex items-center text-2xl text-black text-shadow-lg">
+            brechó do futuro
           </span>
         </div>
       ) : (
-        <div>
-          <Breadcrumb className="flex items-center justify-start text-base">
-            <BreadcrumbList className="flex items-center">
-              <>
-                <BreadcrumbItem className="flex items-center">
+        <>
+          <Breadcrumb className="flex justify-start text-base">
+            <BreadcrumbList className="flex">
+              <div className="flex">
+                <BreadcrumbItem className="flex">
                   <BreadcrumbLink href="/">Explorar</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator className="translate-y-[1.5px]" />
+                <BreadcrumbSeparator className="mx-2 translate-y-1" />
 
                 {!sub ? (
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>
-                      {isSearchPage ? "Pesquisar" : slugToName(slug)}
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
+                  <>
+                    {isProductPage ? (
+                      <>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink href="#">Produtos</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator className="mx-2 translate-y-1" />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>{product?.name}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </>
+                    ) : (
+                      <>
+                        {isSearchPage ? (
+                          <>
+                            <BreadcrumbItem>
+                              <BreadcrumbLink href="#">
+                                Pesquisar
+                              </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator className="mx-2 translate-y-1" />
+                            <BreadcrumbItem>
+                              <BreadcrumbPage>{search}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                          </>
+                        ) : (
+                          <BreadcrumbPage>{slugToName(slug)}</BreadcrumbPage>
+                        )}
+                      </>
+                    )}
+                  </>
                 ) : (
                   <>
                     <BreadcrumbItem>
@@ -50,16 +77,16 @@ const BreadcrumbCustom = () => {
                         <span>{slugToName(slug)}</span>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
-                    <BreadcrumbSeparator className="translate-y-[-2px]" />
+                    <BreadcrumbSeparator className="mx-2 translate-y-1" />
                     <BreadcrumbItem>
                       <BreadcrumbPage>{slugToName(sub)}</BreadcrumbPage>
                     </BreadcrumbItem>
                   </>
                 )}
-              </>
+              </div>
             </BreadcrumbList>
           </Breadcrumb>
-        </div>
+        </>
       )}
     </>
   );

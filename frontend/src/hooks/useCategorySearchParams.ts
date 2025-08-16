@@ -1,7 +1,7 @@
 import { useSearchParams, useMatch } from "react-router-dom";
 import { useMemo } from "react";
 
-export function useProductsSearchParams() {
+export function useCategorySearchParams() {
   const [sp, setSp] = useSearchParams();
   const match = useMatch("/category/:slug");
   const slug = match?.params.slug ?? "";

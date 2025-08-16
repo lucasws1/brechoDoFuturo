@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "@/services/api";
 import type { Product } from "@/types/Product";
-import { useProductsSearchParams } from "./useProductsSearchParams";
+import { useCategorySearchParams } from "./useCategorySearchParams";
 
 interface PaginationInfo {
   page: number;
@@ -31,7 +31,7 @@ export function useCategoryProducts(): UseCategoryProductsReturn {
   const [error, setError] = useState<string | null>(null);
 
   const { params, sub, page, limit, sort, search, slug } =
-    useProductsSearchParams();
+    useCategorySearchParams();
 
   const fetchProducts = async () => {
     try {
