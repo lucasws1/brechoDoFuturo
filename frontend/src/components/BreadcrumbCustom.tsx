@@ -5,15 +5,33 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
+  BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb";
 import { useCategorySearchParams } from "@/hooks/useCategorySearchParams";
 import { useMatch } from "react-router-dom";
 import { useProductById } from "@/hooks/useProductById";
+import { useCategory } from "@/hooks/useCategory";
+import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useEffect, useState } from "react";
+import type { Category } from "@/types/Category";
 
 const BreadcrumbCustom = () => {
   const { slug, sub, isSearchPage, search } = useCategorySearchParams();
   const isProductPage = useMatch("/product/:id")?.params.id;
   const { product } = useProductById(isProductPage);
+  const { fetchCategoryById } = useCategory();
+  const isMobile = useIsMobile();
+  const [parentCategory, setParentCategory] = useState<Category | null>(null);
+
+  useEffect(() => {
+    const getCategory = async () => {
+      if (product?.category?.parentId) {
+        const category = await fetchCategoryById(product?.category?.parentId);
+        setParentCategory(category);
+      }
+    };
+    getCategory();
+  }, [product?.category]);
 
   const slugToName = (name: string) => {
     if (name === "maisvendidos") return "Mais vendidos";
@@ -42,8 +60,34 @@ const BreadcrumbCustom = () => {
                   <>
                     {isProductPage ? (
                       <>
+                        {parentCategory && (
+                          <>
+                            {isMobile ? (
+                              <BreadcrumbItem>
+                                <BreadcrumbEllipsis />
+                              </BreadcrumbItem>
+                            ) : (
+                              <BreadcrumbItem>
+                                <BreadcrumbLink
+                                  href={`/category/${parentCategory.slug}`}
+                                >
+                                  {parentCategory?.name}
+                                </BreadcrumbLink>
+                              </BreadcrumbItem>
+                            )}
+                            <BreadcrumbSeparator className="mx-2 translate-y-1" />
+                          </>
+                        )}
                         <BreadcrumbItem>
-                          <BreadcrumbLink href="#">Produtos</BreadcrumbLink>
+                          <BreadcrumbLink
+                            href={
+                              parentCategory
+                                ? `/category/${parentCategory.slug}?sub=${product?.category?.slug}`
+                                : `/category/${product?.category?.slug}`
+                            }
+                          >
+                            {product?.category?.name}
+                          </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="mx-2 translate-y-1" />
                         <BreadcrumbItem>

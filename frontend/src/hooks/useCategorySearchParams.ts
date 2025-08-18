@@ -8,7 +8,7 @@ export function useCategorySearchParams() {
   const search = sp.get("search") ?? "";
   const sub = sp.get("sub") ?? undefined;
   const page = Number(sp.get("page") ?? 1);
-  const limit = Number(sp.get("limit") ?? 12);
+  const limit = Number(sp.get("limit") ?? 15);
   const sort = sp.get("sort") ?? "newest";
   const isSearchPage = useMatch("/search");
 

@@ -91,7 +91,7 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-0">
+    <div className="mx-auto w-full max-w-7xl px-6 py-0">
       <Helmet>
         <title>
           {product
@@ -126,72 +126,70 @@ export default function ProductPage() {
         <BreadcrumbCustom />
       </div>
       <div className="flex flex-col">
-        <div className="mt-6 flex flex-col items-start gap-2">
-          <h1 className="text-4xl leading-none font-semibold tracking-tight">
-            {product.name}
-          </h1>
-          <p className="text-lg font-semibold">
-            {new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(product.price)}
-          </p>
-          <p className="">{product.description}</p>
-        </div>
         <div className="mt-6 flex h-full w-full max-w-7xl flex-col items-start gap-4 md:grid md:grid-cols-[1fr_1fr]">
-          <div>
+          <div className="h-full w-full overflow-hidden">
             <ProductGallery images={images} />
           </div>
-          <div className="mt-6 md:mt-0">
-            {quantityInCart > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">No carrinho:</span>
-                <span className="text-sm font-semibold">
-                  {quantityInCart} unidade(s)
-                </span>
-              </div>
-            )}
+          <div className="mt-6 h-full w-full md:mt-0">
+            <div className="flex flex-col items-start gap-4">
+              <h1 className="text-4xl leading-none font-semibold tracking-tight">
+                {product.name}
+              </h1>
+              <p className="text-lg font-semibold">
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(product.price)}
+              </p>
+              <p>{product.description}</p>
+            </div>
 
             {cartItem ? (
-              // Se já está no carrinho, mostrar controles de quantidade
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm">Quantidade no carrinho:</span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleDecrement}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="w-12 text-center">
-                      {cartItem.quantity}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleIncrement}
-                      disabled={(product.stock || 0) <= cartItem.quantity}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+              <div className="mt-10 flex flex-col md:mt-20">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center">
+                    <span className="">Adicionar ou remover:</span>
+                    <div className="flex items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDecrement}
+                      >
+                        <Minus />
+                      </Button>
+                      <span className="font-semibold">{cartItem.quantity}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleIncrement}
+                        disabled={(product.stock || 0) <= cartItem.quantity}
+                      >
+                        <Plus />
+                      </Button>
+                    </div>
                   </div>
+                  {quantityInCart > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="">Quantidade no carrinho:</span>
+                      <span className="font-semibold">
+                        {quantityInCart} unidade(s)
+                      </span>
+                    </div>
+                  )}
+                  <Button
+                    className="mt-2 w-fit gap-2"
+                    onClick={handleAddToCart}
+                    disabled={(product.stock || 0) <= cartItem.quantity}
+                  >
+                    <ShoppingCart />
+                    Adicionar mais ao carrinho
+                  </Button>
                 </div>
-                <Button
-                  size="lg"
-                  className="w-full md:w-auto"
-                  onClick={handleAddToCart}
-                  disabled={(product.stock || 0) <= cartItem.quantity}
-                >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Adicionar mais ao carrinho
-                </Button>
               </div>
             ) : (
               // Se não está no carrinho, mostrar botão de adicionar com quantidade
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
+              <div className="mt-10 flex h-full flex-col gap-2 md:mt-20">
+                <div className="flex items-center">
                   <span>Quantidade:</span>
                   <div className="flex items-center">
                     <Button
@@ -219,12 +217,13 @@ export default function ProductPage() {
                   Estoque: <span>{product.stock || 0} unidade(s) </span>
                 </div>
                 <Button
+                  className="mt-2 w-fit gap-2"
                   onClick={
                     localQuantity === 1 ? handleAddToCart : handleAddMultiple
                   }
                   disabled={(product.stock || 0) === 0}
                 >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  <ShoppingCart />
                   {(product.stock || 0) === 0
                     ? "Fora de Estoque"
                     : localQuantity === 1

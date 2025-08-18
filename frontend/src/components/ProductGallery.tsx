@@ -21,9 +21,9 @@ export default function ProductGallery({ images = [] }: Props) {
   const thumbs = hasAny ? safe : [];
 
   return (
-    <div className="grid max-w-7xl grid-cols-[1fr_120px] gap-4">
+    <div className="grid h-full w-full max-w-7xl grid-cols-[1fr_120px] gap-4 overflow-hidden">
       {/* Imagem principal com ratio consistente */}
-      <div className="w-full">
+      <div className="h-full w-full">
         <div className="aspect-square w-full overflow-hidden rounded-xl">
           <img
             src={main.url}
@@ -33,7 +33,7 @@ export default function ProductGallery({ images = [] }: Props) {
         </div>
       </div>
       {/* Thumbs: esconda quando só houver 1 */}
-      <div className="relative w-full">
+      <div className="relative h-full w-full">
         {thumbs.length > 1 ? (
           <div
             className="flex flex-col gap-3 overflow-y-auto"
@@ -59,11 +59,11 @@ export default function ProductGallery({ images = [] }: Props) {
               </button>
             ))}
             {/* Opcional: contador quando houver várias */}
-            {thumbs.length > 1 && (
+            {/* {thumbs.length > 1 && (
               <div className="absolute bottom-0 left-0 text-sm">
                 Foto {idx + 1} de {thumbs.length}
               </div>
-            )}
+            )} */}
           </div>
         ) : (
           <div className="w-24" />

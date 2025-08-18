@@ -26,7 +26,7 @@ const SearchPage = () => {
       </Helmet>
       <BreadcrumbCustom />
       <div className="mt-6 text-4xl leading-none font-semibold tracking-tight">
-        Resultados para <span className="text-3xl font-bold">"{search}"</span>
+        Resultados para <span className="font-bold">"{search}"</span>
       </div>
       <div className="mt-4 flex w-full justify-end">
         <SortSelect sort={sort} setSort={setSortValue} />

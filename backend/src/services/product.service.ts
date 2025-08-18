@@ -161,7 +161,11 @@ export const getProductById = async (id: string) => {
           email: true,
         },
       },
-      category: true,
+      category: {
+        include: {
+          parent: true,
+        },
+      },
       reviews: {
         include: {
           user: {
