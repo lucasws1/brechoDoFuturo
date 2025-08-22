@@ -72,7 +72,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex min-h-[calc(100vh-200px)] items-center justify-center">
+    <div className="container flex min-h-[calc(100vh-200px)] items-center justify-center px-4 md:mx-auto">
       <Tabs defaultValue="login" className="w-[400px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>

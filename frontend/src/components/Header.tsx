@@ -177,7 +177,7 @@ const Header: React.FC = () => {
           </NavigationMenu>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end gap-2">
         <div className="hidden flex-col md:flex">
           <form
             onSubmit={handleSearch}
@@ -266,7 +266,7 @@ const Header: React.FC = () => {
         </Link>
 
         {!loading && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {isAuthenticated && user ? (
               <>
                 {user.type === "Admin" && (
@@ -283,7 +283,7 @@ const Header: React.FC = () => {
                   <DropdownMenuTrigger asChild>
                     <button className="flex cursor-pointer items-center justify-center gap-2 p-2 text-black">
                       <User size={18} className="-translate-y-[1px]" />
-                      <span className="text-sm font-medium">
+                      <span className="max-w-[50px] truncate text-sm font-medium">
                         {user.name.split(" ")[0]}
                       </span>
                       <ChevronDown size={18} />

@@ -21,7 +21,7 @@ export function CartPage() {
           />
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="container mx-auto px-6 py-8 text-center">
           <h1 className="mb-4 text-3xl font-bold">Seu carrinho está vazio</h1>
           <p className="text-muted-foreground mb-6 font-sans">
             Parece que você ainda não adicionou nenhum item.
@@ -45,11 +45,11 @@ export function CartPage() {
         <meta name="robots" content="index, follow" />
       </Helmet>
       <LoadingOverlay isLoading={loading} text="Atualizando carrinho...">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="mb-6 text-3xl font-bold">
-            Seu Carrinho ({totalItems} itens)
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <h1 className="mb-6 text-2xl font-bold">
+            Seu Carrinho ({totalItems} un.)
           </h1>
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3">
             {/* Coluna da Lista de Produtos */}
             <div className="space-y-4 lg:col-span-2">
               {cartItems.map((item) => (

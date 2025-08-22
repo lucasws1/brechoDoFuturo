@@ -21,10 +21,12 @@ export default function ProductGallery({ images = [] }: Props) {
   const thumbs = hasAny ? safe : [];
 
   return (
-    <div className="grid h-full w-full max-w-7xl grid-cols-[1fr_120px] gap-4 overflow-hidden">
+    <div
+      className={`grid h-full w-full max-w-7xl gap-4 overflow-hidden ${thumbs.length > 1 ? "grid-cols-1 lg:grid-cols-[1fr_120px]" : "grid-cols-1"}`}
+    >
       {/* Imagem principal com ratio consistente */}
       <div className="h-full w-full">
-        <div className="aspect-square w-full overflow-hidden rounded-xl">
+        <div className="aspect-square h-auto w-full overflow-hidden rounded-xl">
           <img
             src={main.url}
             alt={main.alt}
@@ -36,8 +38,7 @@ export default function ProductGallery({ images = [] }: Props) {
       <div className="relative h-full w-full">
         {thumbs.length > 1 ? (
           <div
-            className="flex flex-col gap-3 overflow-y-auto"
-            style={{ maxHeight: 480 }}
+            className="flex gap-3 overflow-y-auto lg:max-h-[480px] lg:flex-col"
             aria-label="Galeria de miniaturas"
           >
             {thumbs.map((t, i) => (
@@ -45,8 +46,8 @@ export default function ProductGallery({ images = [] }: Props) {
                 key={t.id ?? i}
                 onClick={() => setIdx(i)}
                 className={[
-                  "h-24 w-24 overflow-hidden rounded-lg border",
-                  i === idx ? "border-3 border-black" : "border-zinc-200",
+                  "h-24 w-24 cursor-pointer overflow-hidden rounded-lg border",
+                  i === idx ? "border-3 border-neutral-500" : "border-zinc-200",
                 ].join(" ")}
                 aria-current={i === idx}
               >
@@ -60,7 +61,7 @@ export default function ProductGallery({ images = [] }: Props) {
             ))}
             {/* Opcional: contador quando houver várias */}
             {/* {thumbs.length > 1 && (
-              <div className="absolute bottom-0 left-0 text-sm">
+              <div className="hidden text-sm lg:mt-2 lg:block">
                 Foto {idx + 1} de {thumbs.length}
               </div>
             )} */}

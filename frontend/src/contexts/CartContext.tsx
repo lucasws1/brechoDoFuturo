@@ -10,11 +10,13 @@ import type { Product } from "@/types/Product";
 import { useAuth } from "./AuthContext"; // Importar AuthContext
 import { useNotifications } from "@/hooks/useNotifications"; // Hook de notificações
 import api from "@/services/api"; // Importar a instância da API
+import type { Category } from "@/types/Category";
 
 // Define o tipo para um item do carrinho (produto + quantidade)
 export interface CartItem extends Product {
   quantity: number;
   itemId: string; // ID do item no carrinho (não do produto)
+  category?: Category;
 }
 
 // Define o tipo para o valor do nosso contexto
@@ -110,6 +112,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
               status: item.product.status,
               quantity: item.quantity,
               itemId: item.id, // ID do item no carrinho
+              category: item.product.category,
             }),
           );
           setCartItems(fetchedCartItems);
@@ -157,30 +160,52 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setError("Faça login para adicionar itens ao carrinho.");
       return;
     }
+
     setLoading(true);
     setError(null);
+
     try {
       const response = await api.post("/cart/items", {
         productId: product.id,
-        quantity, // Usar a quantidade passada como parâmetro
+        quantity,
       });
+
       if (response.data.success) {
-        await fetchCart(false); // Recarrega o carrinho após adicionar (com loading)
+        await fetchCart(false);
         setSuccessMessage(
           quantity === 1
             ? `${product.name} foi adicionado ao carrinho!`
             : `${quantity} unidades de ${product.name} foram adicionadas ao carrinho!`,
         );
       } else {
-        setError(
-          response.data.error?.message || "Erro ao adicionar item ao carrinho",
-        );
+        // Tratar erros específicos de forma mais elegante
+        const errorCode = response.data.error?.code;
+        const errorMessage = response.data.error?.message;
+
+        switch (errorCode) {
+          case "INSUFFICIENT_STOCK":
+            const details = response.data.error?.details;
+            setError(
+              `Estoque insuficiente para ${product.name}. Disponível: ${details?.available || 0} unidades.`,
+            );
+            break;
+          case "PRODUCT_UNAVAILABLE":
+            setError(`${product.name} não está mais disponível.`);
+            break;
+          case "OWN_PRODUCT":
+            setError(
+              "Você não pode adicionar seu próprio produto ao carrinho.",
+            );
+            break;
+          default:
+            setError(errorMessage || "Erro ao adicionar item ao carrinho");
+        }
       }
     } catch (err: any) {
-      setError(
+      const errorMessage =
         err.response?.data?.error?.message ||
-          "Erro de rede ao adicionar item ao carrinho",
-      );
+        "Erro de rede ao adicionar item ao carrinho";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -45,12 +45,13 @@ function App() {
           </MainLayout>
         </CartProvider>
         <Toaster
+          // position="top-right"
           position="top-right"
-          expand={true}
-          richColors={true}
+          // expand={true}
+          // richColors={true}
           closeButton={true}
           toastOptions={{
-            duration: 2000,
+            duration: 3000,
           }}
         />
       </AuthProvider>

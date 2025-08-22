@@ -66,7 +66,7 @@ const CategoryPage: React.FC = () => {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-0">
+    <>
       <Helmet>
         <title>{`${
           slug.charAt(0).toUpperCase() + slug.slice(1)
@@ -77,46 +77,48 @@ const CategoryPage: React.FC = () => {
           href={`${window.location.origin}/category/${slug}`}
         />
       </Helmet>
-      <div className="flex">
-        <BreadcrumbCustom />
-      </div>
-      <div className="mt-6 text-4xl leading-none font-semibold tracking-tight">
-        {cat?.name}
-      </div>
-      <header className="mt-4 flex w-full">
-        <div className="flex w-full justify-between gap-4">
-          {cat?.subcategories && cat?.subcategories.length > 0 ? (
-            <div>
-              <SubCategoryChips
-                parentSlug={slug}
-                children={cat?.subcategories ?? []}
-                activeChildSlug={sub}
-                showAllChip={true}
-              />
+      <section className="mx-auto max-w-7xl px-6 py-0">
+        <div className="flex">
+          <BreadcrumbCustom />
+        </div>
+        <div className="mt-6 text-4xl leading-none font-semibold tracking-tight">
+          {sub ? `${sub.charAt(0).toUpperCase() + sub.slice(1)}` : cat?.name}
+        </div>
+        <header className="mt-4 flex w-full">
+          <div className="flex w-full justify-between gap-4">
+            {cat?.subcategories && cat?.subcategories.length > 0 ? (
+              <div>
+                <SubCategoryChips
+                  parentSlug={slug}
+                  children={cat?.subcategories ?? []}
+                  activeChildSlug={sub}
+                  showAllChip={true}
+                />
+              </div>
+            ) : (
+              <div></div>
+            )}
+            <div className="w-fit">
+              <SortSelect sort={sort} setSort={setSortValue} />
             </div>
-          ) : (
-            <div></div>
-          )}
-          <div className="w-fit">
-            <SortSelect sort={sort} setSort={setSortValue} />
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="mt-4 space-y-8">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <div className="mt-4 space-y-8">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
 
-        <PaginationInformation
-          pagination={pagination}
-          products={products}
-          setPage={setPage}
-        />
-      </div>
-    </section>
+          <PaginationInformation
+            pagination={pagination}
+            products={products}
+            setPage={setPage}
+          />
+        </div>
+      </section>
+    </>
   );
 };
 

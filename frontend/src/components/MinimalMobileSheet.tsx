@@ -85,11 +85,11 @@ const MinimalMobileSheet = () => {
     <Sheet>
       <SheetTrigger
         onClick={() => setOpenCategory(null)}
-        className="inline-flex cursor-pointer items-center justify-center p-2"
+        className="inline-flex cursor-pointer items-center justify-center"
       >
         <AlignJustify className="cursor-pointer" color="black" size={20} />
       </SheetTrigger>
-      <SheetContent className="flex w-[320px] flex-col">
+      <SheetContent className="flex w-[250px] flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-start gap-3">
             <CoatHangerIcon size={20} color="black" />

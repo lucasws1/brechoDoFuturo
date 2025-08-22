@@ -35,6 +35,23 @@ interface UpdateCartItemInput {
   quantity: number;
 }
 
+export interface CartValidationResult {
+  success: boolean;
+  data?: any;
+  error?: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+}
+
+export interface StockValidationError {
+  available: number;
+  requested: number;
+  productId: string;
+  productName: string;
+}
+
 /**
  * @desc    Get user's cart
  * @route   GET /api/cart
@@ -99,34 +116,49 @@ export const addItemToCart = async (
 
     const { productId, quantity } = req.body;
 
-    if (!productId || !quantity) {
-      res.status(400).json({
-        success: false,
-        error: { message: "ID do produto e quantidade são obrigatórios" },
-      } as ApiResponse);
-      return;
-    }
-
-    if (quantity <= 0) {
-      res.status(400).json({
-        success: false,
-        error: { message: "Quantidade deve ser maior que zero" },
-      } as ApiResponse);
-      return;
-    }
-
-    const itemData: AddCartItemInput = {
+    const result = await cartService.addItemToCart(req.user.id, {
       productId,
-      quantity: Number(quantity),
-    };
+      quantity,
+    });
 
-    const item = await cartService.addItemToCart(req.user.id, itemData);
+    if (!result.success) {
+      // Mapear códigos de erro para status HTTP apropriados
+      let statusCode = 400; // default
+
+      switch (result.error?.code) {
+        case "MISSING_FIELDS":
+        case "INVALID_QUANTITY":
+          statusCode = 400;
+          break;
+        case "PRODUCT_NOT_FOUND":
+          statusCode = 404;
+          break;
+        case "INSUFFICIENT_STOCK":
+        case "PRODUCT_UNAVAILABLE":
+          statusCode = 422; // Unprocessable Entity
+          break;
+        case "OWN_PRODUCT":
+          statusCode = 403;
+          break;
+        case "DATABASE_ERROR":
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      res.status(statusCode).json({
+        success: false,
+        error: result.error,
+      } as ApiResponse);
+      return;
+    }
 
     res.status(201).json({
       success: true,
       data: {
         message: "Item adicionado ao carrinho com sucesso",
-        item,
+        item: result.data,
       },
     } as ApiResponse);
   } catch (error) {
@@ -155,29 +187,49 @@ export const updateCartItem = async (
     const { itemId } = req.params;
     const { quantity } = req.body;
 
-    if (!quantity || quantity <= 0) {
-      res.status(400).json({
+    const result = await cartService.updateCartItem(
+      itemId,
+      { quantity },
+      req.user.id
+    );
+
+    if (!result.success) {
+      let statusCode = 400;
+
+      switch (result.error?.code) {
+        case "MISSING_FIELDS":
+        case "INVALID_QUANTITY":
+          statusCode = 400;
+          break;
+        case "ITEM_NOT_FOUND":
+        case "PRODUCT_NOT_FOUND":
+          statusCode = 404;
+          break;
+        case "PRODUCT_UNAVAILABLE":
+          statusCode = 422;
+          break;
+        case "UNAUTHORIZED":
+          statusCode = 403;
+          break;
+        case "DATABASE_ERROR":
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      res.status(statusCode).json({
         success: false,
-        error: { message: "Quantidade deve ser maior que zero" },
+        error: result.error,
       } as ApiResponse);
       return;
     }
-
-    const updateData: UpdateCartItemInput = {
-      quantity: Number(quantity),
-    };
-
-    const item = await cartService.updateCartItem(
-      itemId,
-      updateData,
-      req.user.id
-    );
 
     res.status(200).json({
       success: true,
       data: {
         message: "Item atualizado com sucesso",
-        item,
+        item: result.data,
       },
     } as ApiResponse);
   } catch (error) {
@@ -204,7 +256,31 @@ export const removeCartItem = async (
     }
 
     const { itemId } = req.params;
-    await cartService.removeCartItem(itemId, req.user.id);
+    const result = await cartService.removeCartItem(itemId, req.user.id);
+
+    if (!result.success) {
+      let statusCode = 400;
+
+      switch (result.error?.code) {
+        case "ITEM_NOT_FOUND":
+          statusCode = 404;
+          break;
+        case "UNAUTHORIZED":
+          statusCode = 403;
+          break;
+        case "DATABASE_ERROR":
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      res.status(statusCode).json({
+        success: false,
+        error: result.error,
+      } as ApiResponse);
+      return;
+    }
 
     res.status(200).json({
       success: true,
@@ -233,7 +309,33 @@ export const clearCart = async (
       return;
     }
 
-    await cartService.clearCart(req.user.id);
+    const result = await cartService.clearCart(req.user.id);
+
+    if (!result.success) {
+      let statusCode = 400;
+
+      switch (result.error?.code) {
+        case "DATABASE_ERROR":
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      res.status(statusCode).json({
+        success: false,
+        error: result.error,
+      } as ApiResponse);
+      return;
+    }
+
+    if (!result.data) {
+      res.status(404).json({
+        success: false,
+        error: { message: "Carrinho não encontrado" },
+      } as ApiResponse);
+      return;
+    }
 
     res.status(200).json({
       success: true,
