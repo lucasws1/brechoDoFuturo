@@ -39,6 +39,12 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Middleware para servir arquivos estáticos (uploads)
 app.use("/uploads", express.static("uploads"));
 
+// Middleware de debug para logar todas as requisições
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Rotas básicas
 app.get("/", (req, res) => {
   res.json({
@@ -64,6 +70,8 @@ import contactRoutes from "./routes/contactRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import productReviewRoutes from "./routes/productReviewRoutes";
+import melhorEnvioRoutes from "./routes/melhorEnvioRoutes";
+import shippingRoutes from "./routes/shippingRoutes";
 
 // Usar rotas
 app.use("/api/auth", authRoutes);
@@ -72,8 +80,10 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api", productReviewRoutes);
+app.use("/api/shipping", shippingRoutes);
+app.use("/api/melhorenvio", melhorEnvioRoutes);
 app.use("/contato", contactRoutes);
+app.use("/api", productReviewRoutes);
 
 // Middleware de tratamento de erros
 app.use(

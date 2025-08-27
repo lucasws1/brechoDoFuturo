@@ -73,6 +73,12 @@ model Product {
   stock       Int           @default(1) // Quantidade em estoque
   status      ProductStatus @default(Available)
 
+  // Frete
+  weightGrams Int?
+  lengthCm    Int?
+  widthCm     Int?
+  heightCm    Int?
+
   // Relacionamentos
   seller     User            @relation("ProductSeller", fields: [sellerId], references: [id])
   categoryId String?         @db.ObjectId
@@ -185,6 +191,15 @@ model CartItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId]) // Um produto pode aparecer apenas uma vez no carrinho
+}
+
+model MelhorEnvioToken {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // Tipos embarcados

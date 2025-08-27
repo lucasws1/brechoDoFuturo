@@ -22,7 +22,7 @@ export default function ProductGallery({ images = [] }: Props) {
 
   return (
     <div
-      className={`grid h-full w-full max-w-7xl gap-4 overflow-hidden ${thumbs.length > 1 ? "grid-cols-1 lg:grid-cols-[1fr_120px]" : "grid-cols-1"}`}
+      className={`grid h-full w-full max-w-7xl gap-4 overflow-hidden ${thumbs.length > 1 ? "grid-cols-1 lg:grid-rows-1" : "grid-cols-1"}`}
     >
       {/* Imagem principal com ratio consistente */}
       <div className="h-full w-full">
@@ -35,10 +35,10 @@ export default function ProductGallery({ images = [] }: Props) {
         </div>
       </div>
       {/* Thumbs: esconda quando só houver 1 */}
-      <div className="relative h-full w-full">
+      <div className="relative flex h-full w-full flex-col">
         {thumbs.length > 1 ? (
           <div
-            className="flex gap-3 overflow-y-auto lg:max-h-[480px] lg:flex-col"
+            className="flex w-full gap-3 overflow-y-auto"
             aria-label="Galeria de miniaturas"
           >
             {thumbs.map((t, i) => (

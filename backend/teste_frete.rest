@@ -1,0 +1,35 @@
+### Teste de Cálculo de Frete - Melhor Envio
+
+# Primeiro, faça a autorização (se ainda não fez)
+GET http://localhost:3001/api/melhorenvio/authorize
+
+###
+
+# Calcular frete (exemplo)
+POST http://localhost:3001/api/melhorenvio/calculate
+Content-Type: application/json
+
+{
+  "from": {
+    "postal_code": "01001000"
+  },
+  "to": {
+    "postal_code": "90230060"
+  },
+  "products": [
+    {
+      "id": "x",
+      "width": 11,
+      "height": 2,
+      "length": 16,
+      "weight": 0.3,
+      "insurance_value": 23.50,
+      "quantity": 1
+    }
+  ]
+}
+
+###
+
+# Refresh token (se necessário)
+POST http://localhost:3001/api/melhorenvio/refresh

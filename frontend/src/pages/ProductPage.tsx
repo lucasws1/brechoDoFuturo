@@ -1,5 +1,6 @@
 import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 import ProductGallery, { type ImageItem } from "@/components/ProductGallery";
+import ShippingCalculator from "@/components/ShippingCalculator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +16,6 @@ export default function ProductPage() {
   const { product, loading, error } = useProductById(id);
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const [localQuantity, setLocalQuantity] = useState(1);
-
   const images = product?.images?.map((image) => ({
     url: image,
     alt: product?.name,
@@ -126,7 +126,7 @@ export default function ProductPage() {
         <BreadcrumbCustom />
       </div>
       <div className="flex flex-col">
-        <div className="mt-6 flex h-full w-full max-w-7xl flex-col items-start gap-4 md:grid md:grid-cols-[1fr_1fr]">
+        <div className="mt-6 flex h-full w-full max-w-7xl flex-col items-start gap-4 md:grid md:grid-cols-[1fr_1fr_auto]">
           <div className="h-full w-full overflow-hidden">
             <ProductGallery images={images} />
           </div>
@@ -135,7 +135,7 @@ export default function ProductPage() {
               <h1 className="text-4xl leading-none font-semibold tracking-tight">
                 {product.name}
               </h1>
-              <p className="text-lg font-semibold">
+              <p className="text-xl font-semibold">
                 {new Intl.NumberFormat("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -143,12 +143,14 @@ export default function ProductPage() {
               </p>
               <p>{product.description}</p>
             </div>
+          </div>
 
+          <div className="mt-10 flex flex-col gap-8 md:mt-0">
             {cartItem ? (
-              <div className="mt-10 flex flex-col md:mt-20">
+              <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center">
-                    <span className="">Adicionar ou remover:</span>
+                    <span className="">Quantidade:</span>
                     <div className="flex items-center">
                       <Button
                         variant="ghost"
@@ -157,7 +159,7 @@ export default function ProductPage() {
                       >
                         {cartItem.quantity > 1 ? <Minus /> : <Trash2 />}
                       </Button>
-                      <span className="font-semibold">{cartItem.quantity}</span>
+                      <span>{cartItem.quantity}</span>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -170,25 +172,23 @@ export default function ProductPage() {
                   </div>
                   {quantityInCart > 0 && (
                     <div className="flex items-center gap-2">
-                      <span className="">Quantidade no carrinho:</span>
-                      <span className="font-semibold">
-                        {quantityInCart} unidade(s)
-                      </span>
+                      <span className="">No carrinho:</span>
+                      <span>{quantityInCart} unidade(s)</span>
                     </div>
                   )}
                   <Button
-                    className="mt-2 w-fit cursor-pointer gap-2"
+                    variant="outline"
+                    className="w-fit cursor-pointer items-center gap-2"
                     onClick={handleAddToCart}
                     disabled={(product.stock || 0) <= cartItem.quantity}
                   >
-                    <ShoppingCart />
                     Adicionar mais ao carrinho
                   </Button>
                 </div>
               </div>
             ) : (
               // Se não está no carrinho, mostrar botão de adicionar com quantidade
-              <div className="mt-10 flex h-full flex-col gap-2 md:mt-20">
+              <div className="flex h-full flex-col gap-2">
                 <div className="flex items-center">
                   <span>Quantidade:</span>
                   <div className="flex items-center">
@@ -217,7 +217,8 @@ export default function ProductPage() {
                   Estoque: <span>{product.stock || 0} unidade(s) </span>
                 </div>
                 <Button
-                  className="mt-2 w-fit cursor-pointer gap-2"
+                  variant="outline"
+                  className="w-fit cursor-pointer gap-2"
                   onClick={
                     localQuantity === 1 ? handleAddToCart : handleAddMultiple
                   }
@@ -232,6 +233,11 @@ export default function ProductPage() {
                 </Button>
               </div>
             )}
+            <ShippingCalculator
+              items={[
+                { pesoKg: 0.2, comprimentoCm: 10, larguraCm: 8, alturaCm: 6 },
+              ]}
+            />
           </div>
         </div>
       </div>

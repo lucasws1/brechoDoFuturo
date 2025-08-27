@@ -92,7 +92,9 @@ export function CartItemCard({ item }: { item: CartItem }) {
                 <span className="block md:hidden">
                   <Trash2 className="h-4 w-4" />
                 </span>
-                <span className="hidden text-sm md:block">Remover</span>
+                <span className="hidden border-1 px-2 text-sm md:block">
+                  Remover
+                </span>
               </button>
             </div>
           </div>
