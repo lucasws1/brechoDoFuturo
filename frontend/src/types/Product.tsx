@@ -9,6 +9,10 @@ export interface Product {
   description: string;
   stock?: number;
   status?: string; // Status do produto
+  weightGrams?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
   // sellerId?: string; // ID do vendedor
   seller?: {
     id: string;

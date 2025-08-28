@@ -1,16 +1,19 @@
 import { MapPin } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { toast } from "sonner";
-import { useState, useEffect, useMemo } from "react";
 import { Label } from "./ui/label";
 
+// Configuração da API baseada no ambiente
+// Para desenvolvimento local, usar proxy do Vite
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 type Item = {
-  pesoKg: number;
-  comprimentoCm: number;
-  larguraCm: number;
-  alturaCm: number;
-  valor?: number;
+  weightGrams?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+  insuranceValue?: number;
 };
 
 type Quote = {
@@ -63,15 +66,28 @@ export default function ShippingCalculator({
     setError(null);
 
     try {
-      const response = await fetch("/api/shipping/quote", {
+      const url = `${API_BASE_URL}/shipping/quote`;
+
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ norm, items }),
       });
 
       if (!response.ok) {
-        throw new Error((await response.json()).error || "Falha ao cotar");
+        const errorText = await response.text();
+
+        let errorMessage = "Falha ao cotar";
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.error || errorMessage;
+        } catch (parseError) {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
       }
+
       const data = await response.json();
       cache.set(key, data);
       setQuotes(data);
@@ -138,7 +154,11 @@ export default function ShippingCalculator({
                 <span>{q.nome}</span>
               </Label>
               <div className="text-sm">
-                <span className="mr-2">R$ {q.preco.toFixed(2)}</span>
+                <span className="mr-2">
+                  {q.preco
+                    ? `R$ ${q.preco.toFixed(2)}`
+                    : "Preço não disponível"}
+                </span>
                 {q.prazoDias ? <span>({q.prazoDias} d úteis)</span> : null}
               </div>
             </li>

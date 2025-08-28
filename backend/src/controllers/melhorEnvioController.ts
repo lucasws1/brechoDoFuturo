@@ -16,7 +16,6 @@ import {
 export const authorize = (_req: any, res: any) => {
   try {
     const url = getAuthUrl(["shipping-calculate", "cart-read"]);
-    console.log("Generated Auth URL:", url);
     return res.redirect(url);
   } catch (error: any) {
     console.error("Authorization error:", error);

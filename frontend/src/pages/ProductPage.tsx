@@ -235,7 +235,12 @@ export default function ProductPage() {
             )}
             <ShippingCalculator
               items={[
-                { pesoKg: 0.2, comprimentoCm: 10, larguraCm: 8, alturaCm: 6 },
+                {
+                  weightGrams: product.weightGrams || 0,
+                  lengthCm: product.lengthCm || 0,
+                  widthCm: product.widthCm || 0,
+                  heightCm: product.heightCm || 0,
+                },
               ]}
             />
           </div>

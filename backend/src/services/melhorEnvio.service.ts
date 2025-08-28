@@ -40,10 +40,6 @@ export async function exchangeCodeForToken(code: string) {
     code: code,
   });
 
-  console.log("Exchange Code Request:");
-  console.log("URL:", `${BASE_URL}/oauth/token`);
-  console.log("Body:", body);
-
   try {
     const { data } = await axios.post(`${BASE_URL}/oauth/token`, body, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },

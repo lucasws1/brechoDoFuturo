@@ -14,6 +14,7 @@ const allowedOrigins = [
   "http://localhost:4173", // Vite preview
   "http://127.0.0.1:5173",
   "http://127.0.0.1:3000",
+  "https://loose-href-ion-champagne.trycloudflare.com", // Cloudflare tunnel
 ];
 
 // Middlewares globais
@@ -40,10 +41,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/uploads", express.static("uploads"));
 
 // Middleware de debug para logar todas as requisições
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+//   next();
+// });
 
 // Rotas básicas
 app.get("/", (req, res) => {
