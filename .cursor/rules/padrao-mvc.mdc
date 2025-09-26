@@ -1,167 +1,209 @@
----
-alwaysApply: true
----
-
-# Padrão MVC no Projeto Brechó do Futuro
-
-## Visão Geral - backend
-
-Este projeto segue o padrão MVC (Model-View-Controller) adaptado para uma API REST moderna, utilizando Node.js, TypeScript e Prisma ORM. O foco é a separação clara de responsabilidades, facilitando manutenção, testes e evolução do sistema.
-
-## Estrutura de Pastas
-
-```
-backend/src/
-  controllers/   # Lógica de entrada/saída HTTP, validação inicial, chamada de services
-  services/      # Regras de negócio, orquestração, validações complexas
-  models/        # Acesso direto ao banco (via Prisma), definição de entidades
-  repositories/  # (Opcional) Abstração de queries complexas, reuso de acesso a dados
-  routes/        # Definição das rotas Express
-  middleware/    # Middlewares Express (auth, upload, etc)
-  utils/         # Funções utilitárias (JWT, erros, etc)
-  types/         # Tipos TypeScript compartilhados
-```
-
-## Responsabilidades
-
-- **Controller**: Recebe requisições, valida dados básicos, chama o service e retorna resposta HTTP.
-- **Service**: Implementa regras de negócio, validações, orquestra chamadas a models/repositories.
-- **Model**: Responsável por interagir com o banco de dados (CRUD), usando Prisma. Evite lógica de negócio aqui.
-- **Repository**: (Opcional) Centraliza queries complexas ou reutilizáveis.
-
-## Boas Práticas Adotadas
-
-- **Evite classes para models**: Prefira funções puras ou factories para manipulação de dados. Classes podem ser usadas apenas se realmente necessário (ex: métodos estáticos para queries), mas funções são mais simples, testáveis e idiomáticas em Node.js moderno.
-- **Separation of Concerns**: Cada camada tem responsabilidade única. Não misture lógica de negócio no controller ou queries no service.
-- **Validação**: Valide dados de entrada no controller (camada HTTP) e regras de negócio no service.
-- **Tipagem**: Use TypeScript para garantir tipos em todas as camadas.
-- **Retorno consistente**: Sempre retorne objetos padronizados (ex: { data, error, message }) nos controllers.
-
-## Exemplo de Fluxo (Criação de Produto)
-
-1. **Rota**: `POST /api/products`
-2. **Controller**: Recebe req.body, valida campos obrigatórios, chama `ProductService.createProduct`
-3. **Service**: Valida regras de negócio (ex: preço > 0, vendedor existe), chama model/repository
-4. **Model**: Executa `prisma.product.create` com os dados
-5. **Controller**: Retorna resposta HTTP adequada
-
-```typescript
-// Controller (resumido)
-export const createProduct = async (req, res) => {
-  // Validação básica
-  // ...
-  const result = await ProductService.createProduct(req.body);
-  res.status(201).json(result);
-};
-
-// Service (resumido)
-export async function createProduct(data: CreateProductData) {
-  // Validações de negócio
-  // ...
-  return await ProductModel.create(data);
-}
-
-// Model (resumido, função pura)
-export async function create(data: CreateProductData) {
-  return prisma.product.create({ data });
-}
-```
-
-## Observações sobre Rotas e Entidades
-
-- As rotas seguem o padrão REST, agrupadas por recurso (`/api/products`, `/api/users`, `/api/orders`).
-- As entidades e enums estão definidas em `entidades.json` e refletem o schema do banco (ver `prisma/schema.prisma`).
-- Utilize os tipos definidos em `types/` para garantir consistência entre camadas.
-- Validações de negócio (ex: status do produto, permissões de usuário) devem ser centralizadas nos services.
-
-## Resumo
-
-- **Não use classes para models, prefira funções puras**
-- **Separe responsabilidades entre controller, service e model**
-- **Valide dados na entrada e regras de negócio no service**
-- **Use TypeScript e tipos compartilhados**
-- **Retorne respostas padronizadas**
-
-> Siga este padrão para garantir código limpo, testável e fácil de evoluir.
-
 # Padrão MVC no Projeto Brechó do Futuro
 
 ## Visão Geral
 
 Este projeto segue o padrão MVC (Model-View-Controller) adaptado para uma API REST moderna, utilizando Node.js, TypeScript e Prisma ORM. O foco é a separação clara de responsabilidades, facilitando manutenção, testes e evolução do sistema.
 
-## Estrutura de Pastas
+## Estrutura de Pastas Atual
 
 ```
 backend/src/
   controllers/   # Lógica de entrada/saída HTTP, validação inicial, chamada de services
   services/      # Regras de negócio, orquestração, validações complexas
-  models/        # Acesso direto ao banco (via Prisma), definição de entidades
-  repositories/  # (Opcional) Abstração de queries complexas, reuso de acesso a dados
   routes/        # Definição das rotas Express
   middleware/    # Middlewares Express (auth, upload, etc)
   utils/         # Funções utilitárias (JWT, erros, etc)
   types/         # Tipos TypeScript compartilhados
+  config/        # Configurações (prisma, etc)
+  scripts/       # Scripts utilitários (seeders, etc)
 ```
 
 ## Responsabilidades
 
 - **Controller**: Recebe requisições, valida dados básicos, chama o service e retorna resposta HTTP.
-- **Service**: Implementa regras de negócio, validações, orquestra chamadas a models/repositories.
-- **Model**: Responsável por interagir com o banco de dados (CRUD), usando Prisma. Evite lógica de negócio aqui.
-- **Repository**: (Opcional) Centraliza queries complexas ou reutilizáveis.
+- **Service**: Implementa regras de negócio, validações, orquestra chamadas ao Prisma.
+- **Prisma**: Responsável por interagir com o banco de dados (CRUD), usando Prisma ORM.
+- **Routes**: Definição das rotas Express e middlewares específicos.
 
 ## Boas Práticas Adotadas
 
-- **Evite classes para models**: Prefira funções puras ou factories para manipulação de dados. Classes podem ser usadas apenas se realmente necessário (ex: métodos estáticos para queries), mas funções são mais simples, testáveis e idiomáticas em Node.js moderno.
 - **Separation of Concerns**: Cada camada tem responsabilidade única. Não misture lógica de negócio no controller ou queries no service.
 - **Validação**: Valide dados de entrada no controller (camada HTTP) e regras de negócio no service.
 - **Tipagem**: Use TypeScript para garantir tipos em todas as camadas.
-- **Retorno consistente**: Sempre retorne objetos padronizados (ex: { data, error, message }) nos controllers.
+- **Retorno consistente**: Sempre retorne objetos padronizados (ex: { success, data, error }) nos controllers.
+- **Prisma como Model**: O Prisma ORM atua como camada de acesso a dados, eliminando a necessidade de models separados.
 
 ## Exemplo de Fluxo (Criação de Produto)
 
 1. **Rota**: `POST /api/products`
 2. **Controller**: Recebe req.body, valida campos obrigatórios, chama `ProductService.createProduct`
-3. **Service**: Valida regras de negócio (ex: preço > 0, vendedor existe), chama model/repository
-4. **Model**: Executa `prisma.product.create` com os dados
+3. **Service**: Valida regras de negócio (ex: preço > 0, vendedor existe), chama Prisma
+4. **Prisma**: Executa `prisma.product.create` com os dados
 5. **Controller**: Retorna resposta HTTP adequada
 
 ```typescript
 // Controller (resumido)
-export const createProduct = async (req, res) => {
-  // Validação básica
-  // ...
-  const result = await ProductService.createProduct(req.body);
-  res.status(201).json(result);
+export const createProduct = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { name, description, price, categoryId, images } = req.body;
+    
+    // Validação básica
+    if (!name || !description || !price || !categoryId) {
+      res.status(400).json({
+        success: false,
+        error: { message: "Campos obrigatórios não fornecidos" }
+      });
+      return;
+    }
+
+    const result = await ProductService.createProduct({
+      ...req.body,
+      sellerId: req.user.id
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    // Tratamento de erro
+  }
 };
 
 // Service (resumido)
 export async function createProduct(data: CreateProductData) {
   // Validações de negócio
-  // ...
-  return await ProductModel.create(data);
-}
+  if (data.price <= 0) {
+    throw new Error("Preço deve ser maior que zero");
+  }
+  
+  // Verificar se categoria existe
+  const category = await prisma.category.findUnique({
+    where: { id: data.categoryId }
+  });
+  
+  if (!category) {
+    throw new Error("Categoria não encontrada");
+  }
 
-// Model (resumido, função pura)
-export async function create(data: CreateProductData) {
-  return prisma.product.create({ data });
+  return await prisma.product.create({ data });
 }
 ```
 
-## Observações sobre Rotas e Entidades
+## Entidades e Relacionamentos
 
-- As rotas seguem o padrão REST, agrupadas por recurso (`/api/products`, `/api/users`, `/api/orders`).
-- As entidades e enums estão definidas em `entidades.json` e refletem o schema do banco (ver `prisma/schema.prisma`).
-- Utilize os tipos definidos em `types/` para garantir consistência entre camadas.
-- Validações de negócio (ex: status do produto, permissões de usuário) devem ser centralizadas nos services.
+As entidades estão definidas no schema do Prisma (`prisma/schema.prisma`) e incluem:
+
+### Modelos Principais
+- **User**: Usuários (Customer/Admin) com endereço embarcado
+- **Product**: Produtos com informações de frete e estoque
+- **Order**: Pedidos com status e endereço de entrega
+- **Category**: Categorias hierárquicas
+- **Cart**: Carrinho de compras
+- **ProductReview**: Avaliações de produtos
+- **Payment**: Informações de pagamento
+- **MelhorEnvioToken**: Tokens para integração com frete
+
+### Enums
+- **UserType**: Customer, Admin
+- **OrderStatus**: Pending, Paid, Shipped, Delivered, Cancelled
+- **PaymentStatus**: Pending, Paid, Failed
+- **ProductStatus**: Available, Sold, Hidden
+
+## Rotas Implementadas
+
+### Autenticação
+- `POST /api/auth/register` - Registro de usuário
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh` - Renovação de token
+- `POST /api/auth/logout` - Logout
+
+### Usuários
+- `GET /api/users` - Listar usuários (admin)
+- `GET /api/users/:id` - Buscar usuário
+- `PUT /api/users/:id` - Atualizar usuário
+- `DELETE /api/users/:id` - Deletar usuário (admin)
+- `PUT /api/users/:id/role` - Alterar role (admin)
+
+### Produtos
+- `GET /api/products` - Listar produtos com filtros
+- `GET /api/products/:id` - Buscar produto
+- `POST /api/products` - Criar produto
+- `PUT /api/products/:id` - Atualizar produto
+- `DELETE /api/products/:id` - Deletar produto
+- `PUT /api/products/:id/status` - Atualizar status
+
+### Pedidos
+- `GET /api/orders` - Listar pedidos
+- `GET /api/orders/:id` - Buscar pedido
+- `POST /api/orders` - Criar pedido
+- `PUT /api/orders/:id/status` - Atualizar status
+- `DELETE /api/orders/:id` - Cancelar pedido
+
+### Carrinho
+- `GET /api/cart` - Buscar carrinho do usuário
+- `POST /api/cart/items` - Adicionar item
+- `PUT /api/cart/items/:id` - Atualizar item
+- `DELETE /api/cart/items/:id` - Remover item
+- `DELETE /api/cart` - Limpar carrinho
+
+### Categorias
+- `GET /api/categories` - Listar categorias
+- `POST /api/categories` - Criar categoria (admin)
+- `PUT /api/categories/:id` - Atualizar categoria (admin)
+- `DELETE /api/categories/:id` - Deletar categoria (admin)
+
+### Avaliações
+- `GET /api/reviews` - Listar avaliações
+- `POST /api/reviews` - Criar avaliação
+- `PUT /api/reviews/:id` - Atualizar avaliação
+- `DELETE /api/reviews/:id` - Deletar avaliação
+
+### Frete (Melhor Envio)
+- `POST /api/melhorenvio/calculate` - Calcular frete (endpoint original)
+- `POST /api/melhorenvio/quote` - Calcular frete (endpoint amigável)
+- `GET /api/melhorenvio/auth` - Autenticação Melhor Envio
+- `GET /api/melhorenvio/callback` - Callback OAuth
+- `POST /api/melhorenvio/refresh` - Renovar token
+- `GET /api/melhorenvio/token-status` - Verificar status dos tokens
+- `POST /api/melhorenvio/logout` - Limpar tokens
+
+## Middlewares Implementados
+
+- **auth.ts**: Autenticação JWT e verificação de permissões
+- **upload.ts**: Upload de arquivos com Multer
+
+## Utilitários
+
+- **jwt.ts**: Geração e verificação de tokens JWT
+- **cart.ts**: Tipos para validação de carrinho
+
+## Configurações
+
+- **prisma.ts**: Configuração do cliente Prisma
+- **app.ts**: Configuração do Express e middlewares globais
+
+## Observações Importantes
+
+- **Não há models separados**: O Prisma ORM atua como camada de acesso a dados
+- **Tipos compartilhados**: Use os tipos definidos em `types/` e gerados pelo Prisma
+- **Validações de negócio**: Centralizadas nos services
+- **Autenticação**: JWT com refresh tokens
+- **Banco de dados**: MongoDB com Prisma ORM
+- **Upload de arquivos**: Multer para upload de imagens
+- **Integração de frete**: Consolidação no Melhor Envio (sem duplicação de código)
 
 ## Resumo
 
-- **Não use classes para models, prefira funções puras**
-- **Separe responsabilidades entre controller, service e model**
+- **Use Prisma como camada de acesso a dados**
+- **Separe responsabilidades entre controller, service e Prisma**
 - **Valide dados na entrada e regras de negócio no service**
 - **Use TypeScript e tipos compartilhados**
 - **Retorne respostas padronizadas**
+- **Siga o padrão REST para rotas**
+- **Evite duplicação de código (DRY)**
+
+> Siga este padrão para garantir código limpo, testável e fácil de evoluir.
+
 
 > Siga este padrão para garantir código limpo, testável e fácil de evoluir.

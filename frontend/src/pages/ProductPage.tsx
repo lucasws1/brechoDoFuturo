@@ -1,13 +1,15 @@
 import BreadcrumbCustom from "@/components/BreadcrumbCustom";
 import ProductGallery, { type ImageItem } from "@/components/ProductGallery";
 import ShippingCalculator from "@/components/ShippingCalculator";
+import type { Quote } from "@/components/ShippingCalculator";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/contexts/CartContext"; // Importa o hook do carrinho
 import { useProductById } from "@/hooks/useProductById";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 
@@ -16,6 +18,12 @@ export default function ProductPage() {
   const { product, loading, error } = useProductById(id);
   const { addToCart, cartItems, updateQuantity, removeFromCart } = useCart();
   const [localQuantity, setLocalQuantity] = useState(1);
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+
+  const handleSelect = useCallback((quote: Quote | null) => {
+    setSelectedQuote(quote);
+  }, []);
+
   const images = product?.images?.map((image) => ({
     url: image,
     alt: product?.name,
@@ -242,6 +250,7 @@ export default function ProductPage() {
                   heightCm: product.heightCm || 0,
                 },
               ]}
+              onSelect={handleSelect}
             />
           </div>
         </div>

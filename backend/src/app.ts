@@ -1,9 +1,6 @@
 import express, { Express } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-// Carregar variáveis de ambiente
-dotenv.config();
+import cookieParser from "cookie-parser";
 
 const app: Express = express();
 
@@ -17,10 +14,18 @@ const allowedOrigins = [
   "https://loose-href-ion-champagne.trycloudflare.com", // Cloudflare tunnel
 ];
 
+// Em desenvolvimento, permitir todas as origens
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 // Middlewares globais
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Em desenvolvimento, permitir todas as origens
+      if (isDevelopment) {
+        return callback(null, true);
+      }
+
       // Permitir requisições sem origin (como Postman)
       if (!origin) return callback(null, true);
 
@@ -31,11 +36,14 @@ app.use(
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(cookieParser());
 
 // Middleware para servir arquivos estáticos (uploads)
 app.use("/uploads", express.static("uploads"));
@@ -47,7 +55,7 @@ app.use("/uploads", express.static("uploads"));
 // });
 
 // Rotas básicas
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({
     message: "API Brechó do Futuro!",
     version: "1.0.0",
@@ -55,7 +63,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -72,7 +80,6 @@ import categoryRoutes from "./routes/categoryRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import productReviewRoutes from "./routes/productReviewRoutes";
 import melhorEnvioRoutes from "./routes/melhorEnvioRoutes";
-import shippingRoutes from "./routes/shippingRoutes";
 
 // Usar rotas
 app.use("/api/auth", authRoutes);
@@ -81,7 +88,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/shipping", shippingRoutes);
 app.use("/api/melhorenvio", melhorEnvioRoutes);
 app.use("/contato", contactRoutes);
 app.use("/api", productReviewRoutes);

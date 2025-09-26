@@ -26,8 +26,10 @@ router.get("/token-status", getTokenStatus);
 router.get("/callback", callback);
 // Atualizar token
 router.post("/refresh", refresh);
-// Calcular frete (requisição autenticada)
-router.post("/calculate", calculate);
+// Calcular frete (requisição autenticada) - endpoint original
+// router.post("/calculate", calculate);
+// Calcular frete (endpoint amigável para frontend)
+router.post("/quote", calculate);
 // Logout (limpar tokens)
 router.post("/logout", logout);
 

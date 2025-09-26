@@ -1,8 +1,14 @@
-import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import api, { clearAuthState } from "../services/api";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 // Tipos
 interface User {
@@ -15,8 +21,9 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  accessToken: string | null;
   loading: boolean;
-  login: (accessToken: string, refreshToken: string) => void;
+  login: (email: string, password: string) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
   onAuthChange?: () => void; // Callback para notificar mudanças de auth
@@ -27,7 +34,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const navigate = useNavigate();
+  const refreshInFlight = useRef<Promise<string> | null>(null);
+
+  // Função para verificar o tempo restante do token
+  const checkTokenExpiry = (token: string) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const timeLeft = payload.exp - now;
+      console.log(`⏰ Token expira em ${Math.floor(timeLeft / 60)} minutos`);
+      return timeLeft;
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+      return 0;
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -35,49 +58,119 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(response.data.data.user);
     } catch (error) {
       console.error("Erro ao buscar perfil do usuário", error);
-      logout(); // Limpa o estado se o token for inválido ou expirado
+      logout();
     }
   };
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      fetchUser();
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Erro ao fazer logout", error);
     }
-    setLoading(false);
-  }, []);
-
-  const login = async (accessToken: string, refreshToken: string) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-    await fetchUser(); // Busca o usuário após o login
+    setUser(null);
+    setAccessToken(null);
+    delete api.defaults.headers.common["Authorization"];
     navigate("/");
   };
 
-  const logout = () => {
-    setUser(null);
-    clearAuthState(); // Usa a função centralizada para limpar estado
-    toast.success("Logout realizado com sucesso!"); // Notificação de sucesso
-    navigate("/auth");
+  // 1 - Inicialização: tenta /api/auth/refresh para obter um AT
+  useEffect(() => {
+    (async () => {
+      try {
+        console.log("🔄 Inicializando auth, tentando refresh token...");
+        const { data } = await api.post("/auth/refresh"); // cookie rt vai junto
+        const at = data.data.accessToken;
+        setAccessToken(at);
+        api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
+        checkTokenExpiry(at); // Verificar tempo do token após refresh inicial
+        await fetchUser();
+      } catch (error) {
+        setUser(null);
+        setAccessToken(null);
+        console.error("Erro ao buscar perfil do usuário", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  // 2 - Interceptor de 401 com fila/lock para não spammar /refresh
+  useEffect(() => {
+    const interceptorId = api.interceptors.response.use(
+      (res) => res,
+      async (error) => {
+        const original = error.config;
+
+        // Não tentar refresh para rotas de logout
+        if (original.url?.includes("/auth/logout")) {
+          return Promise.reject(error);
+        }
+
+        if (error.response?.status !== 401 || original._retry) {
+          return Promise.reject(error);
+        }
+        original._retry = true;
+
+        console.log("🚨 Erro 401 detectado, tentando refresh token...");
+
+        try {
+          if (!refreshInFlight.current) {
+            refreshInFlight.current = (async () => {
+              console.log("🔄 Tentando refresh token...");
+              const { data } = await api.post("/auth/refresh");
+              const newAT = data.data.accessToken;
+              setAccessToken(newAT);
+              api.defaults.headers.common["Authorization"] = `Bearer ${newAT}`;
+              console.log("✅ Token renovado com sucesso");
+              return newAT;
+            })().finally(() => {
+              refreshInFlight.current = null;
+            });
+          }
+          const token = await refreshInFlight.current;
+          original.headers.Authorization = `Bearer ${token}`;
+          console.log("🔄 Reenviando requisição com novo token...");
+          return api(original);
+        } catch (refreshError) {
+          console.error("❌ Erro ao renovar token:", refreshError);
+          await logout();
+          return Promise.reject(refreshError);
+        }
+      },
+    );
+    return () => {
+      api.interceptors.response.eject(interceptorId);
+    };
+  }, [logout]); // Adicionar logout nas dependências
+
+  // 3 - Ações
+  const login = async (email: string, password: string) => {
+    const { data } = await api.post("/auth/login", { email, password });
+    const at = data.data.accessToken;
+    setAccessToken(at);
+    api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
+    checkTokenExpiry(at); // Verificar tempo do token após login
+    await fetchUser();
+    navigate("/");
   };
 
   const isAuthenticated = !!user;
 
-  return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        loading,
-        login,
-        logout,
-        refreshUser: fetchUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      accessToken,
+      loading,
+      login,
+      logout,
+      isAuthenticated,
+      refreshUser: fetchUser,
+    }),
+    [user, accessToken, loading, login, logout, isAuthenticated, fetchUser],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

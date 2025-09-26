@@ -1,13 +1,16 @@
-import { Request, Response } from "express";
-import { createUser, authenticateUser } from "../services/user.service";
-import { UserType } from "../../generated/prisma";
 import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from "../utils/jwt";
+  login as loginService,
+  rotateRefreshToken,
+} from "@/services/auth.service";
+import { Response } from "express";
+import { UserType } from "../../generated/prisma";
 import { AuthenticatedRequest } from "../middleware/auth";
-import prisma from "../config/prisma";
+import { createUser } from "../services/user.service";
+import { generateAccessToken } from "../utils/jwt";
+import { logout as logoutService } from "../services/auth.service";
+import { PrismaClient } from "../../generated/prisma";
+
+const prisma = new PrismaClient();
 
 // Tipos para responses
 interface ApiResponse {
@@ -38,7 +41,9 @@ export const register = async (
     if (!name || !email || !password) {
       res.status(400).json({
         success: false,
-        error: { message: "Nome, email e senha são obrigatórios" },
+        error: {
+          message: "Nome, email e senha são obrigatórios - authController",
+        },
       });
       return;
     }
@@ -76,7 +81,9 @@ export const register = async (
     res.status(status).json({
       success: false,
       error: {
-        message: (error as Error).message || "Erro ao registrar usuário",
+        message:
+          (error as Error).message ||
+          "Erro ao registrar usuário - authController",
       },
     });
   }
@@ -89,77 +96,39 @@ export const login = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-
-    // Validação básica
-    if (!email || !password) {
-      res.status(400).json({
-        success: false,
-        error: { message: "Email e senha são obrigatórios" },
+    const { user, accessToken, refreshToken, message } = await loginService(
+      email,
+      password
+    );
+    if (process.env.NODE_ENV === "production") {
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
       });
-      return;
+    } else {
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      });
     }
-
-    // Autentica o usuário
-    const user = await authenticateUser(email, password);
-
-    // Gera o token JWT - Versao antiga
-    // const token = generateAccessToken({
-    //   id: user.id,
-    //   email: user.email,
-    //   type: user.type,
-    // });
-
-    // Versao nova - ChatGPT
-    const payload = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      type: user.type,
-    };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken },
-    });
-
-    res.json({
-      data: {
-        accessToken,
-        refreshToken,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          type: user.type,
-        },
-      },
-      error: null,
-      message: "Login realizado com sucesso",
+    res.status(200).json({
       success: true,
+      message,
+      data: {
+        user,
+        accessToken,
+      },
     });
-
-    // Versao antiga
-    // res.status(200).json({
-    //   success: true,
-    //   data: {
-    //     message: "Login realizado com sucesso",
-    //     user,
-    //     token,
-    //   },
-    // });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
-    const status = (error as Error).message.includes("Credenciais") ? 401 : 400;
-
-    res.status(status).json({
+    res.status(401).json({
       success: false,
-      error: {
-        message: (error as Error).message || "Erro ao fazer login",
-      },
+      error: { message: "Credenciais inválidas - authController" },
     });
   }
 };
@@ -189,29 +158,44 @@ export const getProfile = async (
     console.error("Erro ao obter perfil:", error);
     res.status(500).json({
       success: false,
-      error: { message: "Erro ao obter perfil do usuário" },
+      error: { message: "Erro ao obter perfil do usuário - authController" },
     });
   }
 };
 
-/**
- * Faz logout do usuário - Inútil, implementar no frontend
- */
 export const logout = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {
-    // Em um sistema JWT stateless, o logout é feito pelo cliente removendo o token
-    res.status(200).json({
-      success: true,
-      data: { message: "Logout realizado com sucesso" },
-    });
+    const rt = req.cookies?.refreshToken;
+
+    if (!rt) {
+      res.status(401).json({
+        success: false,
+        error: { message: "Refresh token não fornecido - authController" },
+      });
+      return;
+    }
+    await logoutService(rt);
+    if (process.env.NODE_ENV === "production") {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      });
+    } else {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+      });
+    }
+    res.status(204).send();
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
     res.status(500).json({
       success: false,
-      error: { message: "Erro ao processar logout" },
+      error: { message: "Erro ao processar logout - authController" },
     });
   }
 };
@@ -223,61 +207,84 @@ export const refreshToken = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) {
+  const rt = req.cookies?.refreshToken;
+  if (!rt) {
     res.status(401).json({
-      data: null,
-      error: { message: "Refresh token não fornecido" },
-      message: "",
+      success: false,
+      error: { message: "Refresh token não fornecido - authController" },
     });
+    return;
   }
 
-  // Opcional: busca user pelo refreshToken para garantir que está no banco
-  const user = await prisma.user.findFirst({ where: { refreshToken } });
+  const user = await prisma.user.findFirst({ where: { refreshToken: rt } });
   if (!user) {
     res.status(401).json({
-      data: null,
-      error: { message: "Refresh token inválido" },
-      message: "",
+      success: false,
+      error: { message: "Refresh token inválido - authController" },
     });
+    return;
   }
 
   try {
-    const payload = verifyRefreshToken(refreshToken) as {
-      id: string;
-      name: string;
-      email: string;
-    };
-    const newAccessToken = generateAccessToken({
-      id: payload.id,
-      name: payload.name, // Adicionado
-      email: payload.email,
-      type: user?.type as UserType,
-    });
-    // Opcional: gerar novo refresh token ("rotation")
-    const newRefreshToken = generateRefreshToken({
-      id: payload.id,
-      name: payload.name, // Adicionado
-      email: payload.email,
-      type: user?.type as UserType,
-    });
+    const result = await rotateRefreshToken(rt);
+    if (!result || !result.accessToken || !result.refreshToken) {
+      if (process.env.NODE_ENV === "production") {
+        res.clearCookie("refreshToken", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+        });
+      } else {
+        res.clearCookie("refreshToken", {
+          httpOnly: true,
+          secure: false,
+        });
+      }
+      res.status(401).json({
+        success: false,
+        error: {
+          message: "Refresh token inválido ou expirado - authController",
+        },
+      });
+      return;
+    }
+    if (process.env.NODE_ENV === "production") {
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      });
+    } else {
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+      });
+    }
 
-    // Atualiza refresh token no banco
-    await prisma.user.update({
-      where: { id: user?.id },
-      data: { refreshToken: newRefreshToken },
-    });
-
-    res.json({
-      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+    res.status(200).json({
+      success: true,
+      data: { accessToken: result.accessToken },
       error: null,
       message: "Token renovado",
     });
   } catch (e) {
+    if (process.env.NODE_ENV === "production") {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+      });
+    } else {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+      });
+    }
     res.status(401).json({
-      data: null,
-      error: { message: "Refresh token inválido ou expirado" },
-      message: "",
+      success: false,
+      error: { message: "Refresh token inválido ou expirado - authController" },
     });
   }
 };

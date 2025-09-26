@@ -16,7 +16,7 @@ type Item = {
   insuranceValue?: number;
 };
 
-type Quote = {
+export type Quote = {
   id: string;
   nome: string;
   preco: number;
@@ -27,6 +27,7 @@ type Props = {
   items: Item[];
   defaultCep?: string;
   onSelect?: (q: Quote | null) => void;
+  selected?: string;
 };
 
 const cache = new Map<string, Quote[]>();
@@ -51,7 +52,7 @@ export default function ShippingCalculator({
   async function fetchQuotes() {
     const norm = cep.replace(/\D/g, "");
     if (norm.length !== 8 || !/^[0-9]*$/.test(norm)) {
-      setError("CEP inválido");
+      setError("Insira um CEP válido");
       setQuotes(null);
       onSelect?.(null);
       return;
@@ -66,7 +67,7 @@ export default function ShippingCalculator({
     setError(null);
 
     try {
-      const url = `${API_BASE_URL}/shipping/quote`;
+      const url = `${API_BASE_URL}/melhorenvio/quote`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -77,7 +78,7 @@ export default function ShippingCalculator({
       if (!response.ok) {
         const errorText = await response.text();
 
-        let errorMessage = "Falha ao cotar";
+        let errorMessage = "Falha ao cotar o frete";
         try {
           const errorJson = JSON.parse(errorText);
           errorMessage = errorJson.error || errorMessage;
@@ -92,7 +93,7 @@ export default function ShippingCalculator({
       cache.set(key, data);
       setQuotes(data);
     } catch (e: any) {
-      setError(e.message || "Erro ao cotar");
+      setError(e.message || "Erro ao cotar o frete");
       setQuotes(null);
     } finally {
       setLoading(false);
@@ -136,37 +137,46 @@ export default function ShippingCalculator({
           <MapPin /> {loading ? "Calculando..." : "Calcular"}
         </Button>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="pt-2">{error}</p>}
       {quotes && quotes.length > 0 && (
         <ul className="mt-2 space-y-1">
           {quotes.map((q) => (
             <li
               key={q.id}
-              className="flex items-center justify-between rounded-md border p-2"
+              className="flex w-full flex-col gap-1 truncate rounded-md border p-2"
             >
-              <Label className="flex cursor-pointer items-center gap-2">
-                <Input
-                  type="radio"
-                  name="shipping"
-                  checked={selected === q.id}
-                  onChange={() => setSelected(q.id)}
-                />
-                <span>{q.nome}</span>
-              </Label>
-              <div className="text-sm">
-                <span className="mr-2">
+              <div className="flex w-full justify-start">
+                <Label className="flex w-fit gap-2">
+                  <Input
+                    type="radio"
+                    name="shipping"
+                    className="size-3 max-w-4 min-w-4 cursor-pointer"
+                    checked={selected === q.id}
+                    onChange={() => setSelected(q.id)}
+                  />
+                  <span className="w-fit text-sm">{q.nome}</span>
+                </Label>
+              </div>
+              <div className="flex w-full gap-2">
+                <div className="max-w-4 min-w-4"></div>
+                <span className="w-fit truncate text-xs">
                   {q.preco
                     ? `R$ ${q.preco.toFixed(2)}`
                     : "Preço não disponível"}
                 </span>
-                {q.prazoDias ? <span>({q.prazoDias} d úteis)</span> : null}
+
+                {q.prazoDias ? (
+                  <span className="w-fit truncate text-xs">
+                    ({q.prazoDias} dias)
+                  </span>
+                ) : null}
               </div>
             </li>
           ))}
         </ul>
       )}
       {quotes && quotes.length === 0 && (
-        <p className="text-sm">Sem opções para este CEP</p>
+        <p className="text-sm">Sem opções para este CEP. Tente outro CEP.</p>
       )}
     </div>
   );

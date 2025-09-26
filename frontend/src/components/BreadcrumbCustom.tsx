@@ -52,8 +52,8 @@ const BreadcrumbCustom = () => {
     <>
       {!slug && !isSearchPage && !isProductPage ? (
         <div className="mt-6 flex w-full items-center justify-center gap-3">
-          <span className="flex items-center text-2xl text-black text-shadow-lg">
-            brechó do futuro
+          <span className="flex items-center text-lg text-black">
+            seja bem-vindo
           </span>
         </div>
       ) : (

@@ -38,6 +38,6 @@ router.get("/profile", authenticate, getProfile);
  * @desc Logout do usuário
  * @access Private
  */
-router.get("/logout", authenticate, logout);
+router.post("/logout", logout);
 
 export default router;

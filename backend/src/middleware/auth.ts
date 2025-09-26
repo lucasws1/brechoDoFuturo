@@ -11,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authenticate = async (
+export const authenticate = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
@@ -20,7 +20,7 @@ export const authenticate = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Authentication required" });
+      return res.status(401).json({ message: "Autenticação requerida" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -35,21 +35,20 @@ export const authenticate = async (
 
     return next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Token inválido ou expirado" });
   }
 };
 
 export const authorize = (...allowedTypes: UserType[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ message: "Authentication required" });
+      return res.status(401).json({ message: "Autenticação requerida" });
     }
 
     if (!allowedTypes.includes(req.user.type)) {
-      return res.status(403).json({ message: "Not authorized" });
+      return res.status(403).json({ message: "Não autorizado" });
     }
 
-    next();
-    return;
+    return next();
   };
 };

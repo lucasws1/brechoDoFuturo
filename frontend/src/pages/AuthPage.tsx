@@ -30,12 +30,7 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.post("/auth/login", {
-        email: loginEmail,
-        password: loginPassword,
-      });
-      const { accessToken, refreshToken } = response.data.data;
-      login(accessToken, refreshToken);
+      login(loginEmail, loginPassword);
       toast.success("Login realizado com sucesso!"); // Notificação de sucesso
     } catch (err: any) {
       const errorMessage =
