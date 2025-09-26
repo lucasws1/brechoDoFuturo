@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LoadingOverlay } from "@/components/ui/loading";
+import ShippingCalculator from "@/components/ShippingCalculator";
+import type { Quote } from "@/components/ShippingCalculator";
 import { useCart } from "@/contexts/CartContext";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 
 export function CartPage() {
   const { cartItems, totalItems, subtotal, loading } = useCart();
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
 
   if (cartItems.length === 0) {
     return (
@@ -75,7 +79,16 @@ export function CartPage() {
                   </div>
                   <div className="flex justify-between">
                     <p className="text-muted-foreground">Frete</p>
-                    <p className="font-medium">Grátis</p> {/* Mock */}
+                    {selectedQuote ? (
+                      <p>{selectedQuote.nome}</p>
+                    ) : (
+                      <ShippingCalculator
+                        items={cartItems}
+                        onSelect={(q) => {
+                          setSelectedQuote(q);
+                        }}
+                      />
+                    )}
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
@@ -84,7 +97,7 @@ export function CartPage() {
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL",
-                      }).format(subtotal)}{" "}
+                      }).format(subtotal + (selectedQuote?.preco || 0))}{" "}
                       {/* Total = subtotal + frete */}
                     </p>
                   </div>

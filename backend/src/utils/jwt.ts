@@ -27,9 +27,9 @@ function getSecrets() {
 
 export function generateAccessToken(payload: TokenPayload): string {
   const { ACCESS_TOKEN_SECRET } = getSecrets();
-  // return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
-  //   expiresIn: "1h",
-  // });
+  return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+    expiresIn: "1h",
+  });
   return jwt.sign(payload, ACCESS_TOKEN_SECRET);
 }
 

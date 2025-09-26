@@ -97,6 +97,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setError(null);
       try {
         const response = await api.get("/cart");
+
         if (
           response.data.success &&
           response.data.data &&
@@ -113,6 +114,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
               quantity: item.quantity,
               itemId: item.id, // ID do item no carrinho
               category: item.product.category,
+              weightGrams: item.product.weightGrams,
+              lengthCm: item.product.lengthCm,
+              widthCm: item.product.widthCm,
+              heightCm: item.product.heightCm,
             }),
           );
           setCartItems(fetchedCartItems);

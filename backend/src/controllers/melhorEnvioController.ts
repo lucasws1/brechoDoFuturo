@@ -202,7 +202,6 @@ export const calculate = async (req: any, res: any) => {
       preco: quote.price ? parseFloat(quote.price) : null,
       prazoDias: quote.delivery_time || null,
     }));
-
     return res.json(quotes);
   } catch (error: any) {
     console.error(

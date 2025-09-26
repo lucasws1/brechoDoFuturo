@@ -34,7 +34,7 @@ interface ApiResponse {
 }
 
 // Funções auxiliares para configuração de cookies
-const getCookieOptions = (includeMaxAge = true) => {
+const getCookieOptions = (includeMaxAge = false) => {
   const baseOptions = {
     httpOnly: true,
     secure: IS_PRODUCTION,
@@ -130,7 +130,6 @@ export const login = async (
       email,
       password
     );
-
     setRefreshTokenCookie(res, refreshToken);
 
     res.status(200).json({
@@ -236,7 +235,6 @@ export const refreshToken = async (
 
   try {
     const result = await rotateRefreshToken(refreshToken);
-
     if (!result || !result.accessToken || !result.refreshToken) {
       clearRefreshTokenCookie(res);
       res.status(401).json({

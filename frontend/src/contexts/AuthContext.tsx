@@ -79,12 +79,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     (async () => {
       try {
         console.log("🔄 Inicializando auth, tentando refresh token...");
-        const { data } = await api.post("/auth/refresh"); // cookie rt vai junto
+        const { data } = await api.post("/auth/refresh");
         const at = data.data.accessToken;
-
         setAccessToken(at);
         api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
-        checkTokenExpiry(at); // Verificar tempo do token após refresh inicial
+        checkTokenExpiry(at);
         await fetchUser();
       } catch (error) {
         setUser(null);
@@ -151,7 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const at = data.data.accessToken;
     setAccessToken(at);
     api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
-    checkTokenExpiry(at); // Verificar tempo do token após login
+    checkTokenExpiry(at);
     await fetchUser();
     navigate("/");
   };

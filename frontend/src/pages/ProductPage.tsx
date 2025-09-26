@@ -241,17 +241,20 @@ export default function ProductPage() {
                 </Button>
               </div>
             )}
-            <ShippingCalculator
-              items={[
-                {
-                  weightGrams: product.weightGrams || 0,
-                  lengthCm: product.lengthCm || 0,
-                  widthCm: product.widthCm || 0,
-                  heightCm: product.heightCm || 0,
-                },
-              ]}
-              onSelect={handleSelect}
-            />
+            <div className="flex flex-col gap-2">
+              <p>Calcular Frete</p>
+              <ShippingCalculator
+                items={[
+                  {
+                    weightGrams: product.weightGrams || 0,
+                    lengthCm: product.lengthCm || 0,
+                    widthCm: product.widthCm || 0,
+                    heightCm: product.heightCm || 0,
+                  },
+                ]}
+                onSelect={handleSelect}
+              />
+            </div>
           </div>
         </div>
       </div>

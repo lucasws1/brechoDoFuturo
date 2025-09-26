@@ -1,8 +1,8 @@
-import { MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { SpinnerIcon } from "@phosphor-icons/react";
 
 // Configuração da API baseada no ambiente
 // Para desenvolvimento local, usar proxy do Vite
@@ -43,6 +43,8 @@ export default function ShippingCalculator({
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
 
+  console.log("items ShippingCalculator", items);
+
   const key = useMemo(() => {
     const norm = cep.replace(/\D/g, "");
     const hash = JSON.stringify(items);
@@ -74,6 +76,7 @@ export default function ShippingCalculator({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ norm, items }),
       });
+      console.log("response ShippingCalculator", response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -113,14 +116,13 @@ export default function ShippingCalculator({
   }, [selected, quotes, onSelect]);
 
   return (
-    <div>
-      <div className="flex flex-col gap-2">
-        <p>Calcular Frete</p>
+    <div className="flex w-fit flex-col gap-2">
+      <div className="flex w-fit items-end justify-center gap-2">
         <Input
           inputMode="numeric"
           maxLength={9}
           placeholder="Digite o CEP"
-          className="w-fit"
+          className="w-28 text-sm"
           id="cep"
           name="cep"
           value={cep}
@@ -129,15 +131,16 @@ export default function ShippingCalculator({
           }}
         />
         <Button
-          variant="outline"
-          className="w-fit cursor-pointer items-center"
+          variant="secondary"
+          size="sm"
+          className="w-20 cursor-pointer items-center text-sm"
           onClick={fetchQuotes}
           disabled={loading}
         >
-          <MapPin /> {loading ? "Calculando..." : "Calcular"}
+          {loading ? <SpinnerIcon className="animate-spin" /> : "Calcular"}
         </Button>
       </div>
-      {error && <p className="pt-2">{error}</p>}
+      {error && <p className="w-fit truncate pt-2 text-red-600">{error}</p>}
       {quotes && quotes.length > 0 && (
         <ul className="mt-2 space-y-1">
           {quotes.map((q) => (
