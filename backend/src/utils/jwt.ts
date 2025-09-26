@@ -27,14 +27,16 @@ function getSecrets() {
 
 export function generateAccessToken(payload: TokenPayload): string {
   const { ACCESS_TOKEN_SECRET } = getSecrets();
-  return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
-    expiresIn: "1h",
-  });
+  // return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+  //   expiresIn: "1h",
+  // });
+  return jwt.sign(payload, ACCESS_TOKEN_SECRET);
 }
 
 export function generateRefreshToken(payload: TokenPayload): string {
   const { REFRESH_TOKEN_SECRET } = getSecrets();
-  return jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+  // return jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, REFRESH_TOKEN_SECRET);
 }
 
 export function verifyAccessToken(token: string): TokenPayload {

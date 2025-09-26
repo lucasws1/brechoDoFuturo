@@ -24,7 +24,8 @@ router.post("/register", register);
  */
 router.post("/login", login);
 
-router.post("/refresh", authenticate, refreshToken);
+// router.post("/refresh", authenticate, refreshToken);
+router.post("/refresh", refreshToken);
 
 /**
  * @route GET /api/auth/profile

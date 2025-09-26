@@ -81,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log("🔄 Inicializando auth, tentando refresh token...");
         const { data } = await api.post("/auth/refresh"); // cookie rt vai junto
         const at = data.data.accessToken;
+
         setAccessToken(at);
         api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
         checkTokenExpiry(at); // Verificar tempo do token após refresh inicial

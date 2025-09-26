@@ -9,8 +9,14 @@ import { createUser } from "../services/user.service";
 import { generateAccessToken } from "../utils/jwt";
 import { logout as logoutService } from "../services/auth.service";
 import { PrismaClient } from "../../generated/prisma";
+import { ref } from "process";
 
 const prisma = new PrismaClient();
+
+// Constantes
+const REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 dias
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // Tipos para responses
 interface ApiResponse {
@@ -26,6 +32,27 @@ interface ApiResponse {
     totalPages: number;
   };
 }
+
+// Funções auxiliares para configuração de cookies
+const getCookieOptions = (includeMaxAge = true) => {
+  const baseOptions = {
+    httpOnly: true,
+    secure: IS_PRODUCTION,
+    ...(IS_PRODUCTION && { sameSite: "strict" as const }),
+  };
+
+  return includeMaxAge
+    ? { ...baseOptions, maxAge: REFRESH_TOKEN_MAX_AGE }
+    : baseOptions;
+};
+
+const setRefreshTokenCookie = (res: Response, token: string) => {
+  res.cookie(REFRESH_TOKEN_COOKIE_NAME, token, getCookieOptions(true));
+};
+
+const clearRefreshTokenCookie = (res: Response) => {
+  res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, getCookieOptions(false));
+};
 
 /**
  * Registra um novo usuário
@@ -97,25 +124,15 @@ export const login = async (
   res: Response
 ): Promise<void> => {
   const { email, password } = req.body;
+
   try {
     const { user, accessToken, refreshToken, message } = await loginService(
       email,
       password
     );
-    if (process.env.NODE_ENV === "production") {
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-      });
-    } else {
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-      });
-    }
+
+    setRefreshTokenCookie(res, refreshToken);
+
     res.status(200).json({
       success: true,
       message,
@@ -168,28 +185,19 @@ export const logout = async (
   res: Response
 ): Promise<void> => {
   try {
-    const rt = req.cookies?.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
 
-    if (!rt) {
+    if (!refreshToken) {
       res.status(401).json({
         success: false,
         error: { message: "Refresh token não fornecido - authController" },
       });
       return;
     }
-    await logoutService(rt);
-    if (process.env.NODE_ENV === "production") {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-      });
-    } else {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: false,
-      });
-    }
+
+    await logoutService(refreshToken);
+    clearRefreshTokenCookie(res);
+
     res.status(204).send();
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
@@ -206,9 +214,10 @@ export const logout = async (
 export const refreshToken = async (
   req: AuthenticatedRequest,
   res: Response
-) => {
-  const rt = req.cookies?.refreshToken;
-  if (!rt) {
+): Promise<void> => {
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
     res.status(401).json({
       success: false,
       error: { message: "Refresh token não fornecido - authController" },
@@ -216,7 +225,7 @@ export const refreshToken = async (
     return;
   }
 
-  const user = await prisma.user.findFirst({ where: { refreshToken: rt } });
+  const user = await prisma.user.findFirst({ where: { refreshToken } });
   if (!user) {
     res.status(401).json({
       success: false,
@@ -226,42 +235,20 @@ export const refreshToken = async (
   }
 
   try {
-    const result = await rotateRefreshToken(rt);
+    const result = await rotateRefreshToken(refreshToken);
+
     if (!result || !result.accessToken || !result.refreshToken) {
-      if (process.env.NODE_ENV === "production") {
-        res.clearCookie("refreshToken", {
-          httpOnly: true,
-          secure: true,
-          sameSite: "strict",
-        });
-      } else {
-        res.clearCookie("refreshToken", {
-          httpOnly: true,
-          secure: false,
-        });
-      }
+      clearRefreshTokenCookie(res);
       res.status(401).json({
         success: false,
         error: {
-          message: "Refresh token inválido ou expirado - authController",
+          message: "Refresh token inválido ou expirado 1 - authController",
         },
       });
       return;
     }
-    if (process.env.NODE_ENV === "production") {
-      res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-      });
-    } else {
-      res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-      });
-    }
+
+    setRefreshTokenCookie(res, result.refreshToken);
 
     res.status(200).json({
       success: true,
@@ -269,22 +256,14 @@ export const refreshToken = async (
       error: null,
       message: "Token renovado",
     });
-  } catch (e) {
-    if (process.env.NODE_ENV === "production") {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-      });
-    } else {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: false,
-      });
-    }
+  } catch (error) {
+    console.error("Erro ao renovar token:", error);
+    clearRefreshTokenCookie(res);
     res.status(401).json({
       success: false,
-      error: { message: "Refresh token inválido ou expirado - authController" },
+      error: {
+        message: "Refresh token inválido ou expirado 2 - authController",
+      },
     });
   }
 };
