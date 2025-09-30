@@ -30,7 +30,6 @@ export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
     expiresIn: "1h",
   });
-  return jwt.sign(payload, ACCESS_TOKEN_SECRET);
 }
 
 export function generateRefreshToken(payload: TokenPayload): string {

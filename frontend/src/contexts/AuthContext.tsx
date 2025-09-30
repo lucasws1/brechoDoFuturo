@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const refreshInFlight = useRef<Promise<string> | null>(null);
+  const tokenRenewalTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Função para verificar o tempo restante do token
   const checkTokenExpiry = (token: string) => {
@@ -49,6 +50,71 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Erro ao decodificar token:", error);
       return 0;
+    }
+  };
+
+  // Função para configurar renovação automática do token
+  const scheduleTokenRenewal = (token: string) => {
+    // Limpa timer anterior se existir
+    if (tokenRenewalTimer.current) {
+      clearTimeout(tokenRenewalTimer.current);
+    }
+
+    const timeLeft = checkTokenExpiry(token);
+
+    // Se o token expira em menos de 1 minuto, renova imediatamente
+    if (timeLeft <= 60) {
+      console.log(
+        "🚨 Token expirando em menos de 1 minuto, renovando imediatamente...",
+      );
+      refreshTokenProactively();
+      return;
+    }
+
+    // Agenda renovação para 5 minutos antes da expiração
+    const renewalTime = Math.max((timeLeft - 300) * 1000, 60000); // mínimo 1 minuto
+    console.log(
+      `⏱️ Renovação agendada para ${Math.floor(renewalTime / 1000 / 60)} minutos`,
+    );
+
+    tokenRenewalTimer.current = setTimeout(() => {
+      console.log("🔄 Executando renovação automática do token...");
+      refreshTokenProactively();
+    }, renewalTime);
+  };
+
+  // Função para renovar token proativamente
+  const refreshTokenProactively = async () => {
+    if (refreshInFlight.current) {
+      console.log("🔄 Renovação já em andamento, aguardando...");
+      return refreshInFlight.current;
+    }
+
+    try {
+      refreshInFlight.current = (async () => {
+        console.log("🔄 Renovando token proativamente...");
+        const { data } = await api.post("/auth/refresh");
+        const newAT = data.data.accessToken;
+        setAccessToken(newAT);
+        api.defaults.headers.common["Authorization"] = `Bearer ${newAT}`;
+        console.log("✅ Token renovado proativamente com sucesso");
+
+        // Agenda próxima renovação
+        scheduleTokenRenewal(newAT);
+
+        return newAT;
+      })().finally(() => {
+        refreshInFlight.current = null;
+      });
+
+      return await refreshInFlight.current;
+    } catch (error) {
+      console.error("❌ Erro na renovação proativa:", error);
+      // Se falhar, agenda uma nova tentativa em 1 minuto
+      tokenRenewalTimer.current = setTimeout(() => {
+        refreshTokenProactively();
+      }, 60000);
+      throw error;
     }
   };
 
@@ -68,6 +134,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Erro ao fazer logout", error);
     }
+
+    // Limpa timer de renovação
+    if (tokenRenewalTimer.current) {
+      clearTimeout(tokenRenewalTimer.current);
+      tokenRenewalTimer.current = null;
+    }
+
     setUser(null);
     setAccessToken(null);
     delete api.defaults.headers.common["Authorization"];
@@ -83,7 +156,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const at = data.data.accessToken;
         setAccessToken(at);
         api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
-        checkTokenExpiry(at);
+
+        // Agenda renovação automática
+        scheduleTokenRenewal(at);
+
         await fetchUser();
       } catch (error) {
         setUser(null);
@@ -123,6 +199,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               setAccessToken(newAT);
               api.defaults.headers.common["Authorization"] = `Bearer ${newAT}`;
               console.log("✅ Token renovado com sucesso");
+
+              // Agenda próxima renovação após renovação por 401
+              scheduleTokenRenewal(newAT);
+
               return newAT;
             })().finally(() => {
               refreshInFlight.current = null;
@@ -144,13 +224,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [logout]); // Adicionar logout nas dependências
 
+  // Cleanup do timer quando o componente é desmontado
+  useEffect(() => {
+    return () => {
+      if (tokenRenewalTimer.current) {
+        clearTimeout(tokenRenewalTimer.current);
+      }
+    };
+  }, []);
+
   // 3 - Ações
   const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/login", { email, password });
+
     const at = data.data.accessToken;
     setAccessToken(at);
     api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
-    checkTokenExpiry(at);
+
+    // Agenda renovação automática após login
+    scheduleTokenRenewal(at);
+
     await fetchUser();
     navigate("/");
   };

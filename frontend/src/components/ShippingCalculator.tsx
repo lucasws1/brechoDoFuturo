@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { SpinnerIcon } from "@phosphor-icons/react";
+import { ChevronDownIcon } from "lucide-react";
 
 // Configuração da API baseada no ambiente
 // Para desenvolvimento local, usar proxy do Vite
@@ -28,6 +29,9 @@ type Props = {
   defaultCep?: string;
   onSelect?: (q: Quote | null) => void;
   selected?: string;
+  isOpenQuotesState?: boolean;
+  isCollapsible?: boolean;
+  onToggleCollapse?: () => void;
 };
 
 const cache = new Map<string, Quote[]>();
@@ -36,14 +40,21 @@ export default function ShippingCalculator({
   items,
   defaultCep = "",
   onSelect,
+  isOpenQuotesState = true,
+  isCollapsible = false,
+  onToggleCollapse,
 }: Props) {
   const [cep, setCep] = useState(defaultCep);
   const [loading, setLoading] = useState(false);
   const [quotes, setQuotes] = useState<Quote[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [isOpenQuotes, setIsOpenQuotes] = useState(isOpenQuotesState);
 
-  console.log("items ShippingCalculator", items);
+  // Sincronizar com prop externa
+  useEffect(() => {
+    setIsOpenQuotes(isOpenQuotesState);
+  }, [isOpenQuotesState]);
 
   const key = useMemo(() => {
     const norm = cep.replace(/\D/g, "");
@@ -76,7 +87,6 @@ export default function ShippingCalculator({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ norm, items }),
       });
-      console.log("response ShippingCalculator", response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -115,71 +125,116 @@ export default function ShippingCalculator({
     onSelect?.(q ?? null);
   }, [selected, quotes, onSelect]);
 
+  // Efeito separado para recolher automaticamente quando um frete é selecionado
+  useEffect(() => {
+    if (selected && isCollapsible && onToggleCollapse) {
+      const q = quotes?.find((q) => q.id === selected);
+      if (q) {
+        onToggleCollapse();
+      }
+    }
+  }, [selected, isCollapsible, quotes]);
+
+  const selectedQuote = quotes?.find((q) => q.id === selected);
+
   return (
     <div className="flex w-fit flex-col gap-2">
-      <div className="flex w-fit items-end justify-center gap-2">
-        <Input
-          inputMode="numeric"
-          maxLength={9}
-          placeholder="Digite o CEP"
-          className="w-28 text-sm"
-          id="cep"
-          name="cep"
-          value={cep}
-          onChange={(e) => {
-            setCep(e.target.value);
-          }}
-        />
-        <Button
-          variant="secondary"
-          size="sm"
-          className="w-20 cursor-pointer items-center text-sm"
-          onClick={fetchQuotes}
-          disabled={loading}
-        >
-          {loading ? <SpinnerIcon className="animate-spin" /> : "Calcular"}
-        </Button>
-      </div>
-      {error && <p className="w-fit truncate pt-2 text-red-600">{error}</p>}
-      {quotes && quotes.length > 0 && (
-        <ul className="mt-2 space-y-1">
-          {quotes.map((q) => (
-            <li
-              key={q.id}
-              className="flex w-full flex-col gap-1 truncate rounded-md border p-2"
-            >
-              <div className="flex w-full justify-start">
-                <Label className="flex w-fit gap-2">
-                  <Input
-                    type="radio"
-                    name="shipping"
-                    className="size-3 max-w-4 min-w-4 cursor-pointer"
-                    checked={selected === q.id}
-                    onChange={() => setSelected(q.id)}
-                  />
-                  <span className="w-fit text-sm">{q.nome}</span>
-                </Label>
-              </div>
-              <div className="flex w-full gap-2">
-                <div className="max-w-4 min-w-4"></div>
-                <span className="w-fit truncate text-xs">
-                  {q.preco
-                    ? `R$ ${q.preco.toFixed(2)}`
-                    : "Preço não disponível"}
-                </span>
+      {isCollapsible && selectedQuote && !isOpenQuotes ? (
+        <div className="flex w-fit items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onToggleCollapse}
+            className="h-6 w-6"
+          >
+            <ChevronDownIcon className="size-3" />
+          </Button>
+          <span className="truncate text-sm font-medium">
+            {selectedQuote.preco.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="flex w-fit items-center justify-center gap-2">
+            {selectedQuote && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onToggleCollapse}
+                className="h-6 w-6"
+              >
+                <ChevronDownIcon className="size-3" />
+              </Button>
+            )}
 
-                {q.prazoDias ? (
-                  <span className="w-fit truncate text-xs">
-                    ({q.prazoDias} dias)
-                  </span>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-      {quotes && quotes.length === 0 && (
-        <p className="text-sm">Sem opções para este CEP. Tente outro CEP.</p>
+            <Input
+              inputMode="numeric"
+              maxLength={9}
+              placeholder="Digite o CEP"
+              className="w-28 text-sm"
+              id="cep"
+              name="cep"
+              value={cep}
+              onChange={(e) => {
+                setCep(e.target.value);
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-20 cursor-pointer items-center text-sm"
+              onClick={fetchQuotes}
+            >
+              {loading ? <SpinnerIcon className="animate-spin" /> : "Calcular"}
+            </Button>
+          </div>
+          {error && <p className="w-fit truncate pt-2 text-red-600">{error}</p>}
+          {quotes && quotes.length > 0 && isOpenQuotes && (
+            <ul className="mt-2 space-y-1">
+              {quotes.map((q) => (
+                <li
+                  key={q.id}
+                  className="flex w-full flex-col gap-1 truncate rounded-md border p-2"
+                >
+                  <div className="flex w-full justify-start">
+                    <Label className="flex w-fit gap-2">
+                      <Input
+                        type="radio"
+                        name="shipping"
+                        className="size-3 max-w-4 min-w-4 cursor-pointer"
+                        checked={selected === q.id}
+                        onChange={() => setSelected(q.id)}
+                      />
+                      <span className="w-fit text-sm">{q.nome}</span>
+                    </Label>
+                  </div>
+                  <div className="flex w-full gap-2">
+                    <div className="max-w-4 min-w-4"></div>
+                    <span className="w-fit truncate text-xs">
+                      {q.preco
+                        ? `R$ ${q.preco.toFixed(2)}`
+                        : "Preço não disponível"}
+                    </span>
+
+                    {q.prazoDias ? (
+                      <span className="w-fit truncate text-xs">
+                        ({q.prazoDias} dias)
+                      </span>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {quotes && quotes.length === 0 && isOpenQuotes && (
+            <p className="text-sm">
+              Sem opções para este CEP. Tente outro CEP.
+            </p>
+          )}
+        </>
       )}
     </div>
   );

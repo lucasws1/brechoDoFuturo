@@ -9,6 +9,7 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     type: UserType;
   };
+  sessionId?: string;
 }
 
 export const authenticate = (
@@ -16,27 +17,32 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
+  const sessionId = req.cookies.cart_sid;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Autenticação requerida" });
+  // Se houver token, faz a autenticação do usuário
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.split(" ")[1];
+      const decoded = verifyAccessToken(token);
+
+      req.user = {
+        id: decoded.id,
+        name: decoded.name,
+        email: decoded.email,
+        type: decoded.type as UserType,
+      };
+      return next();
+    } catch (error) {
+      return res.status(401).json({ message: "Token inválido ou expirado" });
     }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = verifyAccessToken(token);
-
-    req.user = {
-      id: decoded.id,
-      name: decoded.name,
-      email: decoded.email,
-      type: decoded.type as UserType,
-    };
-
-    return next();
-  } catch (error) {
-    return res.status(401).json({ message: "Token inválido ou expirado" });
   }
+  if (sessionId) {
+    req.sessionId = sessionId;
+    return next();
+  }
+
+  return next();
 };
 
 export const authorize = (...allowedTypes: UserType[]) => {

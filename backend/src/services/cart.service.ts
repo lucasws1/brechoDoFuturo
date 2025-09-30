@@ -34,9 +34,12 @@ interface UpdateCartItemData {
 }
 
 // Buscar carrinho por usuário
-export const getCartByUserId = async (userId: string) => {
-  return await prisma.cart.findUnique({
-    where: { userId },
+export const getCartByUserId = async (
+  userId: string | undefined,
+  sessionId: string | undefined
+) => {
+  return await prisma.cart.findFirst({
+    where: { OR: [{ userId }, { sessionId }] },
     include: {
       items: {
         include: {
@@ -73,12 +76,15 @@ export const getCartByUserId = async (userId: string) => {
 };
 
 // Obter ou criar carrinho para usuário
-export const getOrCreateCart = async (userId: string) => {
-  let cart = await getCartByUserId(userId);
+export const getOrCreateCart = async (
+  userId: string | undefined,
+  sessionId: string | undefined
+) => {
+  let cart = await getCartByUserId(userId, sessionId);
 
   if (!cart) {
     cart = await prisma.cart.create({
-      data: { userId },
+      data: { userId, sessionId },
       include: {
         items: {
           include: {
@@ -112,10 +118,21 @@ export const getOrCreateCart = async (userId: string) => {
 
 // Adicionar item ao carrinho
 export const addItemToCart = async (
-  userId: string,
+  userId: string | undefined,
+  sessionId: string | undefined,
   data: AddCartItemData
 ): Promise<CartValidationResult> => {
   const { productId, quantity } = data;
+
+  if (!userId && !sessionId) {
+    return {
+      success: false,
+      error: {
+        code: "MISSING_USER_ID_OR_SESSION_ID",
+        message: "ID do usuário ou sessão é obrigatório",
+      },
+    };
+  }
 
   // Validações básicas
   if (!productId || !quantity) {
@@ -193,7 +210,7 @@ export const addItemToCart = async (
 
   try {
     // Obter ou criar carrinho
-    const cart = await getOrCreateCart(userId);
+    const cart = await getOrCreateCart(userId, sessionId);
 
     // Verificar se item já existe no carrinho
     const existingItem = await prisma.cartItem.findUnique({
@@ -286,7 +303,8 @@ export const addItemToCart = async (
 export const updateCartItem = async (
   itemId: string,
   data: UpdateCartItemData,
-  userId: string
+  userId: string | undefined,
+  sessionId: string | undefined
 ): Promise<CartValidationResult> => {
   const { quantity } = data;
 
@@ -315,7 +333,7 @@ export const updateCartItem = async (
     where: { id: itemId },
     include: {
       cart: {
-        select: { userId: true },
+        select: { userId: true, sessionId: true },
       },
       product: {
         select: {
@@ -339,7 +357,12 @@ export const updateCartItem = async (
   }
 
   // Verificar se o usuário é dono do carrinho
-  if (item.cart.userId !== userId) {
+  const cartOwner =
+    item.cart.userId != null
+      ? `u:${item.cart.userId}`
+      : `s:${item.cart.sessionId}`;
+  const currentOwner = userId != null ? `u:${userId}` : `s:${sessionId}`;
+  if (cartOwner !== currentOwner) {
     return {
       success: false,
       error: {
@@ -395,13 +418,14 @@ export const updateCartItem = async (
 // Remover item do carrinho
 export const removeCartItem = async (
   itemId: string,
-  userId: string
+  userId: string | undefined,
+  sessionId: string | undefined
 ): Promise<CartValidationResult> => {
   const item = await prisma.cartItem.findUnique({
     where: { id: itemId },
     include: {
       cart: {
-        select: { userId: true },
+        select: { userId: true, sessionId: true },
       },
     },
   });
@@ -417,7 +441,14 @@ export const removeCartItem = async (
   }
 
   // Verificar se o usuário é dono do carrinho
-  if (item.cart.userId !== userId) {
+  const cartOwner =
+    item.cart.userId != null
+      ? `u:${item.cart.userId}`
+      : `s:${item.cart.sessionId}`;
+  const currentOwner = userId != null ? `u:${userId}` : `s:${sessionId}`;
+  console.log("cartOwner", cartOwner);
+  console.log("currentOwner", currentOwner);
+  if (cartOwner !== currentOwner) {
     return {
       success: false,
       error: {
@@ -439,9 +470,10 @@ export const removeCartItem = async (
 
 // Limpar carrinho
 export const clearCart = async (
-  userId: string
+  userId: string | undefined,
+  sessionId: string | undefined
 ): Promise<CartValidationResult> => {
-  const cart = await getCartByUserId(userId);
+  const cart = await getCartByUserId(userId, sessionId);
 
   if (!cart) {
     return {
@@ -464,8 +496,11 @@ export const clearCart = async (
 };
 
 // Calcular total do carrinho
-export const calculateCartTotal = async (userId: string): Promise<number> => {
-  const cart = await getCartByUserId(userId);
+export const calculateCartTotal = async (
+  userId: string | undefined,
+  sessionId: string | undefined
+): Promise<number> => {
+  const cart = await getCartByUserId(userId, sessionId);
 
   if (!cart) {
     return 0;
@@ -477,8 +512,11 @@ export const calculateCartTotal = async (userId: string): Promise<number> => {
 };
 
 // Remover itens indisponíveis do carrinho
-export const removeUnavailableItems = async (userId: string) => {
-  const cart = await getCartByUserId(userId);
+export const removeUnavailableItems = async (
+  userId: string | undefined,
+  sessionId: string | undefined
+) => {
+  const cart = await getCartByUserId(userId, sessionId);
   if (!cart || !cart.items) return;
 
   for (const item of cart.items) {
@@ -491,8 +529,11 @@ export const removeUnavailableItems = async (userId: string) => {
 };
 
 // Converter carrinho em dados de pedido
-export const convertCartToOrder = async (userId: string) => {
-  const cart = await getCartByUserId(userId);
+export const convertCartToOrder = async (
+  userId: string | undefined,
+  sessionId: string | undefined
+) => {
+  const cart = await getCartByUserId(userId, sessionId);
 
   if (!cart || !cart.items || cart.items.length === 0) {
     return {

@@ -40,7 +40,6 @@ enum ProductStatus {
   Hidden
 }
 
-// Models
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   type         UserType @default(Customer)
@@ -50,14 +49,12 @@ model User {
   phone        String?
   refreshToken String?
 
-  // Endereço embarcado
   address Address?
 
-  // Relacionamentos
   products Product[]       @relation("ProductSeller")
   orders   Order[]         @relation("CustomerOrders")
   reviews  ProductReview[]
-  cart     Cart?
+  carts    Cart[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -169,15 +166,16 @@ model ProductReview {
 
 model Cart {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String  @unique @db.ObjectId
-  sessionId String?
+  userId    String? @db.ObjectId
+  sessionId String? @unique
 
-  // Relacionamentos
-  user  User       @relation(fields: [userId], references: [id])
+  user  User?      @relation(fields: [userId], references: [id])
   items CartItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model CartItem {

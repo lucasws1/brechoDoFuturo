@@ -6,13 +6,18 @@ import { LoadingOverlay } from "@/components/ui/loading";
 import ShippingCalculator from "@/components/ShippingCalculator";
 import type { Quote } from "@/components/ShippingCalculator";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 
 export function CartPage() {
   const { cartItems, totalItems, subtotal, loading } = useCart();
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [isOpenQuotes, setIsOpenQuotes] = useState(true);
+
+  const handleToggleCollapse = useCallback(() => {
+    setIsOpenQuotes((prev) => !prev);
+  }, []);
 
   if (cartItems.length === 0) {
     return (
@@ -79,16 +84,15 @@ export function CartPage() {
                   </div>
                   <div className="flex justify-between">
                     <p className="text-muted-foreground">Frete</p>
-                    {selectedQuote ? (
-                      <p>{selectedQuote.nome}</p>
-                    ) : (
-                      <ShippingCalculator
-                        items={cartItems}
-                        onSelect={(q) => {
-                          setSelectedQuote(q);
-                        }}
-                      />
-                    )}
+                    <ShippingCalculator
+                      items={cartItems}
+                      onSelect={(q) => {
+                        setSelectedQuote(q);
+                      }}
+                      isOpenQuotesState={isOpenQuotes}
+                      isCollapsible={true}
+                      onToggleCollapse={handleToggleCollapse}
+                    />
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">

@@ -85,67 +85,60 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [error]);
 
   // Função para buscar o carrinho do backend
-  const fetchCart = useCallback(
-    async (silent: boolean = true) => {
-      if (!isAuthenticated || !user) {
-        setCartItems([]); // Limpar carrinho se não estiver autenticado
-        return;
-      }
-      if (!silent) {
-        setLoading(true);
-      }
-      setError(null);
-      try {
-        const response = await api.get("/cart");
+  const fetchCart = useCallback(async (silent: boolean = true) => {
+    if (!silent) {
+      setLoading(true);
+    }
+    setError(null);
+    try {
+      const response = await api.get("/cart");
 
-        if (
-          response.data.success &&
-          response.data.data &&
-          response.data.data.items
-        ) {
-          // Mapear os itens do carrinho do backend para o formato CartItem
-          const fetchedCartItems: CartItem[] = response.data.data.items.map(
-            (item: any) => ({
-              id: item.product.id, // ID do produto
-              name: item.product.name,
-              price: item.product.price,
-              images: item.product.images,
-              status: item.product.status,
-              quantity: item.quantity,
-              itemId: item.id, // ID do item no carrinho
-              category: item.product.category,
-              weightGrams: item.product.weightGrams,
-              lengthCm: item.product.lengthCm,
-              widthCm: item.product.widthCm,
-              heightCm: item.product.heightCm,
-            }),
-          );
-          setCartItems(fetchedCartItems);
-        } else {
-          // Se não há carrinho ou itens, inicializar como array vazio
-          setCartItems([]);
-          if (response.data.error) {
-            setError(response.data.error.message);
-          }
-        }
-      } catch (err: any) {
-        // Se há erro 404 (carrinho não existe), isso é normal para novos usuários
-        if (err.response?.status === 404) {
-          setCartItems([]);
-        } else {
-          setError(
-            err.response?.data?.error?.message ||
-              "Erro de rede ao buscar carrinho",
-          );
-        }
-      } finally {
-        if (!silent) {
-          setLoading(false);
+      if (
+        response.data.success &&
+        response.data.data &&
+        response.data.data.items
+      ) {
+        // Mapear os itens do carrinho do backend para o formato CartItem
+        const fetchedCartItems: CartItem[] = response.data.data.items.map(
+          (item: any) => ({
+            id: item.product.id, // ID do produto
+            name: item.product.name,
+            price: item.product.price,
+            images: item.product.images,
+            status: item.product.status,
+            quantity: item.quantity,
+            itemId: item.id, // ID do item no carrinho
+            category: item.product.category,
+            weightGrams: item.product.weightGrams,
+            lengthCm: item.product.lengthCm,
+            widthCm: item.product.widthCm,
+            heightCm: item.product.heightCm,
+          }),
+        );
+        setCartItems(fetchedCartItems);
+      } else {
+        // Se não há carrinho ou itens, inicializar como array vazio
+        setCartItems([]);
+        if (response.data.error) {
+          setError(response.data.error.message);
         }
       }
-    },
-    [isAuthenticated, user],
-  );
+    } catch (err: any) {
+      // Se há erro 404 (carrinho não existe), isso é normal para novos usuários
+      if (err.response?.status === 404) {
+        setCartItems([]);
+      } else {
+        setError(
+          err.response?.data?.error?.message ||
+            "Erro de rede ao buscar carrinho",
+        );
+      }
+    } finally {
+      if (!silent) {
+        setLoading(false);
+      }
+    }
+  }, []);
 
   // Efeito para buscar o carrinho quando o status de autenticação ou o usuário mudar
   useEffect(() => {
@@ -161,11 +154,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const addToCart = async (product: Product, quantity: number = 1) => {
-    if (!isAuthenticated || !user) {
-      setError("Faça login para adicionar itens ao carrinho.");
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
@@ -217,10 +205,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const removeFromCart = async (productId: string) => {
-    if (!isAuthenticated || !user) {
-      setError("Você precisa estar logado para remover itens do carrinho.");
-      return;
-    }
+    // if (!isAuthenticated || !user) {
+    //   setError("Você precisa estar logado para remover itens do carrinho.");
+    //   return;
+    // }
     setLoading(true);
     setError(null);
     try {

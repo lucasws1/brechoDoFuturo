@@ -116,6 +116,95 @@ export const register = async (
   }
 };
 
+const handleCartMerge = async (userId: string, sessionId: string) => {
+  if (!sessionId) {
+    return {
+      success: false,
+      message: "sessionId inexistente",
+      data: null,
+    };
+  }
+
+  const userCart = await prisma.cart.findFirst({
+    where: { userId },
+    include: { items: { include: { product: true } } },
+  });
+
+  const guestCart = await prisma.cart.findFirst({
+    where: { sessionId },
+    include: { items: { include: { product: true } } },
+  });
+
+  if (!guestCart) {
+    return {
+      success: true,
+      message: "Nenhum carrinho anônimo para mesclar",
+      data: userCart,
+    };
+  }
+
+  // Cria carrinho para usuário caso não exista
+  const effectiveUserCart =
+    userCart ||
+    (await prisma.cart.create({
+      data: { userId, items: { create: [] } },
+      include: { items: { include: { product: true } } },
+    }));
+
+  // Mapeia os itens atuais do usuário para facilitar lookup
+  const userCartItemsMap = new Map<string, (typeof guestCart.items)[0]>();
+  for (const item of effectiveUserCart.items) {
+    userCartItemsMap.set(item.productId, item);
+  }
+
+  // Consolida os itens do guestCart no userCart
+  for (const guestItem of guestCart.items) {
+    const currentItem = userCartItemsMap.get(guestItem.productId);
+
+    // Calcula a quantidade final respeitando o estoque
+    const maxQty = guestItem.product.stock;
+    const combinedQty = currentItem
+      ? Math.min(currentItem.quantity + guestItem.quantity, maxQty)
+      : Math.min(guestItem.quantity, maxQty);
+
+    // Atualiza ou cria o item no carrinho
+    if (currentItem) {
+      // Atualiza a quantidade do item existente
+      await prisma.cartItem.update({
+        where: { id: currentItem.id },
+        data: { quantity: combinedQty },
+      });
+    } else {
+      // Cria um novo item no carrinho do usuário
+      await prisma.cartItem.create({
+        data: {
+          cartId: effectiveUserCart.id,
+          productId: guestItem.productId,
+          quantity: combinedQty,
+        },
+      });
+    }
+  }
+
+  // Limpa o carrinho anônimo
+  await prisma.cart.update({
+    where: { id: guestCart.id },
+    data: { items: { deleteMany: {} } },
+  });
+
+  // Busca e retorna o carrinho do usuário
+  const mergedCart = await prisma.cart.findFirst({
+    where: { id: effectiveUserCart.id },
+    include: { items: { include: { product: true } } },
+  });
+
+  return {
+    success: true,
+    message: "Carrinho mesclado com sucesso",
+    data: mergedCart,
+  };
+};
+
 /**
  * Faz login do usuário
  */
@@ -124,12 +213,18 @@ export const login = async (
   res: Response
 ): Promise<void> => {
   const { email, password } = req.body;
+  const sessionId = req.cookies?.cart_sid;
 
   try {
     const { user, accessToken, refreshToken, message } = await loginService(
       email,
       password
     );
+
+    const cartMerge = await handleCartMerge(user.id, sessionId || "");
+
+    if (cartMerge.success) res.clearCookie("cart_sid");
+
     setRefreshTokenCookie(res, refreshToken);
 
     res.status(200).json({

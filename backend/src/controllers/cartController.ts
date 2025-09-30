@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as cartService from "../services/cart.service";
 import { AuthenticatedRequest } from "../middleware/auth";
+import prisma from "../config/prisma";
 
 // Tipos para responses
 interface ApiResponse {
@@ -62,27 +63,23 @@ export const getCart = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: { message: "Não há usuário nem sessionId para buscar carrinho" },
       } as ApiResponse);
       return;
     }
 
-    const cart = await cartService.getCartByUserId(req.user.id);
+    const cart = await cartService.getCartByUserId(userId, sessionId);
 
-    // Se não há carrinho, retornar um carrinho vazio ao invés de null
     if (!cart) {
-      res.status(200).json({
-        success: true,
-        data: {
-          id: null,
-          userId: req.user.id,
-          items: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+      res.status(404).json({
+        success: false,
+        error: { message: "Carrinho não encontrado" },
       } as ApiResponse);
       return;
     }
@@ -105,65 +102,90 @@ export const addItemToCart = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({
-        success: false,
-        error: { message: "Não autorizado" },
-      } as ApiResponse);
-      return;
-    }
+  const { productId, quantity } = req.body;
+  const userId = req.user?.id;
+  let cartSid = req.cookies.cart_sid;
 
-    const { productId, quantity } = req.body;
+  // Criar sessão anônima se necessário
+  if (!userId && !cartSid) {
+    cartSid = crypto.randomUUID();
+    res.cookie("cart_sid", cartSid, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 dias
+    });
+  }
 
-    const result = await cartService.addItemToCart(req.user.id, {
+  // Buscar carrinho existente (guest ou logado)
+  let cart = await prisma.cart.findFirst({
+    where: userId ? { userId } : { sessionId: cartSid },
+    include: { items: { include: { product: true } } },
+  });
+
+  // Criar carrinho se não existir
+  if (!cart) {
+    cart = await prisma.cart.create({
+      data: {
+        userId: userId || undefined,
+        sessionId: cartSid || undefined,
+        items: {
+          create: [],
+        },
+      },
+      include: { items: { include: { product: true } } },
+    });
+  }
+  // versão original do additemtocard
+  const result = await cartService.addItemToCart(
+    cart.userId || undefined,
+    cart.sessionId || undefined,
+    {
       productId,
       quantity,
-    });
+    }
+  );
 
-    if (!result.success) {
-      // Mapear códigos de erro para status HTTP apropriados
-      let statusCode = 400; // default
+  if (!result.success) {
+    // Mapear códigos de erro para status HTTP apropriados
+    let statusCode = 400; // default
 
-      switch (result.error?.code) {
-        case "MISSING_FIELDS":
-        case "INVALID_QUANTITY":
-          statusCode = 400;
-          break;
-        case "PRODUCT_NOT_FOUND":
-          statusCode = 404;
-          break;
-        case "INSUFFICIENT_STOCK":
-        case "PRODUCT_UNAVAILABLE":
-          statusCode = 422; // Unprocessable Entity
-          break;
-        case "OWN_PRODUCT":
-          statusCode = 403;
-          break;
-        case "DATABASE_ERROR":
-          statusCode = 500;
-          break;
-        default:
-          statusCode = 400;
-      }
-
-      res.status(statusCode).json({
-        success: false,
-        error: result.error,
-      } as ApiResponse);
-      return;
+    switch (result.error?.code) {
+      case "MISSING_FIELDS":
+      case "INVALID_QUANTITY":
+        statusCode = 400;
+        break;
+      case "PRODUCT_NOT_FOUND":
+        statusCode = 404;
+        break;
+      case "INSUFFICIENT_STOCK":
+      case "PRODUCT_UNAVAILABLE":
+        statusCode = 422; // Unprocessable Entity
+        break;
+      case "OWN_PRODUCT":
+        statusCode = 403;
+        break;
+      case "DATABASE_ERROR":
+        statusCode = 500;
+        break;
+      default:
+        statusCode = 400;
     }
 
-    res.status(201).json({
-      success: true,
-      data: {
-        message: "Item adicionado ao carrinho com sucesso",
-        item: result.data,
-      },
+    res.status(statusCode).json({
+      success: false,
+      error: result.error,
     } as ApiResponse);
-  } catch (error) {
-    handleError(res, error, "Erro ao adicionar item ao carrinho");
+    return;
   }
+
+  res.status(201).json({
+    success: true,
+    data: {
+      message: "Item adicionado ao carrinho com sucesso",
+      item: result.data,
+    },
+  } as ApiResponse);
 };
 
 /**
@@ -176,10 +198,16 @@ export const updateCartItem = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: {
+          message:
+            "Não há usuário nem sessionId para atualizar item do carrinho",
+        },
       } as ApiResponse);
       return;
     }
@@ -190,7 +218,8 @@ export const updateCartItem = async (
     const result = await cartService.updateCartItem(
       itemId,
       { quantity },
-      req.user.id
+      userId || undefined,
+      sessionId || undefined
     );
 
     if (!result.success) {
@@ -247,16 +276,25 @@ export const removeCartItem = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: {
+          message: "Não há usuário nem sessionId para remover item do carrinho",
+        },
       } as ApiResponse);
       return;
     }
 
     const { itemId } = req.params;
-    const result = await cartService.removeCartItem(itemId, req.user.id);
+    const result = await cartService.removeCartItem(
+      itemId,
+      userId || undefined,
+      sessionId || undefined
+    );
 
     if (!result.success) {
       let statusCode = 400;
@@ -301,15 +339,21 @@ export const clearCart = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: { message: "Não há usuário nem sessionId para limpar carrinho" },
       } as ApiResponse);
       return;
     }
 
-    const result = await cartService.clearCart(req.user.id);
+    const result = await cartService.clearCart(
+      userId || undefined,
+      sessionId || undefined
+    );
 
     if (!result.success) {
       let statusCode = 400;
@@ -356,15 +400,24 @@ export const getCartTotal = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: {
+          message:
+            "Não há usuário nem sessionId para calcular total do carrinho",
+        },
       } as ApiResponse);
       return;
     }
 
-    const total = await cartService.calculateCartTotal(req.user.id);
+    const total = await cartService.calculateCartTotal(
+      userId || undefined,
+      sessionId || undefined
+    );
 
     res.status(200).json({
       success: true,
@@ -385,18 +438,29 @@ export const getCartCheckout = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (!req.user) {
+    let userId = req.user?.id;
+    let sessionId = req.sessionId;
+
+    if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não autorizado" },
+        error: {
+          message: "Não há usuário nem sessionId para preparar checkout",
+        },
       } as ApiResponse);
       return;
     }
 
     // Remover itens indisponíveis antes do checkout
-    await cartService.removeUnavailableItems(req.user.id);
+    await cartService.removeUnavailableItems(
+      userId || undefined,
+      sessionId || undefined
+    );
 
-    const orderData = await cartService.convertCartToOrder(req.user.id);
+    const orderData = await cartService.convertCartToOrder(
+      userId || undefined,
+      sessionId || undefined
+    );
 
     res.status(200).json({
       success: true,
