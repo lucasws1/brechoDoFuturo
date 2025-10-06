@@ -216,16 +216,25 @@ export const login = async (
   const sessionId = req.cookies?.cart_sid;
 
   try {
-    const { user, accessToken, refreshToken, message } = await loginService(
-      email,
-      password
-    );
+    const result = await loginService(email, password);
 
-    const cartMerge = await handleCartMerge(user.id, sessionId || "");
+    if (!result.success) {
+      console.log("login AuthController falhou => ", result);
+
+      res.status(401).json({
+        success: false,
+        error: { message: "Credenciais inválidas " },
+      });
+      return;
+    }
+
+    const { user, accessToken, refreshToken, message } = result;
+
+    const cartMerge = await handleCartMerge(user?.id || "", sessionId || "");
 
     if (cartMerge.success) res.clearCookie("cart_sid");
 
-    setRefreshTokenCookie(res, refreshToken);
+    setRefreshTokenCookie(res, refreshToken || "");
 
     res.status(200).json({
       success: true,
@@ -239,7 +248,7 @@ export const login = async (
     console.error("Erro ao fazer login:", error);
     res.status(401).json({
       success: false,
-      error: { message: "Credenciais inválidas - authController" },
+      error: { message: "Credenciais inválidas" },
     });
   }
 };

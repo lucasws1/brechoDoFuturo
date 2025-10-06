@@ -86,10 +86,12 @@ import categoryRoutes from "./routes/categoryRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import productReviewRoutes from "./routes/productReviewRoutes";
 import melhorEnvioRoutes from "./routes/melhorEnvioRoutes";
+import addressRoutes from "./routes/addressRoutes";
 
 // Usar rotas
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/address", addressRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);

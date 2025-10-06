@@ -120,7 +120,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         // Se não há carrinho ou itens, inicializar como array vazio
         setCartItems([]);
         if (response.data.error) {
-          setError(response.data.error.message);
+          console.log(response.data.error);
+          // setError(response.data.error.message);
         }
       }
     } catch (err: any) {
@@ -128,10 +129,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       if (err.response?.status === 404) {
         setCartItems([]);
       } else {
-        setError(
-          err.response?.data?.error?.message ||
-            "Erro de rede ao buscar carrinho",
-        );
+        console.log("fetchCart error => ", err);
+
+        // setError(
+        //   err.response?.data?.error?.message ||
+        //     "Erro de rede ao buscar carrinho",
+        // );
       }
     } finally {
       if (!silent) {

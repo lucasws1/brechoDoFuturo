@@ -49,7 +49,7 @@ model User {
   phone        String?
   refreshToken String?
 
-  address Address?
+  address Address[]
 
   products Product[]       @relation("ProductSeller")
   orders   Order[]         @relation("CustomerOrders")
@@ -202,11 +202,14 @@ model MelhorEnvioToken {
 
 // Tipos embarcados
 type Address {
-  street       String
-  number       String
-  complement   String?
-  neighborhood String
-  city         String
-  state        String
-  zipCode      String
+  id         String  @default(uuid())
+  label      String?
+  street     String
+  number     String
+  complement String?
+  district   String
+  city       String
+  state      String
+  cep        String
+  isDefault  Boolean @default(false)
 }

@@ -31,7 +31,6 @@ const AuthPage = () => {
     setLoading(true);
     try {
       login(loginEmail, loginPassword);
-      toast.success("Login realizado com sucesso!"); // Notificação de sucesso
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.error?.message || "Erro ao fazer login";

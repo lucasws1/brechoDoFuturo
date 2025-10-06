@@ -9,6 +9,7 @@ import {
 } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // Tipos
 interface User {
@@ -164,7 +165,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         setUser(null);
         setAccessToken(null);
-        console.error("Erro ao buscar perfil do usuário", error);
       } finally {
         setLoading(false);
       }
@@ -178,8 +178,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (error) => {
         const original = error.config;
 
-        // Não tentar refresh para rotas de logout
-        if (original.url?.includes("/auth/logout")) {
+        // Não tentar refresh para rotas de autenticação que já são parte do fluxo de auth
+        if (
+          original.url?.includes("/auth/logout") ||
+          original.url?.includes("/auth/login") ||
+          original.url?.includes("/auth/refresh")
+        ) {
           return Promise.reject(error);
         }
 
@@ -222,7 +226,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       api.interceptors.response.eject(interceptorId);
     };
-  }, [logout]); // Adicionar logout nas dependências
+  }, [logout]);
 
   // Cleanup do timer quando o componente é desmontado
   useEffect(() => {
@@ -235,17 +239,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 3 - Ações
   const login = async (email: string, password: string) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    try {
+      const result = await api.post("/auth/login", { email, password });
 
-    const at = data.data.accessToken;
-    setAccessToken(at);
-    api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
+      const { data } = result;
 
-    // Agenda renovação automática após login
-    scheduleTokenRenewal(at);
+      if (!data.success) {
+        toast.error(data.error?.message || "Erro ao fazer login");
+        throw new Error(data.error?.message || "Erro ao fazer login");
+      }
 
-    await fetchUser();
-    navigate("/");
+      const at = data.data.accessToken;
+      setAccessToken(at);
+      api.defaults.headers.common["Authorization"] = `Bearer ${at}`;
+      toast.success("Login realizado com sucesso!"); // Notificação de sucesso
+
+      // Agenda renovação automática após login
+      scheduleTokenRenewal(at);
+
+      await fetchUser();
+      navigate("/");
+    } catch (error: any) {
+      console.error("❌ Erro no login:", error);
+      // Se for um erro de resposta do backend (401, 400, etc)
+      if (error.response?.data?.error?.message) {
+        toast.error(error.response.data.error.message);
+        throw new Error(error.response.data.error.message);
+      }
+      // Caso contrário, usa a mensagem do erro ou uma mensagem padrão
+      toast.error(error.message || "Erro ao fazer login");
+      throw new Error(error.message || "Erro ao fazer login");
+    }
   };
 
   const isAuthenticated = !!user;

@@ -69,7 +69,7 @@ export const getCart = async (
     if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não há usuário nem sessionId para buscar carrinho" },
+        error: { message: "Carrinho não encontrado." },
       } as ApiResponse);
       return;
     }
@@ -205,8 +205,7 @@ export const updateCartItem = async (
       res.status(401).json({
         success: false,
         error: {
-          message:
-            "Não há usuário nem sessionId para atualizar item do carrinho",
+          message: "Carrinho não atualizado.",
         },
       } as ApiResponse);
       return;
@@ -283,7 +282,7 @@ export const removeCartItem = async (
       res.status(401).json({
         success: false,
         error: {
-          message: "Não há usuário nem sessionId para remover item do carrinho",
+          message: "Item não removido do carrinho.",
         },
       } as ApiResponse);
       return;
@@ -345,7 +344,7 @@ export const clearCart = async (
     if (!userId && !sessionId) {
       res.status(401).json({
         success: false,
-        error: { message: "Não há usuário nem sessionId para limpar carrinho" },
+        error: { message: "Carrinho não foi limpo." },
       } as ApiResponse);
       return;
     }
@@ -407,8 +406,7 @@ export const getCartTotal = async (
       res.status(401).json({
         success: false,
         error: {
-          message:
-            "Não há usuário nem sessionId para calcular total do carrinho",
+          message: "Carrinho não encontrado.",
         },
       } as ApiResponse);
       return;
@@ -445,7 +443,7 @@ export const getCartCheckout = async (
       res.status(401).json({
         success: false,
         error: {
-          message: "Não há usuário nem sessionId para preparar checkout",
+          message: "Carrinho não encontrado.",
         },
       } as ApiResponse);
       return;

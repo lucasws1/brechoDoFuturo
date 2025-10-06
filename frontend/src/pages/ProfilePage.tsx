@@ -32,6 +32,7 @@ import {
   Eye,
   Edit,
 } from "lucide-react";
+import { AddressDialog } from "@/components/AddressDialog";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -159,6 +160,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState(mockAddresses);
   const [paymentMethods, setPaymentMethods] = useState(mockPaymentMethods);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -217,6 +219,12 @@ const ProfilePage = () => {
         error.response?.data?.error?.message || "Erro ao deletar conta.",
       );
     }
+  };
+
+  const handleAddressCreated = async () => {
+    const response = await api.get("/addresses");
+    setAddresses(response.data.data);
+    toast.success("Endereço criado com sucesso!");
   };
 
   return (
@@ -353,11 +361,29 @@ const ProfilePage = () => {
               <TabsContent value="addresses" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Meus Endereços</h3>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Adicionar Endereço
-                  </Button>
+
+                  <Dialog
+                    open={isAddressDialogOpen}
+                    onOpenChange={setIsAddressDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button className="flex items-center gap-2">
+                        <Plus />
+                        Adicionar Endereço
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <AddressDialog
+                        onClose={() => setIsAddressDialogOpen(false)}
+                        onCreated={() => {
+                          setIsAddressDialogOpen(false);
+                          handleAddressCreated();
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
+
                 <div className="grid gap-4">
                   {addresses.map((address) => (
                     <Card key={address.id} className="p-4">

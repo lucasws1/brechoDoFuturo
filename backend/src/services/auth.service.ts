@@ -15,12 +15,18 @@ export async function login(email: string, password: string) {
   });
 
   if (!user) {
-    throw new Error("Credenciais inválidas - auth.service");
+    return {
+      success: false,
+      message: "Credenciais inválidas - auth.service",
+    };
   }
 
   const isPasswordValid = await compare(password, user.password);
   if (!isPasswordValid) {
-    throw new Error("Senha inválida - auth.service");
+    return {
+      success: false,
+      message: "Senha inválida - auth.service",
+    };
   }
 
   const payload = {
@@ -69,7 +75,10 @@ export async function rotateRefreshToken(refreshTokenFromCookie: string) {
   });
   if (!user) {
     console.log("Refresh token inválido - auth.service");
-    return;
+    return {
+      success: false,
+      message: "Refresh token inválido - auth.service",
+    };
   }
 
   const newAccessToken = generateAccessToken(payload);
@@ -100,7 +109,10 @@ export async function rotateRefreshToken(refreshTokenFromCookie: string) {
 export async function logout(refreshTokenFromCookie?: string) {
   if (!refreshTokenFromCookie) {
     console.log("Refresh token não fornecido - auth.service");
-    return;
+    return {
+      success: false,
+      message: "Refresh token não fornecido - auth.service",
+    };
   }
 
   const user = await prisma.user.findFirst({
@@ -109,7 +121,10 @@ export async function logout(refreshTokenFromCookie?: string) {
 
   if (!user) {
     console.log("Refresh token inválido - auth.service");
-    return;
+    return {
+      success: false,
+      message: "Refresh token inválido - auth.service",
+    };
   }
 
   await prisma.user.update({

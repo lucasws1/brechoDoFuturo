@@ -10,14 +10,16 @@ interface CreateUserData {
   type?: UserType;
   phone?: string;
   address?: {
+    label: string;
     street: string;
     number: string;
     complement?: string;
-    neighborhood: string;
+    district: string;
     city: string;
     state: string;
-    zipCode: string;
-  };
+    cep: string;
+    isDefault?: boolean;
+  }[];
 }
 
 interface UpdateUserData {
@@ -26,14 +28,16 @@ interface UpdateUserData {
   phone?: string;
   type?: UserType;
   address?: {
+    label: string;
     street: string;
     number: string;
     complement?: string;
-    neighborhood: string;
+    district: string;
     city: string;
     state: string;
-    zipCode: string;
-  };
+    cep: string;
+    isDefault?: boolean;
+  }[];
 }
 
 interface UserFilters {
