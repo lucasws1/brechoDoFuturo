@@ -47,7 +47,7 @@ export const createAddress = async (
   }
 };
 
-export const listAddresses = async (
+export const getAddresses = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {

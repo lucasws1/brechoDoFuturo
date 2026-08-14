@@ -129,8 +129,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       if (err.response?.status === 404) {
         setCartItems([]);
       } else {
-        console.log("fetchCart error => ", err);
-
         // setError(
         //   err.response?.data?.error?.message ||
         //     "Erro de rede ao buscar carrinho",

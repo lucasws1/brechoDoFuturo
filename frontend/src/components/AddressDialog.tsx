@@ -83,72 +83,120 @@ export function AddressDialog({
         <DialogTitle>Adicionar Endereço</DialogTitle>
       </DialogHeader>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Label htmlFor="label">Label</Label>
-          <Input id="label" {...register("label")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="label" className="col-span-1">
+            Rótulo:
+          </Label>
+          <Input
+            id="label"
+            {...register("label")}
+            className="col-span-3 border border-black"
+          />
           {errors.label && (
             <p className="text-destructive mt-1 text-sm">
               {errors.label.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="street">Endereço</Label>
-          <Input id="street" {...register("street")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="street" className="col-span-1">
+            Endereço:
+          </Label>
+          <Input
+            id="street"
+            {...register("street")}
+            className="col-span-3 border border-black"
+          />
           {errors.street && (
             <p className="text-destructive mt-1 text-sm">
               {errors.street.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="number">Número</Label>
-          <Input id="number" {...register("number")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="number" className="col-span-1">
+            Número:
+          </Label>
+          <Input
+            id="number"
+            {...register("number")}
+            className="col-span-3 border border-black"
+          />
           {errors.number && (
             <p className="text-destructive mt-1 text-sm">
               {errors.number.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="complement">Complemento</Label>
-          <Input id="complement" {...register("complement")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="complement" className="col-span-1">
+            Complemento:
+          </Label>
+          <Input
+            id="complement"
+            {...register("complement")}
+            className="col-span-3 border border-black"
+          />
           {errors.complement && (
             <p className="text-destructive mt-1 text-sm">
               {errors.complement.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="district">Bairro</Label>
-          <Input id="district" {...register("district")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="district" className="col-span-1">
+            Bairro:
+          </Label>
+          <Input
+            id="district"
+            {...register("district")}
+            className="col-span-3 border border-black"
+          />
           {errors.district && (
             <p className="text-destructive mt-1 text-sm">
               {errors.district.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="city">Cidade</Label>
-          <Input id="city" {...register("city")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="city" className="col-span-1">
+            Cidade:
+          </Label>
+          <Input
+            id="city"
+            {...register("city")}
+            className="col-span-3 border border-black"
+          />
           {errors.city && (
             <p className="text-destructive mt-1 text-sm">
               {errors.city.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="state">Estado</Label>
-          <Input id="state" {...register("state")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="state" className="col-span-1">
+            Estado:
+          </Label>
+          <Input
+            id="state"
+            {...register("state")}
+            className="col-span-3 border border-black"
+          />
           {errors.state && (
             <p className="text-destructive mt-1 text-sm">
               {errors.state.message}
             </p>
           )}
         </div>
-        <div>
-          <Label htmlFor="cep">CEP</Label>
-          <Input id="cep" {...register("cep")} />
+        <div className="grid grid-cols-4">
+          <Label htmlFor="cep" className="col-span-1">
+            CEP:
+          </Label>
+          <Input
+            id="cep"
+            {...register("cep")}
+            className="col-span-3 border border-black"
+          />
           {errors.cep && (
             <p className="text-destructive mt-1 text-sm">
               {errors.cep.message}

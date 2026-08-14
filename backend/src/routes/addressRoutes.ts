@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createAddress,
-  // listAddresses,
+  getAddresses,
   // getAddressById,
   // updateAddress,
   // deleteAddress,
@@ -12,9 +12,7 @@ import { authenticate } from "../middleware/auth";
 const router: Router = Router();
 
 router.post("/", authenticate, createAddress);
-router.get("/", (_req, res) => {
-  res.status(501).json({ message: "Route not implemented" });
-});
+router.get("/", authenticate, getAddresses);
 // router.get("/:id", authenticate, getAddressById);
 // router.put("/:id", authenticate, updateAddress);
 // router.delete("/:id", authenticate, deleteAddress);

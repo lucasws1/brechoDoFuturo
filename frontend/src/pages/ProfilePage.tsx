@@ -33,6 +33,7 @@ import {
   Edit,
 } from "lucide-react";
 import { AddressDialog } from "@/components/AddressDialog";
+import { useUserAddress, type Address } from "@/hooks/useUserAddress";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -158,9 +159,31 @@ const getStatusText = (status: string) => {
 const ProfilePage = () => {
   const { user, loading, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [addresses, setAddresses] = useState(mockAddresses);
   const [paymentMethods, setPaymentMethods] = useState(mockPaymentMethods);
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const {
+    fetchAddresses,
+    loading: addressesLoading,
+    error: addressesError,
+  } = useUserAddress();
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const initialTab = params.get("tab") || "profile";
+  const [currentTab, setCurrentTab] = useState(initialTab);
+
+  console.log("addresses => ", addresses);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const list = await fetchAddresses();
+      if (alive) setAddresses(list);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [fetchAddresses]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -179,7 +202,7 @@ const ProfilePage = () => {
     }
   }, [user, form]);
 
-  if (loading) {
+  if (loading || addressesLoading) {
     return <div className="container mx-auto py-8">Carregando perfil...</div>;
   }
 
@@ -190,11 +213,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const initialTab = params.get("tab") || "profile";
-  const [currentTab, setCurrentTab] = useState(initialTab);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
@@ -223,7 +241,7 @@ const ProfilePage = () => {
 
   const handleAddressCreated = async () => {
     const response = await api.get("/addresses");
-    setAddresses(response.data.data);
+    setAddresses(response.data.data as Address[]);
     toast.success("Endereço criado com sucesso!");
   };
 
@@ -390,7 +408,7 @@ const ProfilePage = () => {
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{address.name}</span>
+                            <span className="font-medium">{address.label}</span>
                             {address.isDefault && (
                               <Badge variant="secondary">Padrão</Badge>
                             )}
@@ -400,11 +418,10 @@ const ProfilePage = () => {
                             {address.complement && `, ${address.complement}`}
                           </p>
                           <p className="text-sm text-gray-600">
-                            {address.neighborhood}, {address.city} -{" "}
-                            {address.state}
+                            {address.district}, {address.city} - {address.state}
                           </p>
                           <p className="text-sm text-gray-600">
-                            CEP: {address.zipCode}
+                            CEP: {address.cep}
                           </p>
                         </div>
                         <div className="flex gap-2">
